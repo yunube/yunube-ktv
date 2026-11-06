@@ -42,76 +42,91 @@
             border-radius: 14px; 
             font-size: 14px; 
             pointer-events: none; 
-            border-left: 4px solid #00ffcc;
+            border-left: 4px solid #1e90ff;
             backdrop-filter: blur(10px);
             z-index: 10;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        /* 錢櫃風格雙行 KTV 懸浮歌詞層 */
+        /* 擴大後的錢櫃雙行 KTV 懸浮歌詞層 */
         #lyrics-container {
             position: absolute;
-            bottom: 36px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
-            max-width: 1100px;
-            background: linear-gradient(180deg, rgba(12, 14, 20, 0.45) 0%, rgba(12, 14, 20, 0.88) 100%);
+            width: 94%;
+            max-width: 1250px;
+            min-height: 190px;
+            background: linear-gradient(180deg, rgba(10, 12, 18, 0.55) 0%, rgba(10, 12, 18, 0.92) 100%);
             border-radius: 24px;
-            padding: 24px 36px;
+            padding: 28px 42px;
             backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             pointer-events: none;
             z-index: 10;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            justify-content: center;
+            gap: 16px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.7);
         }
 
         .ktv-line {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.35;
             letter-spacing: 2px;
             transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            paint-order: stroke fill;
         }
 
-        /* 經典上行：靠左對齊，預留右側空間 */
+        /* 上左下右經典對齊 */
         #lyric-top { text-align: left; padding-right: 15%; }
-        /* 經典下行：靠右對齊，預留左側空間 */
         #lyric-bottom { text-align: right; padding-left: 15%; }
 
         /* 預覽等待角色色彩（暗淡微光，供歌手預覽） */
-        .ktv-line.role-male    { color: rgba(56, 189, 248, 0.35); }
-        .ktv-line.role-female  { color: rgba(244, 114, 182, 0.35); }
-        .ktv-line.role-duet    { color: rgba(250, 204, 21, 0.35); }
-        .ktv-line.role-default { color: rgba(148, 163, 184, 0.35); }
+        .ktv-line.role-male    { color: rgba(56, 189, 248, 0.4); }
+        .ktv-line.role-female  { color: rgba(244, 114, 182, 0.4); }
+        .ktv-line.role-duet    { color: rgba(34, 197, 94, 0.4); }
+        .ktv-line.role-default { color: rgba(255, 255, 255, 0.35); }
 
-        /* 當前演唱句：放大 + 霓虹輝光 */
+        /* 當前演唱句：通用放大、完全關閉發光 */
         .ktv-line.active {
-            font-size: 38px;
+            font-size: 46px;
             font-weight: 900;
+            text-shadow: none !important;
             transform: scale(1.02);
         }
-        .ktv-line.role-male.active {
-            color: #38bdf8;
-            text-shadow: 0 0 16px rgba(56, 189, 248, 0.8), 0 0 35px rgba(56, 189, 248, 0.4);
-        }
-        .ktv-line.role-female.active {
-            color: #f472b6;
-            text-shadow: 0 0 16px rgba(244, 114, 182, 0.8), 0 0 35px rgba(244, 114, 182, 0.4);
-        }
-        .ktv-line.role-duet.active {
-            color: #facc15;
-            text-shadow: 0 0 16px rgba(250, 204, 21, 0.8), 0 0 35px rgba(250, 204, 21, 0.4);
-        }
+
+        /* 1. 預設 / 獨唱演唱：藍色外框、白色填滿、不發光 */
         .ktv-line.role-default.active {
-            color: #00ffcc;
-            text-shadow: 0 0 16px rgba(0, 255, 204, 0.8), 0 0 35px rgba(0, 255, 204, 0.4);
+            color: #ffffff;
+            -webkit-text-stroke: 3px #1e90ff;
+            text-stroke: 3px #1e90ff;
+        }
+
+        /* 2. 男生演唱：白色外框、藍色填滿、不發光 */
+        .ktv-line.role-male.active {
+            color: #2563eb;
+            -webkit-text-stroke: 3px #ffffff;
+            text-stroke: 3px #ffffff;
+        }
+
+        /* 3. 女生演唱：白色外框、粉色填滿、不發光 */
+        .ktv-line.role-female.active {
+            color: #ec4899;
+            -webkit-text-stroke: 3px #ffffff;
+            text-stroke: 3px #ffffff;
+        }
+
+        /* 4. 合唱演唱：白色外框、綠色填滿、不發光 */
+        .ktv-line.role-duet.active {
+            color: #10b981;
+            -webkit-text-stroke: 3px #ffffff;
+            text-stroke: 3px #ffffff;
         }
 
         /* 側邊主機欄（右側） */
@@ -205,11 +220,13 @@
             <div id="hud-overlay">
                 <div>模式：<span id="hud-mode" style="color: #00ffcc;">原唱模式</span></div>
                 <div style="margin-top: 4px; font-size: 12px; color: #a0a6be;">
-                    音量：<span id="hud-vol" style="color:#fff;">80%</span> ｜ 迴音：<span id="hud-echo" style="color:#fff;">0.3</span>
+                    音量：<span id="hud-vol" style="color:#fff;">80%</span> ｜ 
+                    迴音：<span id="hud-echo" style="color:#fff;">0.3</span> ｜
+                    校正：<span id="hud-offset" style="color:#00ffcc;">0.0s</span>
                 </div>
             </div>
 
-            <!-- 雙行交替 KTV 歌詞容器 -->
+            <!-- 放大版雙行交替 KTV 歌詞容器 -->
             <div id="lyrics-container">
                 <div id="lyric-top" class="ktv-line">🎵 準備歡唱...</div>
                 <div id="lyric-bottom" class="ktv-line"></div>
@@ -238,7 +255,7 @@
             <div id="mobile-status-text" style="color: #00ffcc; font-size: 13px; margin-top: 8px;">正在連接車機螢幕...</div>
         </div>
 
-        <!-- 模式一：智慧搜尋點歌卡片 -->
+        <!-- 模式一：智慧搜尋點歌 -->
         <div class="card">
             <div class="card-title">🔍 歌名 / 歌手 智慧搜尋點歌</div>
             <div style="display: flex; gap: 8px;">
@@ -248,7 +265,7 @@
             <div id="search-results-box" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
 
-        <!-- 模式二：手動貼上網址 / Video ID 點歌卡片 -->
+        <!-- 模式二：手動輸入網址 / Video ID 點歌 -->
         <div class="card">
             <div class="card-title">🔗 手動輸入網址 / Video ID 點歌</div>
             <input type="text" id="manual-title" placeholder="歌曲名稱 (例: 晴天，用於抓取同步歌詞)">
@@ -271,6 +288,28 @@
             <button class="btn" style="width: 100%; margin-top: 10px; background: #393e5a;" onclick="sendCmd({ action: 'SKIP_SONG' })">
                 ⏭️ 切歌（跳至下一首）
             </button>
+        </div>
+
+        <!-- 歌詞時間軸微調校正卡片 -->
+        <div class="card">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>⏱️ 歌詞時間軸微調 (校正 MV 前奏)</span>
+                <span id="remote-offset-display" style="color: #00ffcc; font-size: 14px; font-weight: bold;">0.0s</span>
+            </div>
+            <div style="font-size: 12px; color: #717894; margin-bottom: 12px;">
+                歌詞跑太慢請按「提早」，歌詞跑太快請按「延後」
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <button class="btn" style="background: #252a3d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(-0.5)">
+                    ◀ 延後 0.5s
+                </button>
+                <button class="btn" style="background: #393e5a; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0, true)">
+                    ↺ 重置 0s
+                </button>
+                <button class="btn" style="background: #252a3d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0.5)">
+                    提早 0.5s ▶
+                </button>
+            </div>
         </div>
 
         <!-- 待播清單 -->
@@ -312,7 +351,6 @@
 
     <script>
         // ================= 1. 金鑰配置與環境參數 =================
-        // 請將此處替換為你在 Google Cloud 申請的 YouTube Data API v3 金鑰
         const YT_API_KEY = "你的_API_KEY_填在這裡";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -323,14 +361,15 @@
         let ytPlayer;
         let audioCtx, micDelayNode, micFeedbackGain;
 
-        // 當前歌曲與隊列狀態
+        // 當前歌曲與狀態
         let currentSong = null;
         let songQueue = [];
-        let currentOriginalId = 'd_43a4H70qU'; // 預設示範曲 ID
+        let currentOriginalId = 'd_43a4H70qU';
         let currentInstId = 'nE8v6e7qJ6A';
         let isInstrumental = false;
         let parsedLyrics = [];
         let activeLyricIndex = -1;
+        let lyricOffset = 0.0;
 
         // ================= 2. 路由分流 =================
         if (isRemote) {
@@ -356,17 +395,16 @@
                 });
             });
 
-            // 支援多人掃碼連線池
             peer.on('connection', (c) => {
                 c.on('open', () => {
                     remoteClients.push(c);
                     updateConnectedCountUI();
                     
-                    // 新裝置連入時，立即發送當前播放狀態與排隊歌單
                     c.send({
                         action: 'SYNC_QUEUE',
                         currentSong: currentSong,
-                        queue: songQueue
+                        queue: songQueue,
+                        offset: lyricOffset
                     });
                 });
 
@@ -385,26 +423,27 @@
                 });
             });
 
-            // 預載示範曲的歌詞
             fetchSyncedLyrics("十年", "陳奕迅");
-
-            // 啟動高頻計時器 (每 80ms 同步秒數並切換雙行歌詞)
             setInterval(syncLyricsScroll, 80);
         }
 
-        // 廣播最新排隊資料給全車手機
-        function broadcastQueueToRemote() {
+        function broadcastToAllRemotes(payload) {
             remoteClients = remoteClients.filter(client => client && client.open);
             remoteClients.forEach(client => {
                 try {
-                    client.send({
-                        action: 'SYNC_QUEUE',
-                        currentSong: currentSong,
-                        queue: songQueue
-                    });
+                    client.send(payload);
                 } catch (e) {}
             });
             updateConnectedCountUI();
+        }
+
+        function broadcastQueueToRemote() {
+            broadcastToAllRemotes({
+                action: 'SYNC_QUEUE',
+                currentSong: currentSong,
+                queue: songQueue,
+                offset: lyricOffset
+            });
         }
 
         function updateConnectedCountUI() {
@@ -419,8 +458,22 @@
             }
         }
 
-        // 自動播放下一首
+        function updateOffsetUI() {
+            const el = document.getElementById('hud-offset');
+            if (el) {
+                const sign = lyricOffset > 0 ? '+' : '';
+                el.innerText = `${sign}${lyricOffset.toFixed(1)}s`;
+            }
+            broadcastToAllRemotes({
+                action: 'SYNC_OFFSET',
+                offset: lyricOffset
+            });
+        }
+
         function playNextSong() {
+            lyricOffset = 0.0;
+            updateOffsetUI();
+
             if (songQueue.length > 0) {
                 currentSong = songQueue.shift();
                 currentOriginalId = currentSong.origId;
@@ -447,7 +500,6 @@
             broadcastQueueToRemote();
         }
 
-        // 執行來自手機的各項遙控指令
         function handleRemoteCommand(cmd) {
             if (!ytPlayer) return;
 
@@ -479,6 +531,15 @@
                         micFeedbackGain.gain.setValueAtTime(cmd.value, audioCtx.currentTime);
                     }
                     document.getElementById('hud-echo').innerText = cmd.value;
+                    break;
+
+                case 'ADJUST_OFFSET':
+                    if (cmd.reset) {
+                        lyricOffset = 0.0;
+                    } else {
+                        lyricOffset = Math.round((lyricOffset + cmd.delta) * 10) / 10;
+                    }
+                    updateOffsetUI();
                     break;
 
                 case 'ADD_TO_QUEUE':
@@ -583,11 +644,10 @@
             });
         }
 
-        // 雙行交替渲染核心
         function syncLyricsScroll() {
             if (!ytPlayer || !ytPlayer.getCurrentTime || parsedLyrics.length === 0) return;
 
-            const curTime = ytPlayer.getCurrentTime();
+            const curTime = ytPlayer.getCurrentTime() + lyricOffset;
             let matchedIdx = -1;
 
             for (let i = 0; i < parsedLyrics.length; i++) {
@@ -646,6 +706,10 @@
                 connToScreen.on('data', (data) => {
                     if (data.action === 'SYNC_QUEUE') {
                         renderQueueUI(data.currentSong, data.queue);
+                        if (data.offset !== undefined) updateRemoteOffsetDisplay(data.offset);
+                    }
+                    if (data.action === 'SYNC_OFFSET') {
+                        updateRemoteOffsetDisplay(data.offset);
                     }
                 });
             });
@@ -675,14 +739,29 @@
             sendCmd({ action: 'SET_ECHO', value: parseFloat(val) });
         }
 
-        // 網址正則解析工具函式：支援完整 YouTube 網址、youtu.be 或純 11 碼 ID
+        function adjustLyricOffset(delta, isReset = false) {
+            sendCmd({
+                action: 'ADJUST_OFFSET',
+                delta: delta,
+                reset: isReset
+            });
+        }
+
+        function updateRemoteOffsetDisplay(val) {
+            const el = document.getElementById('remote-offset-display');
+            if (el) {
+                const sign = val > 0 ? '+' : '';
+                el.innerText = `${sign}${val.toFixed(1)}s`;
+                el.style.color = val === 0 ? '#00ffcc' : '#ff0055';
+            }
+        }
+
         function extractVideoId(str) {
             if (!str) return '';
             const match = str.match(/(?:youtu\.be\/|watch\?v=|\/embed\/|\/v\/|^)([a-zA-Z0-9_-]{11})/);
             return match ? match[1] : str.trim();
         }
 
-        // 智慧搜尋 YouTube
         async function searchYouTubeKTV() {
             const keyword = document.getElementById('search-keyword').value.trim();
             const resultsBox = document.getElementById('search-results-box');
@@ -747,7 +826,6 @@
             }
         }
 
-        // 手動輸入網址 / Video ID 點歌處理函式
         function submitManualSong(isInsertNext) {
             const rawTitle = document.getElementById('manual-title').value.trim();
             const rawArtist = document.getElementById('manual-artist').value.trim();
@@ -775,7 +853,6 @@
 
             queueSong(songData, isInsertNext);
 
-            // 清空輸入框
             document.getElementById('manual-title').value = '';
             document.getElementById('manual-artist').value = '';
             document.getElementById('manual-orig-id').value = '';
