@@ -302,7 +302,7 @@
 
         /* ================= 2. 手機遙控器端 UI ================= */
         #remote-view { 
-            padding: 16px 14px 90px 14px; /* 預留底部空間給懸浮按鈕 */
+            padding: 16px 14px 90px 14px;
             max-width: 480px; 
             margin: 0 auto; 
             display: flex; 
@@ -407,7 +407,7 @@
             background: #1a2238; 
             accent-color: var(--cyber-cyan); 
         }
-        input[type="text"] { 
+        input[type="text"], input[type="password"] { 
             width: 100%; 
             padding: 12px 14px; 
             background: #090d17; 
@@ -418,7 +418,7 @@
             margin-bottom: 8px;
             font-family: inherit;
         }
-        input[type="text"]:focus { 
+        input[type="text"]:focus, input[type="password"]:focus { 
             border-color: var(--cyber-cyan); 
             outline: none; 
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
@@ -507,7 +507,7 @@
             font-weight: bold;
         }
 
-        /* ================= 3. 懸浮按鈕 (FAB) 與 旅行手帳彈窗 ================= */
+        /* 懸浮按鈕 (FAB) 與 旅行手帳彈窗 */
         #diary-fab-btn {
             position: fixed;
             bottom: 24px;
@@ -531,7 +531,7 @@
             transform: scale(0.92);
         }
 
-        #diary-modal {
+        #diary-modal, #change-room-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -542,7 +542,7 @@
             z-index: 95;
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* 手機端以底部抽屜風格滑入 */
+            align-items: flex-end;
             animation: fadeIn 0.25s ease;
         }
         .diary-drawer {
@@ -599,8 +599,24 @@
                 <h2 style="font-size: 16px; margin-bottom: 2px; letter-spacing: 1.5px; color: var(--cyber-cyan);">yunube大歌廳</h2>
                 <div style="font-size: 10px; color: #717894; margin-bottom: 6px; letter-spacing: 1px;">TERMINAL HOST UNIT</div>
                 <div id="qrcode-box"></div>
-                <div class="hud-stat">ROOM：<span id="room-id-display">建立中...</span></div>
-                <div class="hud-stat">NODE：<span id="remote-status" style="color: var(--cyber-yellow);">等待連線 ⏳</span></div>
+                
+                <!-- 車機房號與自訂車牌按鈕 -->
+                <div class="hud-stat" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    ROOM：<span id="room-id-display" style="cursor: pointer; text-decoration: underline; color: #fff; font-weight: bold;" onclick="promptChangeScreenRoomId()">建立中...</span>
+                    <button onclick="promptChangeScreenRoomId()" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;">
+                        ✏️ 改車牌
+                    </button>
+                </div>
+
+                <!-- 4 位數密碼鎖 -->
+                <div class="hud-stat" style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;">
+                    PASS：<span id="room-pin-display" style="color: var(--cyber-yellow); font-weight: bold; letter-spacing: 2px;">****</span>
+                    <button onclick="promptChangeScreenPin()" style="background: rgba(252, 238, 10, 0.15); border: 1px solid var(--cyber-yellow); color: var(--cyber-yellow); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;">
+                        🔑 改密碼
+                    </button>
+                </div>
+
+                <div class="hud-stat" style="margin-top: 4px;">NODE：<span id="remote-status" style="color: var(--cyber-yellow);">等待連線 ⏳</span></div>
             </div>
 
             <div id="screen-queue-panel">
@@ -671,8 +687,21 @@
                     <button class="btn" style="padding: 4px 8px; font-size: 11px; background: #1a2238;" onclick="unlinkGoogleAccount()">切換帳號</button>
                 </div>
 
+                <!-- 手動確認 / 修改包廂房號與密碼 -->
+                <div style="font-size: 12px; color: var(--cyber-cyan); margin-bottom: 6px; font-weight: bold; display: flex; justify-content: space-between;">
+                    <span>📍 連線包廂車牌 / 房號 (Room)</span>
+                    <span style="font-size: 10px; color: #8e95ad;">可輸入車牌或數字</span>
+                </div>
+                <input type="text" id="setup-room-code" placeholder="例如: ABC-8888 或 1234" value="">
+
+                <div style="font-size: 12px; color: var(--cyber-yellow); margin-bottom: 6px; font-weight: bold; display: flex; justify-content: space-between;">
+                    <span>🔑 4 位數包廂密碼 (Passcode)</span>
+                    <span style="font-size: 10px; color: #8e95ad;">掃碼自動帶入，手動輸入需填寫</span>
+                </div>
+                <input type="password" maxlength="4" id="setup-room-pin" placeholder="例如: 8888" value="" style="margin-bottom: 12px; letter-spacing: 3px;">
+
                 <div style="font-size: 12px; color: var(--cyber-cyan); margin-bottom: 6px; font-weight: bold;">
-                    1. 挑選大頭貼 (支援 Google 原圖 / 12 款預設 Emoji)
+                    1. 挑選大頭貼 (支援 Google 原圖 / 12 款更新 Emoji)
                 </div>
                 <div class="avatar-grid" id="avatar-selector"></div>
 
@@ -703,7 +732,7 @@
                 </div>
 
                 <button class="btn btn-accent" id="btn-confirm-login" style="width: 100%; margin-top: 6px;" onclick="confirmProfileAndEnterRoom()">
-                    ⚡ 儲存個人資料並進入包廂
+                    ⚡ 儲存身分並連線進入包廂
                 </button>
             </div>
         </div>
@@ -714,13 +743,20 @@
             <div class="card" style="border-left: 4px solid var(--cyber-cyan);">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div id="profile-badge-avatar" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">🤖</div>
+                        <div id="profile-badge-avatar" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">👽</div>
                         <div>
                             <div id="profile-badge-name" style="font-size: 14px; font-weight: bold; color: #fff;">歡唱歌手 (副駕)</div>
-                            <div id="profile-badge-type" style="color: var(--cyber-cyan); font-size: 11px; margin-top: 2px;">訪客模式・歌庫本機已載入</div>
+                            <div id="mobile-status-text" style="color: var(--cyber-cyan); font-size: 11px; margin-top: 2px;">連線準備中...</div>
                         </div>
                     </div>
-                    <button class="btn" style="padding: 6px 12px; font-size: 11px; background: #1a2238;" onclick="reopenProfileSetup()">修改資料</button>
+                    <div style="display: flex; gap: 6px;">
+                        <button class="btn" style="padding: 6px 10px; font-size: 11px; background: rgba(0,240,255,0.15); border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan);" onclick="openChangeRoomModal()">
+                            🔄 換包廂
+                        </button>
+                        <button class="btn" style="padding: 6px 10px; font-size: 11px; background: #1a2238;" onclick="reopenProfileSetup()">
+                            個人資料
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -865,6 +901,29 @@
             <span>旅行手帳</span>
         </button>
 
+        <!-- 換包廂彈窗 (Modal) -->
+        <div id="change-room-modal" class="hidden">
+            <div class="diary-drawer" style="max-height: 55vh;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cyber-border); padding-bottom: 10px; margin-bottom: 14px;">
+                    <div style="font-size: 16px; font-weight: 800; color: var(--cyber-cyan); letter-spacing: 1px;">🔄 重新連線 / 切換包廂</div>
+                    <button style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeChangeRoomModal()">✕ 關閉</button>
+                </div>
+                <div style="font-size: 12px; color: #8e95ad; margin-bottom: 6px;">
+                    1. 輸入車機顯示的車牌或房號：
+                </div>
+                <input type="text" id="manual-room-input" placeholder="例如: ABC-8888 或 1234">
+                
+                <div style="font-size: 12px; color: var(--cyber-yellow); margin-bottom: 6px; font-weight: bold;">
+                    2. 輸入 4 位數包廂密碼：
+                </div>
+                <input type="password" maxlength="4" id="manual-pin-input" placeholder="例如: 8888" style="margin-bottom: 14px; letter-spacing: 3px;">
+
+                <button class="btn btn-accent" style="width: 100%; padding: 12px;" onclick="submitManualRoomChange()">
+                    ⚡ 驗證密碼並進入包廂
+                </button>
+            </div>
+        </div>
+
         <!-- 旅行手帳彈窗 (Drawer / Modal) -->
         <div id="diary-modal" class="hidden">
             <div class="diary-drawer">
@@ -946,14 +1005,31 @@
         // ================= 1. 環境參數與全域狀態 =================
         const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
 
+        // Google 公開 STUN 伺服器配置（解決 4G 行動網路與車載 Wi-Fi 穿透失敗）
+        const PEER_CONFIG = {
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                ]
+            }
+        };
+
+        const SAVED_SCREEN_ROOM_KEY = 'yunube_custom_screen_room_id';
+        const SAVED_SCREEN_PIN_KEY = 'yunube_screen_room_pin';
+        let screenPin = localStorage.getItem(SAVED_SCREEN_PIN_KEY) || '8888';
+
         const urlParams = new URLSearchParams(window.location.search);
         const isRemote = urlParams.get('role') === 'remote';
-        const targetRoom = urlParams.get('room');
+        let targetRoom = urlParams.get('room') || '';
+        let targetPin = urlParams.get('pin') || '';
 
         let peer, remoteClients = [], connToScreen = null;
         let ytPlayer = null;
         let isPlayerReady = false;
         let audioCtx, micDelayNode, micFeedbackGain;
+        let connectTimeoutTimer = null;
 
         let currentSong = null;
         let songQueue = [];
@@ -967,7 +1043,8 @@
 
         let roomMembers = {};
 
-        const AVATAR_LIST = ['👽', '🕶️', '🎤', '🎧', '🦄', '🐱', '🦊', '👾', '🧸', '🛸', '🪼', '👑'];
+        // 🌟 更新後的 12 款 EMOJI 清單
+        const AVATAR_LIST = ['👽', '🛸', '🎤', '🎧', '👾', '🐱', '🦊', '🦄', '🧸', '😎', '🪼', '🗿'];
         let selectedAvatar = '👽';
         let selectedSeat = '副駕';
         
@@ -983,7 +1060,6 @@
         let userFavorites = [];
         let userHistory = [];
 
-        // 旅行日記狀態
         let driveAccessToken = null;
         let currentDiaryLocation = { address: "未定位", lat: null, lng: null };
         let travelDiaries = [];
@@ -996,8 +1072,23 @@
             document.getElementById('remote-view').classList.remove('hidden');
             initProfileSetupUI();
             initGoogleSDK();
+            checkInAppBrowser();
         } else {
             initScreenMode();
+        }
+
+        function checkInAppBrowser() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            if (ua.indexOf("Line") > -1 || ua.indexOf("MicroMessenger") > -1 || ua.indexOf("FBAV") > -1) {
+                alert("【連線提醒】偵測到您使用社群軟體內建瀏覽器，可能阻擋即時 WebRTC 連線。\n\n建議點選右上角「...」，選擇【在預設瀏覽器 (Safari / Chrome) 開啟】！");
+            }
+        }
+
+        function normalizeRoomId(val) {
+            if (!val) return '';
+            val = val.trim();
+            if (/^\d{4}$/.test(val)) return 'ktv-' + val;
+            return val;
         }
 
         // ================= 3. 通用頭貼解析工具 =================
@@ -1009,7 +1100,67 @@
             return `<span style="font-size: ${size}px; vertical-align: middle; display: inline-block;">${avatarData}</span>`;
         }
 
-        // ================= 4. 登入分流與大頭貼自由挑選 =================
+        // ================= 4. 車機端自訂房號與密碼管理 =================
+        function updateScreenPinUI() {
+            const el = document.getElementById('room-pin-display');
+            if (el) el.innerText = screenPin;
+        }
+
+        function promptChangeScreenRoomId() {
+            const current = localStorage.getItem(SAVED_SCREEN_ROOM_KEY) || document.getElementById('room-id-display').innerText;
+            const defaultVal = current.startsWith('ktv-') ? '' : current;
+            
+            const input = prompt("請輸入此車專屬包廂房號（例如車牌 ABC-8888 或自訂名稱）：", defaultVal);
+            if (input === null) return;
+
+            const sanitized = input.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+            if (!sanitized) {
+                alert("房號不能為空，且只能包含英文字母、數字或連字號！");
+                return;
+            }
+
+            localStorage.setItem(SAVED_SCREEN_ROOM_KEY, sanitized);
+
+            if (peer) {
+                try { peer.destroy(); } catch(e) {}
+            }
+            initScreenMode(sanitized);
+        }
+
+        function promptChangeScreenPin() {
+            const input = prompt("請設定 4 位數包廂通關密碼 (例如 8888)：", screenPin);
+            if (input === null) return;
+
+            const sanitizedPin = input.trim().replace(/[^0-9]/g, '').slice(0, 4);
+            if (sanitizedPin.length !== 4) {
+                alert("密碼格式錯誤！請輸入恰好 4 位數字。");
+                return;
+            }
+
+            screenPin = sanitizedPin;
+            localStorage.setItem(SAVED_SCREEN_PIN_KEY, screenPin);
+            updateScreenPinUI();
+            refreshScreenQRCode();
+            alert(`包廂通關密碼已變更為：${screenPin}`);
+        }
+
+        function refreshScreenQRCode() {
+            const roomId = document.getElementById('room-id-display').innerText;
+            if (!roomId || roomId === '建立中...') return;
+
+            const remoteUrl = `${window.location.origin}${window.location.pathname}?role=remote&room=${roomId}&pin=${screenPin}`;
+            const qrBox = document.getElementById("qrcode-box");
+            qrBox.innerHTML = '';
+            new QRCode(qrBox, {
+                text: remoteUrl,
+                width: 105,
+                height: 105,
+                colorDark: "#000000",
+                colorLight: "#ffffff"
+            });
+        }
+
+        // ================= 5. 登入分流與身分設定 =================
         function initGoogleSDK() {
             if (window.google && GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.includes("YOUR_GOOGLE_CLIENT_ID")) {
                 google.accounts.id.initialize({
@@ -1071,7 +1222,7 @@
             userProfile.id = 'guest_local';
             userProfile.type = 'guest';
             userProfile.googleAvatar = null;
-            selectedAvatar = '🤖';
+            selectedAvatar = '👽';
             document.getElementById('setup-nickname').value = '歡唱歌手';
 
             renderAvatarGrid();
@@ -1087,7 +1238,7 @@
                 try {
                     const parsed = JSON.parse(cached);
                     userProfile = parsed;
-                    selectedAvatar = parsed.avatar || '🤖';
+                    selectedAvatar = parsed.avatar || '👽';
                     selectedSeat = parsed.seat || '副駕';
                     document.getElementById('setup-nickname').value = parsed.nickname || '歡唱歌手';
                     
@@ -1101,6 +1252,9 @@
                     }
                 } catch (e) {}
             }
+
+            document.getElementById('setup-room-code').value = targetRoom;
+            document.getElementById('setup-room-pin').value = targetPin;
             renderAvatarGrid();
         }
 
@@ -1169,6 +1323,21 @@
 
         function confirmProfileAndEnterRoom() {
             const nick = document.getElementById('setup-nickname').value.trim() || '歡唱歌手';
+            const inputRoom = document.getElementById('setup-room-code').value.trim();
+            const inputPin = document.getElementById('setup-room-pin').value.trim();
+
+            if (!inputRoom && !targetRoom) {
+                alert("請填入車機顯示的包廂房號或車牌！");
+                return;
+            }
+
+            if (inputRoom) {
+                targetRoom = normalizeRoomId(inputRoom);
+            }
+            targetPin = inputPin || targetPin;
+
+            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${targetRoom}&pin=${targetPin}`);
+
             userProfile.avatar = selectedAvatar;
             userProfile.nickname = nick;
             userProfile.seat = selectedSeat;
@@ -1179,28 +1348,48 @@
 
             document.getElementById('profile-badge-avatar').innerHTML = getAvatarHTML(userProfile.avatar, 28);
             document.getElementById('profile-badge-name').innerText = `${userProfile.nickname} (${userProfile.seat})`;
-            document.getElementById('profile-badge-type').innerText = userProfile.type === 'google' 
-                ? '🌐 Google 雲端帳戶・歌庫已連結' 
-                : '👤 訪客模式・歌庫本地已載入';
-
+            
             document.getElementById('profile-setup-screen').classList.add('hidden');
             document.getElementById('remote-dashboard').classList.remove('hidden');
-            document.getElementById('diary-fab-btn').classList.remove('hidden'); // 解鎖懸浮按鈕
+            document.getElementById('diary-fab-btn').classList.remove('hidden');
 
-            if (!connToScreen) {
-                initRemoteMode(targetRoom);
-            } else {
-                sendCmd({ action: 'REGISTER_PROFILE', profile: userProfile });
-            }
+            initRemoteMode(targetRoom);
         }
 
         function reopenProfileSetup() {
             document.getElementById('remote-dashboard').classList.add('hidden');
             document.getElementById('diary-fab-btn').classList.add('hidden');
+            document.getElementById('setup-room-code').value = targetRoom;
+            document.getElementById('setup-room-pin').value = targetPin;
             document.getElementById('profile-setup-screen').classList.remove('hidden');
         }
 
-        // ================= 5. 懸浮按鈕與旅行手帳彈窗控制 =================
+        // ================= 6. 手機端換包廂與輸入密碼 =================
+        function openChangeRoomModal() {
+            document.getElementById('manual-room-input').value = targetRoom || '';
+            document.getElementById('manual-pin-input').value = targetPin || '';
+            document.getElementById('change-room-modal').classList.remove('hidden');
+        }
+
+        function closeChangeRoomModal() {
+            document.getElementById('change-room-modal').classList.add('hidden');
+        }
+
+        function submitManualRoomChange() {
+            const rawVal = document.getElementById('manual-room-input').value.trim();
+            const rawPin = document.getElementById('manual-pin-input').value.trim();
+
+            if (!rawVal) return alert("請輸入房號代碼或車牌！");
+
+            targetRoom = normalizeRoomId(rawVal);
+            targetPin = rawPin;
+            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${targetRoom}&pin=${targetPin}`);
+
+            closeChangeRoomModal();
+            initRemoteMode(targetRoom);
+        }
+
+        // ================= 7. 旅行手帳彈窗控制 =================
         function openDiaryModal() {
             document.getElementById('diary-modal').classList.remove('hidden');
         }
@@ -1209,7 +1398,7 @@
             document.getElementById('diary-modal').classList.add('hidden');
         }
 
-        // ================= 6. 個人專屬歌庫系統 =================
+        // ================= 8. 個人專屬歌庫系統 =================
         function loadUserLibrary() {
             const favKey = `yunube_favs_${userProfile.id}`;
             const histKey = `yunube_history_${userProfile.id}`;
@@ -1331,7 +1520,7 @@
             queueSong(songData, isInsertNext);
         }
 
-        // ================= 7. 車載旅行手帳與 Google Drive 雲端同步 =================
+        // ================= 9. 車載旅行手帳與 Google Drive 雲端同步 =================
         function fetchCurrentGPSLocation() {
             const locDisplay = document.getElementById('diary-current-location');
             if (!navigator.geolocation) {
@@ -1397,7 +1586,6 @@
                 });
             }
 
-            // 修正：不傳入空的 prompt 參數，避免觸發 400 invalid_request
             driveTokenClient.requestAccessToken();
         }
 
@@ -1554,7 +1742,7 @@
             });
         }
 
-        // ================= 8. 賽博龐克拍立得 Canvas 繪製引擎 =================
+        // ================= 10. 賽博龐克拍立得 Canvas 繪製引擎 =================
         function createCurrentPolaroid() {
             const noteText = document.getElementById('diary-note-input').value.trim() || "沿著公路迎風奔馳，車內就是專屬移動歌廳！";
             const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由巡航中";
@@ -1661,10 +1849,10 @@
                     ctx.arc(imgX + imgSize/2, imgY + imgSize/2, imgSize/2, 0, Math.PI * 2);
                     ctx.stroke();
                 } catch(e) {
-                    drawFallbackIcon(ctx, photoX, photoY, photoW, photoH, '🎤');
+                    drawFallbackIcon(ctx, photoX, photoY, photoW, photoH, '👽');
                 }
             } else {
-                drawFallbackIcon(ctx, photoX, photoY, photoW, photoH, entry.avatar || '🤖');
+                drawFallbackIcon(ctx, photoX, photoY, photoW, photoH, entry.avatar || '👽');
             }
 
             const songBannerH = 75;
@@ -1782,7 +1970,7 @@
             document.getElementById('polaroid-modal').classList.add('hidden');
         }
 
-        // ================= 9. 車機大螢幕端邏輯 =================
+        // ================= 11. 車機大螢幕端邏輯 =================
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
@@ -1965,20 +2153,16 @@
             noise.start(time);
         }
 
-        function initScreenMode() {
-            const roomId = 'ktv-' + Math.floor(1000 + Math.random() * 9000);
-            peer = new Peer(roomId);
+        function initScreenMode(forcedId = null) {
+            const savedCustomId = localStorage.getItem(SAVED_SCREEN_ROOM_KEY);
+            const roomId = forcedId || savedCustomId || ('ktv-' + Math.floor(1000 + Math.random() * 9000));
+
+            peer = new Peer(roomId, PEER_CONFIG);
 
             peer.on('open', (id) => {
                 document.getElementById('room-id-display').innerText = id;
-                const remoteUrl = window.location.origin + window.location.pathname + `?role=remote&room=${id}`;
-                new QRCode(document.getElementById("qrcode-box"), {
-                    text: remoteUrl,
-                    width: 105,
-                    height: 105,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff"
-                });
+                updateScreenPinUI();
+                refreshScreenQRCode();
             });
 
             peer.on('connection', (c) => {
@@ -2010,6 +2194,15 @@
                     delete roomMembers[c.peer];
                     updateConnectedCountUI();
                 });
+            });
+
+            peer.on('error', (err) => {
+                console.error("車機連線錯誤：", err);
+                if (err.type === 'unavailable-id') {
+                    alert(`【房號衝突】包廂代號 "${roomId}" 目前已被其他車輛佔用！\n系統將自動切換為隨機安全房號。`);
+                    localStorage.removeItem(SAVED_SCREEN_ROOM_KEY);
+                    initScreenMode();
+                }
             });
 
             fetchSyncedLyrics("十年", "陳奕迅");
@@ -2152,13 +2345,28 @@
         function handleRemoteCommand(cmd, clientConn) {
             if (!cmd) return;
 
+            // 4 位數通關密碼驗證邏輯
             if (cmd.action === 'REGISTER_PROFILE') {
+                if (cmd.pin !== screenPin) {
+                    if (clientConn && clientConn.open) {
+                        clientConn.send({
+                            action: 'AUTH_FAILED',
+                            message: '❌ 包廂密碼錯誤！請向車主索取 4 位數通關密碼。'
+                        });
+                        setTimeout(() => {
+                            try { clientConn.close(); } catch(e) {}
+                        }, 500);
+                    }
+                    return;
+                }
+
                 if (clientConn && clientConn.peer) {
+                    clientConn.send({ action: 'AUTH_SUCCESS' });
                     roomMembers[clientConn.peer] = {
                         id: cmd.profile.id || 'guest_local',
                         type: cmd.profile.type || 'guest',
                         nickname: cmd.profile.nickname || '乘客',
-                        avatar: cmd.profile.avatar || '🤖',
+                        avatar: cmd.profile.avatar || '👽',
                         seat: cmd.profile.seat || '車內',
                         joinedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     };
@@ -2251,7 +2459,7 @@
             }
         }
 
-        // ================= 10. 男女合唱動態時間軸解析 =================
+        // ================= 12. 男女合唱動態時間軸解析 =================
         function detectSingerRole(rawText) {
             const maleRegex = /^(?:\(|（|\[)?(?:男|M|Boy|Male)(?:\)|）|\]|：|:)\s*/i;
             const femaleRegex = /^(?:\(|（|\[)?(?:女|F|Girl|Female)(?:\)|）|\]|：|:)\s*/i;
@@ -2375,16 +2583,65 @@
             el.className = `ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 11. 手機遙控端通訊 =================
+        // ================= 13. 手機遙控端通訊與重連機制 =================
         function initRemoteMode(roomId) {
-            peer = new Peer();
+            if (!roomId) {
+                const statusEl = document.getElementById('mobile-status-text');
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#ff0055;">未設定房號</span> <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:#00f0ff;text-decoration:underline;">[點此輸入]</a>`;
+                }
+                return;
+            }
+
+            const statusEl = document.getElementById('mobile-status-text');
+            if (statusEl) statusEl.innerText = `正在連線 ${roomId}...`;
+
+            if (connToScreen) {
+                try { connToScreen.close(); } catch(e) {}
+            }
+            if (peer) {
+                try { peer.destroy(); } catch(e) {}
+            }
+
+            peer = new Peer(PEER_CONFIG);
+
+            clearTimeout(connectTimeoutTimer);
+            connectTimeoutTimer = setTimeout(() => {
+                if (!connToScreen || !connToScreen.open) {
+                    if (statusEl) {
+                        statusEl.innerHTML = `⚠️ 連線超時 <a href="javascript:void(0)" onclick="initRemoteMode('${roomId}')" style="color:#00f0ff;text-decoration:underline;">[重連]</a> 或 <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:#fcee0a;text-decoration:underline;">[改房號]</a>`;
+                    }
+                }
+            }, 6000);
+
             peer.on('open', () => {
-                connToScreen = peer.connect(roomId);
+                connToScreen = peer.connect(roomId, { reliable: true });
+
                 connToScreen.on('open', () => {
-                    document.getElementById('mobile-status-text').innerText = `已連接包廂：${roomId} ✅`;
-                    sendCmd({ action: 'REGISTER_PROFILE', profile: userProfile });
+                    clearTimeout(connectTimeoutTimer);
+                    if (statusEl) statusEl.innerText = `驗證通關密碼中...`;
+                    
+                    sendCmd({ 
+                        action: 'REGISTER_PROFILE', 
+                        profile: userProfile,
+                        pin: targetPin 
+                    });
                 });
+
                 connToScreen.on('data', (data) => {
+                    if (data.action === 'AUTH_FAILED') {
+                        alert(data.message);
+                        if (statusEl) {
+                            statusEl.innerHTML = `<span style="color:#ff0055;">密碼錯誤</span> <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:#00f0ff;text-decoration:underline;">[重新輸入密碼]</a>`;
+                        }
+                        return;
+                    }
+
+                    if (data.action === 'AUTH_SUCCESS') {
+                        if (statusEl) statusEl.innerText = `已連線：${roomId} ✅`;
+                        return;
+                    }
+
                     if (data.action === 'SYNC_QUEUE') {
                         renderQueueUI(data.currentSong, data.queue);
                         if (data.offset !== undefined) updateRemoteOffsetDisplay(data.offset);
@@ -2404,6 +2661,20 @@
                         updateRemoteFontDisplay(data.fontSize);
                     }
                 });
+
+                connToScreen.on('close', () => {
+                    if (statusEl) {
+                        statusEl.innerHTML = `⚠️ 斷開連線 <a href="javascript:void(0)" onclick="initRemoteMode('${roomId}')" style="color:#00f0ff;text-decoration:underline;">[重新連線]</a>`;
+                    }
+                });
+            });
+
+            peer.on('error', (err) => {
+                console.error("PeerJS 錯誤：", err);
+                clearTimeout(connectTimeoutTimer);
+                if (statusEl) {
+                    statusEl.innerHTML = `⚠️ 找不到包廂 <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:#fcee0a;text-decoration:underline;">[重輸房號/車牌]</a>`;
+                }
             });
         }
 
@@ -2545,7 +2816,7 @@
             });
         }
 
-        // ================= 12. YouTube Player 實例化 =================
+        // ================= 14. YouTube Player 實例化 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
             
@@ -2609,7 +2880,7 @@
             }
         }
 
-        // ================= 13. Web Audio API 車載麥克風迴音混音 =================
+        // ================= 15. Web Audio API 車載麥克風迴音混音 =================
         async function enableAudioMixer() {
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
