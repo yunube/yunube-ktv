@@ -922,7 +922,6 @@
             background: var(--theme-accent);
         }
 
-        /* 小螢幕緊湊微調 */
         @media (max-width: 360px) {
             #remote-view { padding-left: 10px; padding-right: 10px; }
             .card { padding: 12px; }
@@ -933,7 +932,6 @@
             .avatar-grid { grid-template-columns: repeat(4, 1fr); }
         }
 
-        /* 橫向或超短螢幕微調 */
         @media (max-height: 520px) {
             .diary-drawer { max-height: 94vh; max-height: 94dvh; }
             .mobile-ktv-line { font-size: 18px; }
@@ -997,6 +995,7 @@
                     </button>
                 </div>
 
+                <!-- 車機端風格切換器 -->
                 <div style="margin-top: 8px; border-top: 1px dashed var(--theme-border); padding-top: 6px;">
                     <div style="font-size: 11px; color: var(--theme-text-sub); margin-bottom: 4px;">🎨 車機大螢幕風格：</div>
                     <div class="theme-pill-group" id="screen-theme-pills">
@@ -1310,7 +1309,7 @@
                         </div>
                     </div>
 
-                    <!-- 手機無線麥克風 (手機收音 -> 車機喇叭輸出) -->
+                    <!-- 🌟 手機無線麥克風 + 即時音量能量條 (VU Meter) -->
                     <div style="margin-top: 4px; border-top: 1px dashed var(--theme-border); padding-top: 10px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <span style="font-size: 11px; color: var(--theme-accent); font-weight: bold;">🎤 手機無線麥克風 (車載擴音)</span>
@@ -1319,12 +1318,24 @@
                         <button id="btn-toggle-mic-stream" type="button" class="btn" style="width: 100%; padding: 10px; font-size: 13px; border: 1px solid var(--theme-accent); color: var(--theme-text);" onclick="toggleMobileMicStream()">
                             🎙️ 開啟手機收音 (連線車載喇叭)
                         </button>
+
                         <div id="mobile-mic-gain-box" class="hidden" style="margin-top: 8px;">
                             <div class="control-label" style="font-size: 11px;">
                                 <span>手機收音靈敏度 (Gain)</span>
                                 <span id="lbl-mic-gain" style="color: var(--theme-accent);">1.0x</span>
                             </div>
                             <input type="range" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateMobileMicGain(this.value)">
+
+                            <!-- 🌟 即時收音動態能量條 (VU Meter) -->
+                            <div id="mobile-mic-vu-container" style="margin-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--theme-text-sub); margin-bottom: 3px;">
+                                    <span>即時收音音量 (VU)</span>
+                                    <span id="lbl-mic-vu-level" style="color: var(--theme-accent); font-family: monospace;">0%</span>
+                                </div>
+                                <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; border: 1px solid var(--theme-border); position: relative;">
+                                    <div id="mobile-mic-vu-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ff66 0%, #fcee0a 70%, #ff007f 100%); transition: width 0.05s ease;"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1356,7 +1367,7 @@
                             </button>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;" id="danmaku-color-selector">
+                        <div style="display: align-items: center; gap: 8px; margin-bottom: 8px;" id="danmaku-color-selector">
                             <span style="font-size: 11px; color: var(--theme-text-sub);">彈幕色彩：</span>
                             <div class="danmaku-color-dot selected" style="--c: #00f0ff;" onclick="selectDanmakuColor(this, '#00f0ff')" title="電光青"></div>
                             <div class="danmaku-color-dot" style="--c: #ff007f;" onclick="selectDanmakuColor(this, '#ff007f')" title="霓虹粉"></div>
@@ -1437,9 +1448,7 @@
                         <span style="font-size: 10px; color: var(--theme-text-sub);">點選任一句可跳轉或對齊</span>
                     </div>
 
-                    <div id="mobile-lyrics-scroll-box" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; padding-right: 4px;">
-                        <!-- 初始預覽歌詞將由 JavaScript 自動生成注入 -->
-                    </div>
+                    <div id="mobile-lyrics-scroll-box" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; padding-right: 4px;"></div>
                 </div>
             </div>
         </div>
@@ -1478,8 +1487,8 @@
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-primary); padding: 10px 12px; border-radius: 4px;">
-                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 手機無線麥克風 🎤</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">在控台選單點擊「開啟手機收音」，對準手機底部話筒演唱，聲音即時直通車載喇叭（同車載 Wi-Fi 熱點延遲最低）。</div>
+                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 手機無線麥克風 🎤 (低延遲)</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">在控台選單點擊「開啟手機收音」，對準手機底部話筒演唱，聲音即時直通車載喇叭（連線同一車載 Wi-Fi 熱點延遲最低）。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-highlight); padding: 10px 12px; border-radius: 4px;">
@@ -1594,7 +1603,7 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
                 <div style="font-size: 11px; color: var(--theme-text-sub);">歌詞偏慢/快？</div>
-                <div style="display: flex; gap: 8px;">
+                <div style="display: gap: 8px;">
                     <button class="btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustLyricOffset(-0.5)">◀ 延後 0.5s</button>
                     <button class="btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustLyricOffset(0, true)">↺ 歸零</button>
                     <button class="btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustLyricOffset(0.5)">提早 0.5s ▶</button>
@@ -1766,10 +1775,14 @@
         let micAnalyser = null;
         let micDataArray = null;
 
-        // 手機無線麥克風串流狀態
+        // 手機無線麥克風串流與 VU 動態計狀態
         let mobileMicStream = null;
         let currentMicCall = null;
-        let remoteMicGainNode = null; // 🌟 車機端遠端麥克風增益控制節點
+        let remoteMicGainNode = null;
+        let mobileAudioCtx = null;
+        let mobileVuAnalyser = null;
+        let mobileVuAnimId = null;
+        let mobileVuData = null;
 
         // 車機 Web Audio 3-Band EQ 節點
         let eqLowNode = null;
@@ -2454,7 +2467,12 @@
         }
 
         function initAudioEQNodes() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+                    latencyHint: 'interactive',
+                    sampleRate: 48000
+                });
+            }
 
             if (!eqLowNode) {
                 eqLowNode = audioCtx.createBiquadFilter();
@@ -2483,13 +2501,78 @@
             }
         }
 
-        // ================= 10. 手機無線麥克風 (音訊發射端 - 關鍵修復) =================
+        // 🌟 10. WebRTC SDP 低延遲封裝調優 (Opus 10ms 切片)
+        function optimizeSdpForLowLatency(sdp) {
+            return sdp.replace(
+                /a=fmtp:111 ((?:(?!ptime=).)*)\r\n/g,
+                'a=fmtp:111 $1;ptime=10;minptime=10;maxptime=10;stereo=0;sprop-stereo=0;cbr=1;useinbandfec=0\r\n'
+            );
+        }
+
+        // 🌟 11. 手機端 VU 動態收音能量條
+        function startMobileVuMeter(stream) {
+            try {
+                if (!mobileAudioCtx) {
+                    mobileAudioCtx = new (window.AudioContext || window.webkitAudioContext)({
+                        latencyHint: 'interactive',
+                        sampleRate: 48000
+                    });
+                }
+                if (mobileAudioCtx.state === 'suspended') mobileAudioCtx.resume();
+
+                const source = mobileAudioCtx.createMediaStreamSource(stream);
+                mobileVuAnalyser = mobileAudioCtx.createAnalyser();
+                mobileVuAnalyser.fftSize = 64;
+                mobileVuData = new Uint8Array(mobileVuAnalyser.frequencyBinCount);
+                source.connect(mobileVuAnalyser);
+
+                const vuBar = document.getElementById('mobile-mic-vu-bar');
+                const vuLabel = document.getElementById('lbl-mic-vu-level');
+
+                function updateMeter() {
+                    if (!mobileMicStream) {
+                        if (vuBar) vuBar.style.width = '0%';
+                        if (vuLabel) vuLabel.innerText = '0%';
+                        return;
+                    }
+                    mobileVuAnalyser.getByteFrequencyData(mobileVuData);
+                    let sum = 0;
+                    for (let i = 0; i < mobileVuData.length; i++) {
+                        sum += mobileVuData[i];
+                    }
+                    const avg = sum / mobileVuData.length;
+                    const percent = Math.min(100, Math.round((avg / 128) * 100));
+
+                    if (vuBar) vuBar.style.width = percent + '%';
+                    if (vuLabel) vuLabel.innerText = percent + '%';
+
+                    mobileVuAnimId = requestAnimationFrame(updateMeter);
+                }
+                updateMeter();
+            } catch(e) {
+                console.warn("VU Meter 初始化失敗：", e);
+            }
+        }
+
+        function stopMobileVuMeter() {
+            if (mobileVuAnimId) {
+                cancelAnimationFrame(mobileVuAnimId);
+                mobileVuAnimId = null;
+            }
+            const vuBar = document.getElementById('mobile-mic-vu-bar');
+            const vuLabel = document.getElementById('lbl-mic-vu-level');
+            if (vuBar) vuBar.style.width = '0%';
+            if (vuLabel) vuLabel.innerText = '0%';
+        }
+
+        // ================= 12. 手機無線麥克風 (極致低延遲收音發射端) =================
         async function toggleMobileMicStream() {
             const btn = document.getElementById('btn-toggle-mic-stream');
             const statusText = document.getElementById('mobile-mic-status');
             const gainBox = document.getElementById('mobile-mic-gain-box');
 
             if (mobileMicStream) {
+                stopMobileVuMeter();
                 if (currentMicCall) {
                     try { currentMicCall.close(); } catch(e) {}
                     currentMicCall = null;
@@ -2508,21 +2591,34 @@
             try {
                 statusText.innerText = "麥克風授權中...";
                 
-                // 🌟 直接擷取原生硬體串流，關閉所有瀏覽器自帶抑制以降低延遲
+                // 🌟 關鍵低延遲設定：鎖定單聲道 1 軌、48kHz 與關閉瀏覽器自帶雜音處理
                 const rawStream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: false,
                         noiseSuppression: false,
                         autoGainControl: false,
-                        latency: 0.01
+                        channelCount: 1,
+                        sampleRate: 48000,
+                        latency: 0
                     }
                 });
 
                 mobileMicStream = rawStream;
+                startMobileVuMeter(rawStream);
 
                 statusText.innerText = "連線車載音響中...";
-                // 直接將 rawStream 發送至車機
                 currentMicCall = peer.call(targetRoom, mobileMicStream);
+
+                // 🌟 SDP 協商調優：注入 10ms 切片加速
+                if (currentMicCall && currentMicCall.peerConnection) {
+                    const pc = currentMicCall.peerConnection;
+                    const origCreateOffer = pc.createOffer.bind(pc);
+                    pc.createOffer = async function(options) {
+                        const offer = await origCreateOffer(options);
+                        offer.sdp = optimizeSdpForLowLatency(offer.sdp);
+                        return offer;
+                    };
+                }
 
                 btn.innerText = "🔴 停止手機收音 (通話中)";
                 btn.style.background = "var(--theme-primary)";
@@ -2532,11 +2628,13 @@
 
                 currentMicCall.on('close', () => {
                     statusText.innerText = "通話結束";
+                    stopMobileVuMeter();
                 });
 
                 currentMicCall.on('error', (err) => {
                     console.error("麥克風通話錯誤：", err);
                     statusText.innerText = "通話中斷 ⚠️";
+                    stopMobileVuMeter();
                 });
 
             } catch (err) {
@@ -2552,20 +2650,25 @@
             sendCmd({ action: 'SET_REMOTE_MIC_GAIN', gain: parseFloat(val) });
         }
 
-        // ================= 11. 車機接收手機麥克風 (關鍵修復：Chromium 激活器與 Gain 控制) =================
+        // ================= 13. 車機接收端 (playoutDelayHint=0 零緩衝輸出) =================
         function connectRemoteMicToCarMixer(stream) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+                    latencyHint: 'interactive',
+                    sampleRate: 48000
+                });
+            }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             initAudioEQNodes();
 
-            // 🌟 關鍵修復：透過靜音的 HTMLAudioElement 喚醒 Chromium WebRTC 底層解碼
+            // 🌟 透過靜音的 HTMLAudioElement 喚醒 Chromium WebRTC 底層解碼
             let dummyAudio = document.getElementById('webrtc-audio-activator');
             if (!dummyAudio) {
                 dummyAudio = document.createElement('audio');
                 dummyAudio.id = 'webrtc-audio-activator';
                 dummyAudio.autoplay = true;
                 dummyAudio.playsInline = true;
-                dummyAudio.muted = true; // 靜音避免重複播放，但能成功激活串流
+                dummyAudio.muted = true;
                 dummyAudio.style.display = 'none';
                 document.body.appendChild(dummyAudio);
             }
@@ -2579,7 +2682,6 @@
                 remoteMicGainNode.gain.value = 1.0;
             }
 
-            // 串接：遠端麥克風 -> 增益節點 -> EQ 低音入口
             remoteSource.connect(remoteMicGainNode);
             remoteMicGainNode.connect(eqLowNode);
 
@@ -2593,7 +2695,7 @@
             }
         }
 
-        // ================= 12. AI 練歌模式與正向客觀點評 =================
+        // ================= 14. AI 練歌模式與正向客觀點評 =================
         function togglePracticeMode() {
             isPracticeMode = !isPracticeMode;
             sendCmd({ action: 'TOGGLE_PRACTICE_MODE', isPracticeMode: isPracticeMode });
@@ -2669,7 +2771,7 @@
             document.getElementById('ai-score-modal').classList.add('hidden');
         }
 
-        // ================= 13. 沉浸式雙行卡拉OK跟唱燈箱 =================
+        // ================= 15. 沉浸式雙行卡拉OK跟唱燈箱 =================
         function openMobileKaraokeModal() {
             document.getElementById('mobile-karaoke-modal').classList.remove('hidden');
             const titleEl = document.getElementById('mobile-karaoke-song-title');
@@ -2718,7 +2820,7 @@
             el.className = `mobile-ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 14. 旅行手帳即時實拍與上傳處理 =================
+        // ================= 16. 旅行手帳即時實拍與上傳處理 =================
         function handleDiaryPhotoCapture(event) {
             const file = event.target.files[0];
             if (!file || !file.type.startsWith('image/')) return;
@@ -2766,7 +2868,7 @@
             document.getElementById('btn-remove-diary-photo').classList.add('hidden');
         }
 
-        // ================= 15. 懸浮彈窗控制 (指南、歌庫、手帳) =================
+        // ================= 17. 懸浮彈窗控制 (指南、歌庫、手帳) =================
         function openGuideModal() {
             document.getElementById('guide-modal').classList.remove('hidden');
         }
@@ -2792,7 +2894,7 @@
             document.getElementById('diary-modal').classList.add('hidden');
         }
 
-        // ================= 16. 專屬歌庫系統與進階管理 =================
+        // ================= 18. 專屬歌庫系統與進階管理 =================
         function loadUserLibrary() {
             const favKey = `yunube_favs_${userProfile.id}`;
             const histKey = `yunube_history_${userProfile.id}`;
@@ -2903,7 +3005,6 @@
                 (s.artist && s.artist.toLowerCase().includes(librarySearchQuery))
             );
 
-            // 1. 喜愛清單 (含 🗑️ 單曲刪除)
             const favBox = document.getElementById('library-fav-panel');
             favBox.innerHTML = '';
             if (filteredFavs.length === 0) {
@@ -2929,7 +3030,6 @@
                 });
             }
 
-            // 2. 個人歷史紀錄 (含 🗑️ 單曲刪除)
             const histBox = document.getElementById('library-history-panel');
             histBox.innerHTML = '';
             if (filteredHistory.length === 0) {
@@ -2944,7 +3044,7 @@
                     row.innerHTML = `
                         <div style="flex: 1; overflow: hidden; margin-right: 6px;">
                             <span style="color: var(--theme-accent); font-weight: bold;">${idx + 1}.</span>
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle}</span>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${song.displayTitle}</span>
                         </div>
                         <div style="display: flex; gap: 4px; align-items: center;">
                             <button style="background: none; border: none; cursor: pointer; font-size: 13px;" onclick='toggleFavoriteSong(${JSON.stringify(song)})'>${isFav ? '❤️' : '🤍'}</button>
@@ -2988,7 +3088,7 @@
                 row.innerHTML = `
                     <div style="flex: 1; overflow: hidden; margin-right: 6px;">
                         <span style="color: var(--theme-highlight); font-weight: bold;">${idx + 1}.</span>
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle || song.title}</span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${song.displayTitle || song.title}</span>
                         <span style="font-size: 10px; color: var(--theme-text-sub); margin-left: 4px;">(${song.requestedBy || '車載'})</span>
                     </div>
                     <div style="display: flex; gap: 4px; align-items: center;">
@@ -3013,293 +3113,6 @@
             };
             recordSongToHistory(songData);
             queueSong(songData, isInsertNext);
-        }
-
-        // ================= 17. 手機端動態歌詞渲染 =================
-        function renderMobileLyricsUI(lyrics) {
-            remoteLyricsList = lyrics || [];
-            const container = document.getElementById('mobile-lyrics-scroll-box');
-            if (!container) return;
-
-            container.innerHTML = '';
-
-            if (!remoteLyricsList || remoteLyricsList.length === 0) {
-                container.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 20px;">此歌曲尚無動態時間軸歌詞</div>';
-                return;
-            }
-
-            remoteLyricsList.forEach((line, index) => {
-                const min = Math.floor(line.time / 60).toString().padStart(2, '0');
-                const sec = Math.floor(line.time % 60).toString().padStart(2, '0');
-                const timeTag = `${min}:${sec}`;
-
-                const item = document.createElement('div');
-                item.className = 'mobile-lyric-item';
-                item.id = `mobile-lyric-${index}`;
-                item.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;">
-                        <span class="mobile-lyric-time">${timeTag}</span>
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${line.text}</span>
-                    </div>
-                    <div style="display: flex; gap: 4px;">
-                        <button style="background: rgba(0,0,0,0.05); border: 1px solid var(--theme-accent); color: var(--theme-accent); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="seekToLyricTime(${line.time})">
-                            ⏩ 跳至
-                        </button>
-                        <button style="background: var(--theme-primary); color: #fff; border: 1px solid var(--theme-primary); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="alignSelectedLyric(${line.time})">
-                            🎯 對齊
-                        </button>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function highlightMobileActiveLyric(index) {
-            document.querySelectorAll('.mobile-lyric-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.getElementById(`mobile-lyric-${index}`);
-            if (activeEl) {
-                activeEl.classList.add('active');
-                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-
-        function onOffsetSliderDrag(val) {
-            const floatVal = Math.round(parseFloat(val) * 10) / 10;
-            updateRemoteOffsetDisplay(floatVal);
-            sendCmd({ action: 'SET_EXACT_OFFSET', value: floatVal });
-        }
-
-        function seekToLyricTime(timeInSec) {
-            sendCmd({ action: 'SEEK_TO', seconds: timeInSec });
-        }
-
-        function alignSelectedLyric(targetTime) {
-            sendCmd({ action: 'ALIGN_LINE_TO_NOW', targetTime: targetTime });
-        }
-
-        // ================= 18. 旅行手帳與 Google Drive 雲端同步 =================
-        function fetchCurrentGPSLocation() {
-            const locDisplay = document.getElementById('diary-current-location');
-            if (!navigator.geolocation) {
-                locDisplay.innerText = "瀏覽器不支援 GPS 定位";
-                return;
-            }
-
-            locDisplay.innerText = "🛰️ 正在連線衛星定位中...";
-
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    currentDiaryLocation.lat = lat;
-                    currentDiaryLocation.lng = lng;
-
-                    try {
-                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
-                            headers: { 'Accept-Language': 'zh-TW' }
-                        });
-                        const data = await res.json();
-                        const addr = data.display_name ? data.display_name.split(',').slice(0, 3).reverse().join(' ') : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                        currentDiaryLocation.address = addr;
-                        locDisplay.innerText = `📍 ${addr}`;
-                    } catch (err) {
-                        currentDiaryLocation.address = `GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`;
-                        locDisplay.innerText = `📍 ${currentDiaryLocation.address}`;
-                    }
-                },
-                (err) => {
-                    locDisplay.innerText = "⚠️ 定位失敗 (請確認開啟手機定位權限)";
-                    console.warn("GPS 定位錯誤：", err);
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
-            );
-        }
-
-        function requestDriveAccessToken(callback) {
-            if (driveAccessToken) {
-                callback(driveAccessToken);
-                return;
-            }
-
-            if (!window.google || !google.accounts || !google.accounts.oauth2) {
-                alert("Google Identity 服務尚未載入完成，請確認聯網！");
-                return;
-            }
-
-            if (!driveTokenClient) {
-                driveTokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: GOOGLE_CLIENT_ID,
-                    scope: 'https://www.googleapis.com/auth/drive.file',
-                    callback: (tokenResp) => {
-                        if (tokenResp.error) {
-                            alert("Google Drive 授權失敗：" + tokenResp.error);
-                            return;
-                        }
-                        driveAccessToken = tokenResp.access_token;
-                        document.getElementById('diary-sync-status').innerText = "雲端已連線 ✅";
-                        document.getElementById('diary-sync-status').style.color = "var(--cyber-green)";
-                        callback(driveAccessToken);
-                    }
-                });
-            }
-
-            driveTokenClient.requestAccessToken();
-        }
-
-        async function findDiaryFileId(accessToken) {
-            const query = encodeURIComponent(`name = '${DIARY_FILE_NAME}' and trashed = false`);
-            const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
-                headers: { 'Authorization': `Bearer ${accessToken}` }
-            });
-            const result = await res.json();
-            if (result.files && result.files.length > 0) {
-                return result.files[0].id;
-            }
-            return null;
-        }
-
-        async function loadDiaryFromGoogleDrive() {
-            requestDriveAccessToken(async (token) => {
-                try {
-                    document.getElementById('diary-sync-status').innerText = "正在讀取雲端...";
-                    const fileId = await findDiaryFileId(token);
-                    if (!fileId) {
-                        document.getElementById('diary-sync-status').innerText = "雲端檔案建立中";
-                        renderDiaryList();
-                        return;
-                    }
-
-                    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    travelDiaries = await res.json();
-                    document.getElementById('diary-sync-status').innerText = `已同步 (${travelDiaries.length} 篇)`;
-                    document.getElementById('diary-sync-status').style.color = "var(--theme-accent)";
-                    renderDiaryList();
-                } catch (err) {
-                    console.error("讀取 Drive 日記出錯：", err);
-                    document.getElementById('diary-sync-status').innerText = "讀取失敗";
-                }
-            });
-        }
-
-        async function saveAndSyncTravelDiary() {
-            const noteText = document.getElementById('diary-note-input').value.trim();
-            if (!noteText) return alert("請輸入一段旅行心情或打卡隨筆！");
-
-            const now = new Date();
-            const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由伴奏";
-
-            const newEntry = {
-                id: "diary_" + Date.now(),
-                timestamp: now.toISOString(),
-                dateStr: `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`,
-                location: currentDiaryLocation,
-                song: playingTitle,
-                singer: `${userProfile.nickname} (${userProfile.seat})`,
-                avatar: userProfile.avatar,
-                photo: capturedDiaryPhoto,
-                note: noteText,
-                theme: currentRemoteTheme || 'cyberpunk'
-            };
-
-            requestDriveAccessToken(async (token) => {
-                try {
-                    document.getElementById('diary-sync-status').innerText = "雲端同步中...";
-                    
-                    const fileId = await findDiaryFileId(token);
-                    if (fileId) {
-                        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        try { travelDiaries = await res.json(); } catch(e) { travelDiaries = []; }
-                    }
-
-                    travelDiaries.unshift(newEntry);
-                    const content = JSON.stringify(travelDiaries, null, 2);
-
-                    if (fileId) {
-                        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: content
-                        });
-                    } else {
-                        const metadata = {
-                            name: DIARY_FILE_NAME,
-                            mimeType: 'application/json'
-                        };
-                        const boundary = '-------yunube_ktv_boundary';
-                        const delimiter = "\r\n--" + boundary + "\r\n";
-                        const close_delim = "\r\n--" + boundary + "--";
-
-                        const multipartRequestBody =
-                            delimiter +
-                            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-                            JSON.stringify(metadata) +
-                            delimiter +
-                            'Content-Type: application/json\r\n\r\n' +
-                            content +
-                            close_delim;
-
-                        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': `multipart/related; boundary=${boundary}`
-                            },
-                            body: multipartRequestBody
-                        });
-                    }
-
-                    document.getElementById('diary-note-input').value = '';
-                    removeDiaryPhoto();
-                    document.getElementById('diary-sync-status').innerText = "同步完成 ✅";
-                    document.getElementById('diary-sync-status').style.color = "var(--theme-accent)";
-                    alert("🎉 旅行歡唱日記與實拍照片已成功同步至您的個人 Google Drive！");
-                    renderDiaryList();
-                } catch (err) {
-                    console.error("同步至 Drive 失敗：", err);
-                    alert("同步失敗，請檢查網路狀態或重新授權。");
-                }
-            });
-        }
-
-        function renderDiaryList() {
-            const listEl = document.getElementById('diary-entries-list');
-            listEl.innerHTML = '';
-
-            if (travelDiaries.length === 0) {
-                listEl.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 12px;">尚無旅行紀錄，打卡後將自動上傳至 Google 雲端</div>';
-                return;
-            }
-
-            travelDiaries.forEach((entry) => {
-                const item = document.createElement('div');
-                item.style = "background: var(--theme-card-bg); border: 1px solid var(--theme-border); border-radius: var(--theme-radius); padding: 10px; font-size: 12px;";
-                item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="color: var(--theme-accent); font-weight: bold;">${entry.dateStr}</span>
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                            <button class="btn" style="padding: 2px 7px; font-size: 11px; border: 1px solid var(--theme-accent); color: var(--theme-accent);" onclick='renderPolaroidCard(${JSON.stringify(entry)})'>
-                                📸 拍立得
-                            </button>
-                            <span style="font-size: 11px; background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px;">
-                                ${entry.singer}
-                            </span>
-                        </div>
-                    </div>
-                    <div style="color: var(--theme-text-sub); margin-bottom: 4px;">📍 ${entry.location.address || entry.location}</div>
-                    <div style="color: var(--theme-highlight); margin-bottom: 6px;">🎵 ${entry.song}</div>
-                    <div style="background: rgba(0,0,0,0.04); padding: 6px 8px; border-radius: 4px; line-height: 1.4;">
-                        ${entry.note}
-                    </div>
-                `;
-                listEl.appendChild(item);
-            });
         }
 
         // ================= 19. 拍立得多風格與實拍照片 Canvas 繪圖引擎 =================
@@ -3671,7 +3484,10 @@
             toggleFullScreen();
 
             if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+                    latencyHint: 'interactive',
+                    sampleRate: 48000
+                });
             }
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
@@ -3894,9 +3710,18 @@
                 });
             });
 
-            // 🌟 車機端接聽手機麥克風通話
+            // 🌟 車機端接聽手機麥克風通話 (含 playoutDelayHint = 0 零緩衝注入)
             peer.on('call', (call) => {
                 call.answer();
+
+                if (call.peerConnection) {
+                    call.peerConnection.addEventListener('track', (e) => {
+                        if (e.receiver && 'playoutDelayHint' in e.receiver) {
+                            e.receiver.playoutDelayHint = 0; // 強制 0 秒等待，實時直接輸出
+                        }
+                    });
+                }
+
                 call.on('stream', (remoteMicStream) => {
                     console.log("車機已成功接收到手機麥克風音訊！");
                     connectRemoteMicToCarMixer(remoteMicStream);
@@ -4113,7 +3938,7 @@
                 return;
             }
 
-            // 🌟 處理遠端麥克風增益指令
+            // 處理遠端麥克風增益指令
             if (cmd.action === 'SET_REMOTE_MIC_GAIN') {
                 if (remoteMicGainNode && audioCtx) {
                     remoteMicGainNode.gain.setTargetAtTime(cmd.gain, audioCtx.currentTime, 0.05);
@@ -4238,7 +4063,7 @@
             }
         }
 
-        // ================= 21. 男女合唱動態時間軸解析 =================
+        // ================= 20. 男女合唱動態時間軸解析 =================
         function detectSingerRole(rawText) {
             const maleRegex = /^(?:\(|（|\[)?(?:男|M|Boy|Male)(?:\)|）|\]|：|:)\s*/i;
             const femaleRegex = /^(?:\(|（|\[)?(?:女|F|Girl|Female)(?:\)|）|\]|：|:)\s*/i;
@@ -4374,7 +4199,7 @@
             el.className = `ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 22. 手機遙控端通訊與重連機制 =================
+        // ================= 21. 手機遙控端通訊與重連機制 =================
         function initRemoteMode(roomId) {
             if (!roomId) {
                 const statusEl = document.getElementById('mobile-status-text');
@@ -4641,7 +4466,7 @@
             });
         }
 
-        // ================= 23. YouTube Player 實例化 =================
+        // ================= 22. YouTube Player 實例化 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
             
@@ -4705,10 +4530,13 @@
             }
         }
 
-        // ================= 24. Web Audio API 車載麥克風迴音混音 =================
+        // ================= 23. Web Audio API 車載麥克風迴音混音 =================
         async function enableAudioMixer() {
             try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+                    latencyHint: 'interactive',
+                    sampleRate: 48000
+                });
                 if (audioCtx.state === 'suspended') {
                     await audioCtx.resume();
                 }
@@ -4736,7 +4564,7 @@
                 micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
 
                 micSource.connect(micAnalyser);
-                micSource.connect(eqLowNode); // 送進 3-Band EQ 鏈
+                micSource.connect(eqLowNode);
                 micDelayNode.connect(micFeedbackGain);
                 micFeedbackGain.connect(micDelayNode);
                 micDelayNode.connect(audioCtx.destination);
