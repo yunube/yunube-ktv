@@ -115,7 +115,6 @@
         }
         #fullscreen-btn:hover { background: var(--cyber-cyan); color: #000; }
 
-        /* 雙行交替 KTV 歌詞容器 */
         #lyrics-container {
             position: absolute;
             bottom: 30px;
@@ -484,9 +483,61 @@
             font-weight: bold;
         }
 
+        /* 科技感下拉摺疊選單 (Accordion) 樣式 */
+        details.cyber-accordion {
+            background: var(--cyber-panel);
+            border: 1px solid var(--cyber-border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        details.cyber-accordion::before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: 20px;
+            width: 30px;
+            height: 2px;
+            background: var(--cyber-magenta);
+        }
+        details.cyber-accordion summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--cyber-cyan);
+            outline: none;
+            user-select: none;
+        }
+        details.cyber-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+        details.cyber-accordion summary .accordion-icon {
+            font-size: 11px;
+            transition: transform 0.25s ease;
+            color: var(--cyber-cyan);
+        }
+        details.cyber-accordion[open] summary .accordion-icon {
+            transform: rotate(180deg);
+            color: var(--cyber-magenta);
+        }
+        details.cyber-accordion .accordion-body {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            animation: fadeIn 0.25s ease;
+        }
+
         .library-tab-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             border-bottom: 1px solid var(--cyber-border);
             padding-bottom: 8px;
             margin-bottom: 12px;
@@ -494,12 +545,13 @@
         .library-tab {
             flex: 1;
             text-align: center;
-            padding: 6px;
-            font-size: 13px;
+            padding: 6px 4px;
+            font-size: 11px;
             cursor: pointer;
             color: #8e95ad;
             border-radius: 6px;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         .library-tab.active {
             color: var(--cyber-cyan);
@@ -559,6 +611,80 @@
             overflow-y: auto;
             box-shadow: 0 -10px 40px rgba(0, 240, 255, 0.25);
         }
+
+        .mobile-lyric-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #8e95ad;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            transition: all 0.15s;
+            background: rgba(20, 27, 45, 0.4);
+            border: 1px solid transparent;
+        }
+        .mobile-lyric-item.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--cyber-cyan);
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .mobile-lyric-time {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--cyber-yellow);
+            white-space: nowrap;
+        }
+
+        .mobile-ktv-line {
+            font-size: clamp(20px, 5.5vw, 28px);
+            font-weight: 700;
+            line-height: 1.4;
+            letter-spacing: 1.5px;
+            transition: all 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            paint-order: stroke fill;
+            text-align: center;
+        }
+
+        #mobile-ktv-top { text-align: left; padding-right: 10%; }
+        #mobile-ktv-bottom { text-align: right; padding-left: 10%; }
+
+        .mobile-ktv-line.role-male    { color: rgba(56, 189, 248, 0.45); }
+        .mobile-ktv-line.role-female  { color: rgba(244, 114, 182, 0.45); }
+        .mobile-ktv-line.role-duet    { color: rgba(34, 197, 94, 0.45); }
+        .mobile-ktv-line.role-default { color: rgba(255, 255, 255, 0.4); }
+
+        .mobile-ktv-line.active {
+            font-size: clamp(26px, 7.5vw, 38px);
+            font-weight: 900;
+            transform: scale(1.03);
+        }
+
+        .mobile-ktv-line.role-default.active {
+            color: #ffffff;
+            -webkit-text-stroke: 3px #1e90ff;
+            text-stroke: 3px #1e90ff;
+        }
+        .mobile-ktv-line.role-male.active {
+            color: #2563eb;
+            -webkit-text-stroke: 3px #ffffff;
+            text-stroke: 3px #ffffff;
+        }
+        .mobile-ktv-line.role-female.active {
+            color: #ec4899;
+            -webkit-text-stroke: 3px #ffffff;
+            text-stroke: 3px #ffffff;
+        }
+        .mobile-ktv-line.role-duet.active {
+            color: #10b981;
+            -webkit-text-stroke: 3px #ffffff;
+            text-stroke: 3px #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -600,15 +726,13 @@
                 <div style="font-size: 10px; color: #717894; margin-bottom: 6px; letter-spacing: 1px;">TERMINAL HOST UNIT</div>
                 <div id="qrcode-box"></div>
                 
-                <!-- 車機房號與自訂車牌按鈕 -->
                 <div class="hud-stat" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                     ROOM：<span id="room-id-display" style="cursor: pointer; text-decoration: underline; color: #fff; font-weight: bold;" onclick="promptChangeScreenRoomId()">建立中...</span>
                     <button onclick="promptChangeScreenRoomId()" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;">
-                        ✏️ 改車牌
+                        ✏️ 改車牌/房號
                     </button>
                 </div>
 
-                <!-- 4 位數密碼鎖 -->
                 <div class="hud-stat" style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;">
                     PASS：<span id="room-pin-display" style="color: var(--cyber-yellow); font-weight: bold; letter-spacing: 2px;">****</span>
                     <button onclick="promptChangeScreenPin()" style="background: rgba(252, 238, 10, 0.15); border: 1px solid var(--cyber-yellow); color: var(--cyber-yellow); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;">
@@ -687,12 +811,11 @@
                     <button class="btn" style="padding: 4px 8px; font-size: 11px; background: #1a2238;" onclick="unlinkGoogleAccount()">切換帳號</button>
                 </div>
 
-                <!-- 手動確認 / 修改包廂房號與密碼 -->
                 <div style="font-size: 12px; color: var(--cyber-cyan); margin-bottom: 6px; font-weight: bold; display: flex; justify-content: space-between;">
                     <span>📍 連線包廂車牌 / 房號 (Room)</span>
-                    <span style="font-size: 10px; color: #8e95ad;">可輸入車牌或數字</span>
+                    <span style="font-size: 10px; color: #8e95ad;">自由輸入車牌或號碼</span>
                 </div>
-                <input type="text" id="setup-room-code" placeholder="例如: ABC-8888 或 1234" value="">
+                <input type="text" id="setup-room-code" placeholder="例如: ABC-8888 或 8888" value="">
 
                 <div style="font-size: 12px; color: var(--cyber-yellow); margin-bottom: 6px; font-weight: bold; display: flex; justify-content: space-between;">
                     <span>🔑 4 位數包廂密碼 (Passcode)</span>
@@ -740,6 +863,7 @@
         <!-- 關卡 2：點歌與遙控控制台 (完成登入後解鎖) -->
         <div id="remote-dashboard" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
             
+            <!-- 身分狀態列 -->
             <div class="card" style="border-left: 4px solid var(--cyber-cyan);">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -754,148 +878,191 @@
                             🔄 換包廂
                         </button>
                         <button class="btn" style="padding: 6px 10px; font-size: 11px; background: #1a2238;" onclick="reopenProfileSetup()">
-                            個人資料
+                            身分設定
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 個人專屬歌庫卡片 (喜愛歌單 ❤️ 與 歷史紀錄 🕒) -->
-            <div class="card">
-                <div class="library-tab-group">
-                    <div class="library-tab active" id="tab-fav" onclick="switchLibraryTab('fav')">❤️ 喜愛歌單 (<span id="fav-count">0</span>)</div>
-                    <div class="library-tab" id="tab-history" onclick="switchLibraryTab('history')">🕒 歷史點播 (<span id="history-count">0</span>)</div>
-                </div>
-
-                <div id="library-fav-panel" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
-                    <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無收藏歌曲，點播新歌時點擊 ❤️ 即可永久珍藏</div>
-                </div>
-
-                <div id="library-history-panel" class="hidden" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
-                    <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無歷史點播紀錄</div>
-                </div>
-            </div>
-
-            <!-- 氣氛罐頭音效面板 -->
-            <div class="card">
-                <div class="card-title">🎉 氣氛罐頭音效 (車載音響即時放送)</div>
-                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="btn" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: #fff;" onclick="triggerSfx('applause')">
-                        👏 熱烈鼓掌
-                    </button>
-                    <button class="btn" style="background: rgba(255, 0, 127, 0.15); border: 1px solid var(--cyber-magenta); color: #fff;" onclick="triggerSfx('cheer')">
-                        🎉 尖叫歡呼
-                    </button>
-                    <button class="btn" style="background: rgba(252, 238, 10, 0.15); border: 1px solid var(--cyber-yellow); color: #fff;" onclick="triggerSfx('airhorn')">
-                        🎺 派對氣笛
-                    </button>
-                    <button class="btn" style="background: rgba(0, 255, 102, 0.15); border: 1px solid var(--cyber-green); color: #fff;" onclick="triggerSfx('rimshot')">
-                        🥁 綜藝吐槽
-                    </button>
-                </div>
-            </div>
-
-            <!-- 點歌載入卡片 -->
-            <div class="card">
-                <div class="card-title">🔗 歌曲載入 (支援歌名與 YouTube 網址)</div>
-                <input type="text" id="manual-title" placeholder="歌曲名稱 (例: 晴天，自動解析動態歌詞)">
-                <input type="text" id="manual-artist" placeholder="演唱歌手 (選填，例: 周杰倫)">
-                <input type="text" id="manual-orig-id" placeholder="原唱 YouTube 完整網址或 11 碼 ID">
-                <input type="text" id="manual-inst-id" placeholder="伴奏版 YouTube 網址或 ID (選填)">
-                <div class="btn-grid" style="margin-top: 4px;">
-                    <button class="btn btn-accent" onclick="submitManualSong(false)">＋加入待播隊列</button>
-                    <button class="btn btn-primary" onclick="submitManualSong(true)">⚡優先插播</button>
-                </div>
-            </div>
-
-            <!-- 即時演唱控制 -->
-            <div class="card">
-                <div class="card-title">即時演唱操控</div>
-                <div class="btn-grid">
-                    <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
-                    <button class="btn btn-accent" id="btn-toggle-vocal" onclick="toggleVocalTrack()">🎙 切換伴奏</button>
-                </div>
-                <button class="btn" style="width: 100%; margin-top: 10px; background: #1a2238; border: 1px solid #2d3b5e;" onclick="sendCmd({ action: 'SKIP_SONG' })">
-                    ⏭️ 切歌（跳至下一首）
-                </button>
-            </div>
-
-            <!-- 歌詞時間軸微調校正卡片 -->
-            <div class="card">
+            <!-- 🌟 調整 1：待播清單與歌曲載入，整合為一個主要區塊 -->
+            <div class="card" id="card-queue-and-add">
                 <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>⏱️ 歌詞時間軸微調 (校正 MV 前奏)</span>
-                    <span id="remote-offset-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">0.0s</span>
-                </div>
-                <div style="font-size: 12px; color: #717894; margin-bottom: 12px;">
-                    歌詞跑太慢按「提早」，跑太快按「延後」
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(-0.5)">
-                        ◀ 延後 0.5s
-                    </button>
-                    <button class="btn" style="background: #252f4a; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0, true)">
-                        ↺ 重置 0s
-                    </button>
-                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0.5)">
-                        提早 0.5s ▶
-                    </button>
-                </div>
-            </div>
-
-            <!-- 歌詞字體大小調整卡片 -->
-            <div class="card">
-                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>🔤 歌詞字體大小調整</span>
-                    <span id="remote-font-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">46px (標準)</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(-4)">
-                        A- 縮小
-                    </button>
-                    <button class="btn" style="background: #252f4a; padding: 12px 6px; font-size: 13px;" onclick="adjustFontSize(0, true)">
-                        ↺ 預設
-                    </button>
-                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(4)">
-                        A+ 放大
-                    </button>
-                </div>
-            </div>
-
-            <!-- 待播清單 -->
-            <div class="card">
-                <div class="card-title" style="display: flex; justify-content: space-between;">
-                    <span>📋 待播清單</span>
+                    <span>📋 待播歌單隊列</span>
                     <span id="queue-count" style="color: var(--cyber-cyan);">0 首</span>
                 </div>
-                <div id="now-playing-box" style="font-size: 13px; color: #a0aec0; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0, 240, 255, 0.2);">
+                
+                <div id="now-playing-box" style="font-size: 13px; color: #a0aec0; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0, 240, 255, 0.2);">
                     現正播放：<span id="now-playing-title" style="color: #fff; font-weight: bold;">無</span>
                 </div>
-                <div id="queue-list-box" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
-                    <div style="font-size: 13px; color: #5a617a; text-align: center; padding: 10px;">目前尚無排隊歌曲</div>
+
+                <div id="queue-list-box" style="display: flex; flex-direction: column; gap: 8px; max-height: 160px; overflow-y: auto; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 10px;">目前尚無排隊歌曲</div>
+                </div>
+
+                <!-- 歌曲載入子區域 -->
+                <div style="border-top: 1px dashed rgba(0, 240, 255, 0.25); padding-top: 12px;">
+                    <div style="font-size: 12px; color: var(--cyber-cyan); font-weight: bold; margin-bottom: 8px;">
+                        🔗 歌曲載入 (歌名/歌手 或 YouTube 網址)
+                    </div>
+                    <input type="text" id="manual-title" placeholder="歌曲名稱 (例: 晴天，自動解析歌詞)">
+                    <input type="text" id="manual-artist" placeholder="演唱歌手 (選填，例: 周杰倫)">
+                    <input type="text" id="manual-orig-id" placeholder="原唱 YouTube 完整網址或 11 碼 ID">
+                    <input type="text" id="manual-inst-id" placeholder="伴奏版 YouTube 網址或 ID (選填)">
+                    <div class="btn-grid" style="margin-top: 6px;">
+                        <button class="btn btn-accent" onclick="submitManualSong(false)">＋加入待播隊列</button>
+                        <button class="btn btn-primary" onclick="submitManualSong(true)">⚡優先插播</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- 音效與音量微調 -->
-            <div class="card">
-                <div class="card-title">混音音效設定</div>
-                <div class="control-group">
-                    <div class="control-label">
-                        <span>音樂音量</span>
-                        <span id="lbl-vol">80%</span>
+            <!-- 🌟 調整 2：即時演唱操控、音效設定、罐頭音效，整理為一個下拉選單 -->
+            <details class="cyber-accordion" id="accordion-controls-audio">
+                <summary>
+                    <span>🎛️ 控台與音效設定 (播放 / 混音 / 罐頭音效)</span>
+                    <span class="accordion-icon">▼</span>
+                </summary>
+                <div class="accordion-body">
+                    <!-- 即時演唱操控 -->
+                    <div>
+                        <div style="font-size: 11px; color: #8e95ad; font-weight: bold; margin-bottom: 8px;">演唱操控</div>
+                        <div class="btn-grid">
+                            <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
+                            <button class="btn btn-accent" id="btn-toggle-vocal" onclick="toggleVocalTrack()">🎙 切換伴奏</button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 8px; background: #1a2238; border: 1px solid #2d3b5e;" onclick="sendCmd({ action: 'SKIP_SONG' })">
+                            ⏭️ 切歌（跳至下一首）
+                        </button>
+                        <button class="btn btn-accent" style="width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="openMobileKaraokeModal()">
+                            <span>📱 開啟後座沉浸跟唱視窗</span>
+                        </button>
                     </div>
-                    <input type="range" min="0" max="100" value="80" oninput="updateVol(this.value)">
+
+                    <!-- 混音音效設定 -->
+                    <div style="border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 10px;">
+                        <div style="font-size: 11px; color: #8e95ad; font-weight: bold; margin-bottom: 6px;">混音音效設定</div>
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>音樂音量</span>
+                                <span id="lbl-vol">80%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="80" oninput="updateVol(this.value)">
+                        </div>
+                        <div class="control-group" style="margin-top: 10px;">
+                            <div class="control-label">
+                                <span>麥克風迴音 (Echo 延遲)</span>
+                                <span id="lbl-echo">0.3</span>
+                            </div>
+                            <input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="updateEcho(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- 氣氛罐頭音效 -->
+                    <div style="border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 10px;">
+                        <div style="font-size: 11px; color: #8e95ad; font-weight: bold; margin-bottom: 8px;">🎉 氣氛罐頭音效 (車載音響放送)</div>
+                        <div class="btn-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button class="btn" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: #fff; padding: 10px;" onclick="triggerSfx('applause')">
+                                👏 熱烈鼓掌
+                            </button>
+                            <button class="btn" style="background: rgba(255, 0, 127, 0.15); border: 1px solid var(--cyber-magenta); color: #fff; padding: 10px;" onclick="triggerSfx('cheer')">
+                                🎉 尖叫歡呼
+                            </button>
+                            <button class="btn" style="background: rgba(252, 238, 10, 0.15); border: 1px solid var(--cyber-yellow); color: #fff; padding: 10px;" onclick="triggerSfx('airhorn')">
+                                🎺 派對氣笛
+                            </button>
+                            <button class="btn" style="background: rgba(0, 255, 102, 0.15); border: 1px solid var(--cyber-green); color: #fff; padding: 10px;" onclick="triggerSfx('rimshot')">
+                                🥁 綜藝吐槽
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="control-group" style="margin-top: 14px;">
-                    <div class="control-label">
-                        <span>麥克風迴音 (Echo 延遲)</span>
-                        <span id="lbl-echo">0.3</span>
+            </details>
+
+            <!-- 🌟 調整 3：歌詞校準與字體大小調整，整理為一個區塊 -->
+            <div class="card" id="card-lyrics-and-display">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>⏱️ 歌詞校準與畫面顯示</span>
+                    <span id="remote-offset-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">0.0s</span>
+                </div>
+
+                <!-- 手動時間軸拖曳滑桿 -->
+                <div style="font-size: 12px; color: #8e95ad; margin-bottom: 4px;">
+                    時間軸拖桿校正（左拖延後、右拖提早）：
+                </div>
+                <div style="margin: 8px 0;">
+                    <input type="range" id="remote-offset-slider" min="-10" max="10" step="0.1" value="0" oninput="onOffsetSliderDrag(this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #5a617a; margin-top: 4px;">
+                        <span>◀ 慢 10s (跑太快)</span>
+                        <span onclick="adjustLyricOffset(0, true)" style="color: var(--cyber-cyan); cursor: pointer; text-decoration: underline;">↺ 歸零</span>
+                        <span>快 10s (跑太慢) ▶</span>
                     </div>
-                    <input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="updateEcho(this.value)">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn" style="background: #141b2d; padding: 8px 6px; font-size: 12px;" onclick="adjustLyricOffset(-0.5)">◀ 慢 0.5s</button>
+                    <button class="btn" style="background: #252f4a; padding: 8px 6px; font-size: 12px;" onclick="adjustLyricOffset(0, true)">↺ 歸零</button>
+                    <button class="btn" style="background: #141b2d; padding: 8px 6px; font-size: 12px;" onclick="adjustLyricOffset(0.5)">快 0.5s ▶</button>
+                </div>
+
+                <!-- 車機大螢幕字體大小調整 -->
+                <div style="border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 10px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 11px; color: #8e95ad; font-weight: bold;">🔤 車機字幕大小</span>
+                        <span id="remote-font-display" style="color: var(--cyber-cyan); font-size: 12px; font-weight: bold;">46px (標準)</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <button class="btn" style="background: #141b2d; padding: 8px 6px; font-size: 12px;" onclick="adjustFontSize(-4)">A- 縮小</button>
+                        <button class="btn" style="background: #252f4a; padding: 8px 6px; font-size: 12px;" onclick="adjustFontSize(0, true)">↺ 預設</button>
+                        <button class="btn" style="background: #141b2d; padding: 8px 6px; font-size: 12px;" onclick="adjustFontSize(4)">A+ 放大</button>
+                    </div>
+                </div>
+
+                <!-- 手機即時動態歌詞列表 (上下滑動/選句) -->
+                <div style="border-top: 1px dashed rgba(0, 240, 255, 0.2); padding-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 11px; color: var(--cyber-cyan); font-weight: bold;">📜 手機動態歌詞清單 (滑動選句)</span>
+                        <span style="font-size: 10px; color: #8e95ad;">點選任一句可跳轉或對齊</span>
+                    </div>
+
+                    <div id="mobile-lyrics-scroll-box" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; padding-right: 4px;">
+                        <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 20px;">
+                            等待車機載入動態歌詞...
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- 🌟 調整 4：整車歷史點播紀錄與用戶紀錄、喜愛歌曲，整理為一個下拉選單 -->
+            <details class="cyber-accordion" id="accordion-library">
+                <summary>
+                    <span>📚 歌庫與點播足跡 (喜愛 / 個人 / 全車歷史)</span>
+                    <span class="accordion-icon">▼</span>
+                </summary>
+                <div class="accordion-body">
+                    <div class="library-tab-group">
+                        <div class="library-tab active" id="tab-fav" onclick="switchLibraryTab('fav')">❤️ 喜愛歌曲 (<span id="fav-count">0</span>)</div>
+                        <div class="library-tab" id="tab-history" onclick="switchLibraryTab('history')">🕒 我的紀錄 (<span id="history-count">0</span>)</div>
+                        <div class="library-tab" id="tab-car-history" onclick="switchLibraryTab('car')">🚗 全車歷史 (<span id="car-history-count">0</span>)</div>
+                    </div>
+
+                    <!-- 1. 喜愛歌單面板 -->
+                    <div id="library-fav-panel" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                        <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無收藏歌曲，點歌時按 ❤️ 即可珍藏</div>
+                    </div>
+
+                    <!-- 2. 個人歷史紀錄面板 -->
+                    <div id="library-history-panel" class="hidden" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                        <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無個人點播紀錄</div>
+                    </div>
+
+                    <!-- 3. 全車歷史點播紀錄面板 -->
+                    <div id="library-car-history-panel" class="hidden" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                        <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">車載終端尚無已播歷史</div>
+                    </div>
+                </div>
+            </details>
         </div>
 
-        <!-- 懸浮按鈕：常駐右下角 -->
+        <!-- 🌟 調整 5：保持旅行手帳為懸浮按鈕常駐於右下方 -->
         <button id="diary-fab-btn" class="hidden" onclick="openDiaryModal()">
             <span style="font-size: 16px;">🗺️</span>
             <span>旅行手帳</span>
@@ -909,9 +1076,9 @@
                     <button style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeChangeRoomModal()">✕ 關閉</button>
                 </div>
                 <div style="font-size: 12px; color: #8e95ad; margin-bottom: 6px;">
-                    1. 輸入車機顯示的車牌或房號：
+                    1. 輸入車機顯示的車牌或房號（自由輸入）：
                 </div>
-                <input type="text" id="manual-room-input" placeholder="例如: ABC-8888 或 1234">
+                <input type="text" id="manual-room-input" placeholder="例如: ABC-8888 或 8888">
                 
                 <div style="font-size: 12px; color: var(--cyber-yellow); margin-bottom: 6px; font-weight: bold;">
                     2. 輸入 4 位數包廂密碼：
@@ -921,6 +1088,38 @@
                 <button class="btn btn-accent" style="width: 100%; padding: 12px;" onclick="submitManualRoomChange()">
                     ⚡ 驗證密碼並進入包廂
                 </button>
+            </div>
+        </div>
+
+        <!-- 全螢幕雙行卡拉OK跟唱燈箱 -->
+        <div id="mobile-karaoke-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 14, 0.96); backdrop-filter: blur(16px); z-index: 120; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 18px; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cyber-border); padding-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">🎤</span>
+                    <div>
+                        <div id="mobile-karaoke-song-title" style="color: #fff; font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">
+                            載入歌曲中...
+                        </div>
+                        <div style="font-size: 10px; color: var(--cyber-cyan); letter-spacing: 1px;">// PASSENGER SING-ALONG HUD //</div>
+                    </div>
+                </div>
+                <button style="background: rgba(255, 0, 127, 0.15); border: 1px solid var(--cyber-magenta); color: #fff; border-radius: 6px; padding: 6px 14px; font-size: 12px; cursor: pointer;" onclick="closeMobileKaraokeModal()">
+                    ✕ 退出跟唱
+                </button>
+            </div>
+
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 10px 0;">
+                <div id="mobile-ktv-top" class="mobile-ktv-line">🎵 準備進歌...</div>
+                <div id="mobile-ktv-bottom" class="mobile-ktv-line"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+                <div style="font-size: 11px; color: #8e95ad;">歌詞偏慢/快？</div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn" style="padding: 6px 10px; font-size: 11px; background: #141b2d;" onclick="adjustLyricOffset(-0.5)">◀ 延後 0.5s</button>
+                    <button class="btn" style="padding: 6px 10px; font-size: 11px; background: #252f4a;" onclick="adjustLyricOffset(0, true)">↺ 歸零</button>
+                    <button class="btn" style="padding: 6px 10px; font-size: 11px; background: #141b2d;" onclick="adjustLyricOffset(0.5)">提早 0.5s ▶</button>
+                </div>
             </div>
         </div>
 
@@ -1005,7 +1204,6 @@
         // ================= 1. 環境參數與全域狀態 =================
         const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
 
-        // Google 公開 STUN 伺服器配置（解決 4G 行動網路與車載 Wi-Fi 穿透失敗）
         const PEER_CONFIG = {
             config: {
                 iceServers: [
@@ -1033,6 +1231,7 @@
 
         let currentSong = null;
         let songQueue = [];
+        let carHistory = []; // 全車點播歷史
         let currentOriginalId = 'd_43a4H70qU';
         let currentInstId = 'nE8v6e7qJ6A';
         let isInstrumental = false;
@@ -1043,7 +1242,6 @@
 
         let roomMembers = {};
 
-        // 🌟 更新後的 12 款 EMOJI 清單
         const AVATAR_LIST = ['👽', '🛸', '🎤', '🎧', '👾', '🐱', '🦊', '🦄', '🧸', '😎', '🪼', '🗿'];
         let selectedAvatar = '👽';
         let selectedSeat = '副駕';
@@ -1066,6 +1264,8 @@
         const DIARY_FILE_NAME = "yunube_travel_diary.json";
         let driveTokenClient = null;
 
+        let remoteLyricsList = [];
+
         // ================= 2. 視圖分流路由 =================
         if (isRemote) {
             document.getElementById('screen-view').classList.add('hidden');
@@ -1086,9 +1286,7 @@
 
         function normalizeRoomId(val) {
             if (!val) return '';
-            val = val.trim();
-            if (/^\d{4}$/.test(val)) return 'ktv-' + val;
-            return val;
+            return val.trim();
         }
 
         // ================= 3. 通用頭貼解析工具 =================
@@ -1108,9 +1306,8 @@
 
         function promptChangeScreenRoomId() {
             const current = localStorage.getItem(SAVED_SCREEN_ROOM_KEY) || document.getElementById('room-id-display').innerText;
-            const defaultVal = current.startsWith('ktv-') ? '' : current;
             
-            const input = prompt("請輸入此車專屬包廂房號（例如車牌 ABC-8888 或自訂名稱）：", defaultVal);
+            const input = prompt("請輸入此車專屬包廂房號（例如車牌 ABC-8888 或自訂名稱）：", current);
             if (input === null) return;
 
             const sanitized = input.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
@@ -1389,7 +1586,56 @@
             initRemoteMode(targetRoom);
         }
 
-        // ================= 7. 旅行手帳彈窗控制 =================
+        // ================= 7. 沉浸式雙行卡拉OK跟唱燈箱開關 =================
+        function openMobileKaraokeModal() {
+            document.getElementById('mobile-karaoke-modal').classList.remove('hidden');
+            const titleEl = document.getElementById('mobile-karaoke-song-title');
+            if (titleEl && currentSong) {
+                titleEl.innerText = currentSong.displayTitle || currentSong.title;
+            }
+        }
+
+        function closeMobileKaraokeModal() {
+            document.getElementById('mobile-karaoke-modal').classList.add('hidden');
+        }
+
+        function updateMobileTwoLineLyrics(activeIndex) {
+            if (!remoteLyricsList || remoteLyricsList.length === 0) return;
+
+            const elTop = document.getElementById('mobile-ktv-top');
+            const elBottom = document.getElementById('mobile-ktv-bottom');
+            if (!elTop || !elBottom) return;
+
+            if (activeIndex === -1) {
+                applyMobileLineState(elTop, remoteLyricsList[0], false);
+                applyMobileLineState(elBottom, remoteLyricsList[1], false);
+                return;
+            }
+
+            const currentLine = remoteLyricsList[activeIndex];
+            const nextLine = remoteLyricsList[activeIndex + 1] || null;
+
+            if (activeIndex % 2 === 0) {
+                applyMobileLineState(elTop, currentLine, true);
+                applyMobileLineState(elBottom, nextLine, false);
+            } else {
+                applyMobileLineState(elBottom, currentLine, true);
+                applyMobileLineState(elTop, nextLine, false);
+            }
+        }
+
+        function applyMobileLineState(el, lineData, isActive) {
+            if (!lineData) {
+                el.innerText = '';
+                el.className = 'mobile-ktv-line';
+                return;
+            }
+            const prefix = lineData.tag ? `[${lineData.tag}] ` : '';
+            el.innerText = `${prefix}${lineData.text}`;
+            el.className = `mobile-ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
+        }
+
+        // ================= 8. 旅行手帳彈窗控制 =================
         function openDiaryModal() {
             document.getElementById('diary-modal').classList.remove('hidden');
         }
@@ -1398,7 +1644,7 @@
             document.getElementById('diary-modal').classList.add('hidden');
         }
 
-        // ================= 8. 個人專屬歌庫系統 =================
+        // ================= 9. 個人專屬歌庫系統與全車歷史 =================
         function loadUserLibrary() {
             const favKey = `yunube_favs_${userProfile.id}`;
             const histKey = `yunube_history_${userProfile.id}`;
@@ -1416,13 +1662,11 @@
         function switchLibraryTab(tab) {
             document.getElementById('tab-fav').className = `library-tab ${tab === 'fav' ? 'active' : ''}`;
             document.getElementById('tab-history').className = `library-tab ${tab === 'history' ? 'active' : ''}`;
-            if (tab === 'fav') {
-                document.getElementById('library-fav-panel').classList.remove('hidden');
-                document.getElementById('library-history-panel').classList.add('hidden');
-            } else {
-                document.getElementById('library-fav-panel').classList.add('hidden');
-                document.getElementById('library-history-panel').classList.remove('hidden');
-            }
+            document.getElementById('tab-car-history').className = `library-tab ${tab === 'car' ? 'active' : ''}`;
+
+            document.getElementById('library-fav-panel').classList.toggle('hidden', tab !== 'fav');
+            document.getElementById('library-history-panel').classList.toggle('hidden', tab !== 'history');
+            document.getElementById('library-car-history-panel').classList.toggle('hidden', tab !== 'car');
         }
 
         function toggleFavoriteSong(song) {
@@ -1461,7 +1705,7 @@
             const favBox = document.getElementById('library-fav-panel');
             favBox.innerHTML = '';
             if (userFavorites.length === 0) {
-                favBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無收藏歌曲，點播新歌時點擊 ❤️ 即可永久珍藏</div>';
+                favBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無收藏歌曲，點歌時按 ❤️ 即可珍藏</div>';
             } else {
                 userFavorites.forEach((song) => {
                     const row = document.createElement('div');
@@ -1484,7 +1728,7 @@
             const histBox = document.getElementById('library-history-panel');
             histBox.innerHTML = '';
             if (userHistory.length === 0) {
-                histBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無歷史點播紀錄</div>';
+                histBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無個人點播紀錄</div>';
             } else {
                 userHistory.forEach((song, idx) => {
                     const isFav = userFavorites.some(s => s.origId === song.origId);
@@ -1506,6 +1750,41 @@
             }
         }
 
+        // 渲染全車歷史點播
+        function renderCarHistoryUI(carHist) {
+            carHistory = carHist || [];
+            const countEl = document.getElementById('car-history-count');
+            if (countEl) countEl.innerText = carHistory.length;
+
+            const carBox = document.getElementById('library-car-history-panel');
+            if (!carBox) return;
+
+            carBox.innerHTML = '';
+            if (carHistory.length === 0) {
+                carBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">車載終端尚無已播歷史</div>';
+                return;
+            }
+
+            carHistory.forEach((song, idx) => {
+                const isFav = userFavorites.some(s => s.origId === song.origId);
+                const row = document.createElement('div');
+                row.style = "display: flex; align-items: center; justify-content: space-between; background: rgba(20, 27, 45, 0.6); padding: 7px 10px; border-radius: 6px; font-size: 12px;";
+                row.innerHTML = `
+                    <div style="flex: 1; overflow: hidden; margin-right: 6px;">
+                        <span style="color: var(--cyber-yellow); font-weight: bold;">${idx + 1}.</span>
+                        <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle || song.title}</span>
+                        <span style="font-size: 10px; color: #8e95ad; margin-left: 4px;">(${song.requestedBy || '車載'})</span>
+                    </div>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <button style="background: none; border: none; cursor: pointer; font-size: 13px;" onclick='toggleFavoriteSong(${JSON.stringify(song)})'>${isFav ? '❤️' : '🤍'}</button>
+                        <button class="btn btn-accent" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, false)'>＋點</button>
+                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, true)'>⚡插</button>
+                    </div>
+                `;
+                carBox.appendChild(row);
+            });
+        }
+
         function requeueSong(song, isInsertNext) {
             const songData = {
                 title: song.title,
@@ -1520,7 +1799,69 @@
             queueSong(songData, isInsertNext);
         }
 
-        // ================= 9. 車載旅行手帳與 Google Drive 雲端同步 =================
+        // ================= 10. 手機端互動歌詞渲染與觸控拖曳選句 =================
+        function renderMobileLyricsUI(lyrics) {
+            remoteLyricsList = lyrics || [];
+            const container = document.getElementById('mobile-lyrics-scroll-box');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (!remoteLyricsList || remoteLyricsList.length === 0) {
+                container.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 20px;">此歌曲尚無動態時間軸歌詞</div>';
+                return;
+            }
+
+            remoteLyricsList.forEach((line, index) => {
+                const min = Math.floor(line.time / 60).toString().padStart(2, '0');
+                const sec = Math.floor(line.time % 60).toString().padStart(2, '0');
+                const timeTag = `${min}:${sec}`;
+
+                const item = document.createElement('div');
+                item.className = 'mobile-lyric-item';
+                item.id = `mobile-lyric-${index}`;
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;">
+                        <span class="mobile-lyric-time">${timeTag}</span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${line.text}</span>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button style="background: rgba(0,240,255,0.15); border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="seekToLyricTime(${line.time})">
+                            ⏩ 跳至
+                        </button>
+                        <button style="background: rgba(255,0,127,0.15); border: 1px solid var(--cyber-magenta); color: #fff; border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="alignSelectedLyric(${line.time})">
+                            🎯 對齊
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function highlightMobileActiveLyric(index) {
+            document.querySelectorAll('.mobile-lyric-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(`mobile-lyric-${index}`);
+            if (activeEl) {
+                activeEl.classList.add('active');
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function onOffsetSliderDrag(val) {
+            const floatVal = Math.round(parseFloat(val) * 10) / 10;
+            updateRemoteOffsetDisplay(floatVal);
+            sendCmd({ action: 'SET_EXACT_OFFSET', value: floatVal });
+        }
+
+        function seekToLyricTime(timeInSec) {
+            sendCmd({ action: 'SEEK_TO', seconds: timeInSec });
+        }
+
+        function alignSelectedLyric(targetTime) {
+            sendCmd({ action: 'ALIGN_LINE_TO_NOW', targetTime: targetTime });
+        }
+
+        // ================= 11. 車載旅行手帳與 Google Drive 雲端同步 =================
         function fetchCurrentGPSLocation() {
             const locDisplay = document.getElementById('diary-current-location');
             if (!navigator.geolocation) {
@@ -1742,7 +2083,7 @@
             });
         }
 
-        // ================= 10. 賽博龐克拍立得 Canvas 繪製引擎 =================
+        // ================= 12. 賽博龐克拍立得 Canvas 繪製引擎 =================
         function createCurrentPolaroid() {
             const noteText = document.getElementById('diary-note-input').value.trim() || "沿著公路迎風奔馳，車內就是專屬移動歌廳！";
             const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由巡航中";
@@ -1970,7 +2311,7 @@
             document.getElementById('polaroid-modal').classList.add('hidden');
         }
 
-        // ================= 11. 車機大螢幕端邏輯 =================
+        // ================= 13. 車機大螢幕端邏輯 =================
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
@@ -2155,7 +2496,7 @@
 
         function initScreenMode(forcedId = null) {
             const savedCustomId = localStorage.getItem(SAVED_SCREEN_ROOM_KEY);
-            const roomId = forcedId || savedCustomId || ('ktv-' + Math.floor(1000 + Math.random() * 9000));
+            const roomId = forcedId || savedCustomId || Math.floor(1000 + Math.random() * 9000).toString();
 
             peer = new Peer(roomId, PEER_CONFIG);
 
@@ -2174,9 +2515,17 @@
                         action: 'SYNC_QUEUE',
                         currentSong: currentSong,
                         queue: songQueue,
+                        carHistory: carHistory,
                         offset: lyricOffset,
                         fontSize: activeFontSize
                     });
+
+                    if (parsedLyrics && parsedLyrics.length > 0) {
+                        c.send({
+                            action: 'SYNC_LYRICS',
+                            lyrics: parsedLyrics
+                        });
+                    }
                 });
 
                 c.on('data', (data) => {
@@ -2264,6 +2613,7 @@
                 action: 'SYNC_QUEUE',
                 currentSong: currentSong,
                 queue: songQueue,
+                carHistory: carHistory,
                 offset: lyricOffset,
                 fontSize: activeFontSize
             });
@@ -2314,6 +2664,17 @@
             lyricOffset = 0.0;
             updateOffsetUI();
 
+            // 記錄至全車歷史紀錄
+            if (currentSong) {
+                if (!carHistory.length || carHistory[0].origId !== currentSong.origId) {
+                    carHistory.unshift({
+                        ...currentSong,
+                        playedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                    if (carHistory.length > 30) carHistory.pop();
+                }
+            }
+
             if (songQueue.length > 0) {
                 currentSong = songQueue.shift();
                 currentOriginalId = currentSong.origId;
@@ -2345,7 +2706,6 @@
         function handleRemoteCommand(cmd, clientConn) {
             if (!cmd) return;
 
-            // 4 位數通關密碼驗證邏輯
             if (cmd.action === 'REGISTER_PROFILE') {
                 if (cmd.pin !== screenPin) {
                     if (clientConn && clientConn.open) {
@@ -2377,6 +2737,28 @@
 
             if (cmd.action === 'TRIGGER_SFX') {
                 playKtvSfx(cmd.sfxType);
+                return;
+            }
+
+            if (cmd.action === 'SET_EXACT_OFFSET') {
+                lyricOffset = Math.round(parseFloat(cmd.value) * 10) / 10;
+                updateOffsetUI();
+                return;
+            }
+
+            if (cmd.action === 'SEEK_TO') {
+                if (ytPlayer && isPlayerReady) {
+                    ytPlayer.seekTo(cmd.seconds, true);
+                }
+                return;
+            }
+
+            if (cmd.action === 'ALIGN_LINE_TO_NOW') {
+                if (ytPlayer && isPlayerReady) {
+                    const currentSec = ytPlayer.getCurrentTime();
+                    lyricOffset = Math.round((currentSec - cmd.targetTime) * 10) / 10;
+                    updateOffsetUI();
+                }
                 return;
             }
 
@@ -2459,7 +2841,7 @@
             }
         }
 
-        // ================= 12. 男女合唱動態時間軸解析 =================
+        // ================= 14. 男女合唱動態時間軸解析 =================
         function detectSingerRole(rawText) {
             const maleRegex = /^(?:\(|（|\[)?(?:男|M|Boy|Male)(?:\)|）|\]|：|:)\s*/i;
             const femaleRegex = /^(?:\(|（|\[)?(?:女|F|Girl|Female)(?:\)|）|\]|：|:)\s*/i;
@@ -2494,14 +2876,21 @@
                     parseLRC(matched.syncedLyrics);
                     applyLineState(elTop, parsedLyrics[0], false);
                     applyLineState(elBottom, parsedLyrics[1], false);
+
+                    broadcastToAllRemotes({
+                        action: 'SYNC_LYRICS',
+                        lyrics: parsedLyrics
+                    });
                 } else {
                     elTop.innerText = '🎵 此曲無同步動態歌詞，請欣賞畫面字幕';
                     elTop.className = 'ktv-line active';
                     elBottom.innerText = '';
+                    broadcastToAllRemotes({ action: 'SYNC_LYRICS', lyrics: [] });
                 }
             } catch (err) {
                 elTop.innerText = '⚠️ 歌詞獲取失敗，請確認聯網狀態';
                 elBottom.innerText = '';
+                broadcastToAllRemotes({ action: 'SYNC_LYRICS', lyrics: [] });
             }
         }
 
@@ -2569,6 +2958,11 @@
                     applyLineState(elBottom, currentSongLine, true);
                     applyLineState(elTop, nextSongLine, false);
                 }
+
+                broadcastToAllRemotes({
+                    action: 'SYNC_ACTIVE_LYRIC_INDEX',
+                    index: matchedIdx
+                });
             }
         }
 
@@ -2583,7 +2977,7 @@
             el.className = `ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 13. 手機遙控端通訊與重連機制 =================
+        // ================= 15. 手機遙控端通訊與重連機制 =================
         function initRemoteMode(roomId) {
             if (!roomId) {
                 const statusEl = document.getElementById('mobile-status-text');
@@ -2644,6 +3038,9 @@
 
                     if (data.action === 'SYNC_QUEUE') {
                         renderQueueUI(data.currentSong, data.queue);
+                        if (data.carHistory) {
+                            renderCarHistoryUI(data.carHistory);
+                        }
                         if (data.offset !== undefined) updateRemoteOffsetDisplay(data.offset);
                         if (data.fontSize !== undefined) updateRemoteFontDisplay(data.fontSize);
                         
@@ -2654,11 +3051,23 @@
                                 : '包廂待播隊列中';
                         }
                     }
+
                     if (data.action === 'SYNC_OFFSET') {
                         updateRemoteOffsetDisplay(data.offset);
                     }
+
                     if (data.action === 'SYNC_FONT_SIZE') {
                         updateRemoteFontDisplay(data.fontSize);
+                    }
+
+                    if (data.action === 'SYNC_LYRICS') {
+                        renderMobileLyricsUI(data.lyrics);
+                        updateMobileTwoLineLyrics(-1);
+                    }
+
+                    if (data.action === 'SYNC_ACTIVE_LYRIC_INDEX') {
+                        highlightMobileActiveLyric(data.index);
+                        updateMobileTwoLineLyrics(data.index);
                     }
                 });
 
@@ -2716,10 +3125,14 @@
 
         function updateRemoteOffsetDisplay(val) {
             const el = document.getElementById('remote-offset-display');
+            const slider = document.getElementById('remote-offset-slider');
             if (el) {
                 const sign = val > 0 ? '+' : '';
                 el.innerText = `${sign}${val.toFixed(1)}s`;
                 el.style.color = val === 0 ? 'var(--cyber-cyan)' : 'var(--cyber-magenta)';
+            }
+            if (slider && document.activeElement !== slider) {
+                slider.value = val;
             }
         }
 
@@ -2816,7 +3229,7 @@
             });
         }
 
-        // ================= 14. YouTube Player 實例化 =================
+        // ================= 16. YouTube Player 實例化 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
             
@@ -2880,7 +3293,7 @@
             }
         }
 
-        // ================= 15. Web Audio API 車載麥克風迴音混音 =================
+        // ================= 17. Web Audio API 車載麥克風迴音混音 =================
         async function enableAudioMixer() {
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
