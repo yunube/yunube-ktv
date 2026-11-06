@@ -8,11 +8,12 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- 第三方核心函式庫：PeerJS (端對端通訊)、QRCode.js (配對條碼) -->
+    <!-- 第三方核心函式庫：PeerJS、QRCode.js、Google Identity Services -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* ================= 科技未來感全域設定 ================= */
+        /* ================= 科技未來感全域變數 ================= */
         :root {
             --ktv-font-active: 46px;
             --ktv-font-preview: 32px;
@@ -23,7 +24,7 @@
             --cyber-blue: #1e90ff;
             --cyber-green: #00ff66;
             --cyber-bg: #07090e;
-            --cyber-panel: rgba(13, 17, 28, 0.85);
+            --cyber-panel: rgba(13, 17, 28, 0.88);
             --cyber-border: rgba(0, 240, 255, 0.25);
         }
 
@@ -57,7 +58,6 @@
         }
         #player { width: 100%; height: 100%; pointer-events: none; }
         
-        /* 科技開機終端覆蓋層 */
         #start-overlay {
             position: absolute;
             top: 0;
@@ -77,7 +77,6 @@
         }
         #start-overlay:active { background: rgba(2, 3, 6, 0.98); }
 
-        /* HUD 即時數位抬頭狀態列（左上角） */
         #hud-overlay { 
             position: absolute; 
             top: 24px; 
@@ -96,7 +95,6 @@
             letter-spacing: 1px;
         }
 
-        /* 右上角 HUD 全螢幕切換鍵 */
         #fullscreen-btn {
             position: absolute;
             top: 24px;
@@ -115,12 +113,9 @@
             transition: all 0.2s;
             text-transform: uppercase;
         }
-        #fullscreen-btn:hover {
-            background: var(--cyber-cyan);
-            color: #000;
-        }
+        #fullscreen-btn:hover { background: var(--cyber-cyan); color: #000; }
 
-        /* 雙行交替 KTV 懸浮歌詞層（科技深色邊框，文字無發光純色描邊） */
+        /* 雙行交替 KTV 歌詞容器 */
         #lyrics-container {
             position: absolute;
             bottom: 30px;
@@ -159,45 +154,55 @@
         #lyric-top { text-align: left; padding-right: 15%; }
         #lyric-bottom { text-align: right; padding-left: 15%; }
 
-        /* 預覽等待色彩 */
         .ktv-line.role-male    { color: rgba(56, 189, 248, 0.4); }
         .ktv-line.role-female  { color: rgba(244, 114, 182, 0.4); }
         .ktv-line.role-duet    { color: rgba(34, 197, 94, 0.4); }
         .ktv-line.role-default { color: rgba(255, 255, 255, 0.35); }
 
-        /* 當前演唱句：無發光、實心填滿搭配實線描邊 */
         .ktv-line.active {
             font-size: var(--ktv-font-active);
             font-weight: 900;
             text-shadow: none !important;
             transform: scale(1.02);
         }
-        /* 1. 獨唱 / 預設：藍外框白字 */
         .ktv-line.role-default.active {
             color: #ffffff;
             -webkit-text-stroke: var(--ktv-stroke-width) #1e90ff;
             text-stroke: var(--ktv-stroke-width) #1e90ff;
         }
-        /* 2. 男生：白外框藍字 */
         .ktv-line.role-male.active {
             color: #2563eb;
             -webkit-text-stroke: var(--ktv-stroke-width) #ffffff;
             text-stroke: var(--ktv-stroke-width) #ffffff;
         }
-        /* 3. 女生：白外框粉字 */
         .ktv-line.role-female.active {
             color: #ec4899;
             -webkit-text-stroke: var(--ktv-stroke-width) #ffffff;
             text-stroke: var(--ktv-stroke-width) #ffffff;
         }
-        /* 4. 合唱：白外框綠字 */
         .ktv-line.role-duet.active {
             color: #10b981;
             -webkit-text-stroke: var(--ktv-stroke-width) #ffffff;
             text-stroke: var(--ktv-stroke-width) #ffffff;
         }
 
-        /* 側邊主機欄（右側 HUD 終端風格） */
+        .sfx-floating-emoji {
+            position: absolute;
+            bottom: 240px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 70px;
+            pointer-events: none;
+            z-index: 55;
+            animation: floatUpAndFade 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            filter: drop-shadow(0 0 20px var(--cyber-cyan));
+        }
+        @keyframes floatUpAndFade {
+            0% { transform: translate(-50%, 40px) scale(0.5); opacity: 0; }
+            30% { transform: translate(-50%, 0) scale(1.3); opacity: 1; }
+            100% { transform: translate(-50%, -120px) scale(1); opacity: 0; }
+        }
+
         #sidebar { 
             width: 350px; 
             background: rgba(10, 14, 23, 0.95); 
@@ -222,14 +227,13 @@
         .hud-stat { font-size: 12px; color: #8e95ad; margin-bottom: 4px; letter-spacing: 0.5px; }
         .hud-stat span { color: #fff; font-weight: bold; }
 
-        /* 車機待播清單樣式 */
         #screen-queue-panel {
             flex: 1;
             background: rgba(16, 21, 35, 0.7);
             border: 1px solid var(--cyber-border);
             border-radius: 8px;
             padding: 12px 14px;
-            margin: 12px 0;
+            margin: 10px 0;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -246,9 +250,59 @@
         #screen-queue-list::-webkit-scrollbar { width: 4px; }
         #screen-queue-list::-webkit-scrollbar-thumb { background: var(--cyber-border); border-radius: 2px; }
 
-        /* ================= 2. 手機遙控器端 UI (Cyber Terminal) ================= */
+        #members-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(4, 7, 14, 0.85);
+            backdrop-filter: blur(14px);
+            z-index: 60;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-box {
+            background: #0d121f;
+            border: 1px solid var(--cyber-cyan);
+            border-radius: 12px;
+            width: 85%;
+            max-width: 600px;
+            max-height: 80vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.25);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .members-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .member-card-row {
+            background: rgba(20, 27, 45, 0.7);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ================= 2. 手機遙控器端 UI ================= */
         #remote-view { 
-            padding: 16px 14px; 
+            padding: 16px 14px 90px 14px; /* 預留底部空間給懸浮按鈕 */
             max-width: 480px; 
             margin: 0 auto; 
             display: flex; 
@@ -257,9 +311,9 @@
             overflow-y: auto;
             height: 100vh;
             user-select: auto;
+            position: relative;
         }
 
-        /* 手機未來感主標題欄位 */
         .cyber-header {
             background: linear-gradient(135deg, rgba(16, 22, 38, 0.9) 0%, rgba(8, 12, 22, 0.95) 100%);
             border: 1px solid var(--cyber-border);
@@ -268,7 +322,6 @@
             border-radius: 10px;
             padding: 16px 14px;
             text-align: center;
-            position: relative;
             box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
         }
         .cyber-header-title {
@@ -287,7 +340,6 @@
             margin-top: 4px;
         }
 
-        /* 模組卡片樣式 */
         .card { 
             background: var(--cyber-panel); 
             border: 1px solid var(--cyber-border); 
@@ -371,6 +423,142 @@
             outline: none; 
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
         }
+
+        #profile-setup-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .avatar-option {
+            background: rgba(20, 27, 45, 0.8);
+            border: 2px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px;
+            font-size: 24px;
+            padding: 8px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+        }
+        .avatar-option.selected {
+            border-color: var(--cyber-cyan);
+            background: rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            transform: scale(1.08);
+        }
+        .seat-tag-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .seat-tag {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 12px;
+            background: #141b2d;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #8e95ad;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .seat-tag.selected {
+            border-color: var(--cyber-magenta);
+            color: #fff;
+            background: rgba(255, 0, 127, 0.2);
+            font-weight: bold;
+        }
+
+        .library-tab-group {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--cyber-border);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        .library-tab {
+            flex: 1;
+            text-align: center;
+            padding: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #8e95ad;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .library-tab.active {
+            color: var(--cyber-cyan);
+            background: rgba(0, 240, 255, 0.1);
+            font-weight: bold;
+        }
+
+        /* ================= 3. 懸浮按鈕 (FAB) 與 旅行手帳彈窗 ================= */
+        #diary-fab-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            z-index: 85;
+            background: linear-gradient(135deg, #ff007f 0%, #00f0ff 100%);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        #diary-fab-btn:active {
+            transform: scale(0.92);
+        }
+
+        #diary-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 7, 14, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 95;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 手機端以底部抽屜風格滑入 */
+            animation: fadeIn 0.25s ease;
+        }
+        .diary-drawer {
+            background: #0d121f;
+            border: 1px solid var(--cyber-cyan);
+            border-bottom: none;
+            border-radius: 16px 16px 0 0;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 0 -10px 40px rgba(0, 240, 255, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -378,19 +566,16 @@
     <!-- ================= 車機大螢幕介面 ================= -->
     <div id="screen-view">
         <div id="video-container">
-            <!-- 科技開機終端覆蓋層 -->
             <div id="start-overlay" onclick="unlockAutoplay()">
                 <div style="font-size: 56px; margin-bottom: 12px; filter: drop-shadow(0 0 20px var(--cyber-cyan));">⚡</div>
                 <div style="font-size: 26px; font-weight: 900; color: #fff; letter-spacing: 2px;">點擊螢幕開啟歡唱終端</div>
                 <div style="font-size: 13px; color: var(--cyber-cyan); margin-top: 8px; letter-spacing: 1px;">// INITIALIZE SYSTEM & AUDIO ENGINE //</div>
             </div>
 
-            <!-- 右上角 HUD 全螢幕切換按鈕 -->
             <button id="fullscreen-btn" onclick="toggleFullScreen()">⛶ 全螢幕切換</button>
 
             <div id="player"></div>
             
-            <!-- HUD 數位抬頭狀態列 -->
             <div id="hud-overlay">
                 <div>[STATUS] 模式：<span id="hud-mode" style="color: var(--cyber-cyan); font-weight: bold;">原唱模式</span></div>
                 <div style="margin-top: 4px; font-size: 12px; color: #a0aec0;">
@@ -403,7 +588,6 @@
                 </div>
             </div>
 
-            <!-- 雙行交替 KTV 歌詞容器 -->
             <div id="lyrics-container">
                 <div id="lyric-top" class="ktv-line">🎵 終端連線成功，準備歡唱...</div>
                 <div id="lyric-bottom" class="ktv-line"></div>
@@ -419,136 +603,339 @@
                 <div class="hud-stat">NODE：<span id="remote-status" style="color: var(--cyber-yellow);">等待連線 ⏳</span></div>
             </div>
 
-            <!-- 車機端待播歌單面板 -->
             <div id="screen-queue-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 12px; font-weight: 700; color: #717894; letter-spacing: 0.5px;">📋 待播歌單隊列</span>
                     <span id="screen-queue-count" style="font-size: 11px; color: var(--cyber-cyan); font-weight: bold;">0 首</span>
                 </div>
                 <div id="screen-queue-list">
-                    <div style="font-size: 12px; color: #5a617a; text-align: center; margin-top: 30px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>
+                    <div style="font-size: 12px; color: #5a617a; text-align: center; margin-top: 25px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>
                 </div>
             </div>
 
-            <button class="btn btn-accent" style="width: 100%; padding: 12px; font-size: 13px;" onclick="enableAudioMixer()">🎤 啟用車載麥克風混音</button>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="btn" style="width: 100%; padding: 10px; font-size: 13px; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan);" onclick="toggleMembersModal(true)">
+                    👥 查看包廂成員 (<span id="member-btn-count">0</span>)
+                </button>
+                <button class="btn btn-accent" style="width: 100%; padding: 11px; font-size: 13px;" onclick="enableAudioMixer()">
+                    🎤 啟用車載麥克風混音
+                </button>
+            </div>
+        </div>
+
+        <div id="members-modal" class="hidden">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <div>
+                        <h3 style="font-size: 18px; color: var(--cyber-cyan); letter-spacing: 1px;">👥 包廂連線節點通訊錄</h3>
+                        <div style="font-size: 11px; color: #8e95ad; margin-top: 2px;">CURRENT CONNECTED PASSENGERS</div>
+                    </div>
+                    <button style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 16px; width: 30px; height: 30px; border-radius: 6px; cursor: pointer;" onclick="toggleMembersModal(false)">✕</button>
+                </div>
+                <div class="members-grid" id="modal-members-list"></div>
+            </div>
         </div>
     </div>
 
-    <!-- ================= 手機遙控器介面 ================= -->
+    <!-- ================= 手機遙控器端 UI ================= -->
     <div id="remote-view" class="hidden">
         
-        <!-- 手機未來感主標題欄位 -->
         <header class="cyber-header">
             <div class="cyber-header-title">yunube大歌廳</div>
             <div class="cyber-header-sub">// REMOTE CONTROLLER TERMINAL //</div>
         </header>
 
-        <!-- 點播身分卡片 -->
-        <div class="card">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span class="card-title" style="margin-bottom: 0;">點播節點身分</span>
-                <input type="text" id="user-nickname" value="副駕乘客" style="width: 130px; padding: 6px 10px; font-size: 13px; text-align: right; margin-bottom: 0;">
-            </div>
-            <div id="mobile-status-text" style="color: var(--cyber-cyan); font-size: 12px; margin-top: 8px; letter-spacing: 0.5px;">正在建立車機數據鏈路...</div>
-        </div>
-
-        <!-- 手動點歌卡片 -->
-        <div class="card">
-            <div class="card-title">🔗 歌曲載入 (支援歌名與 YouTube 網址)</div>
-            <input type="text" id="manual-title" placeholder="歌曲名稱 (例: 晴天，自動解析動態歌詞)">
-            <input type="text" id="manual-artist" placeholder="演唱歌手 (選填，例: 周杰倫)">
-            <input type="text" id="manual-orig-id" placeholder="原唱 YouTube 完整網址或 11 碼 ID">
-            <input type="text" id="manual-inst-id" placeholder="伴奏版 YouTube 網址或 ID (選填)">
-            <div class="btn-grid" style="margin-top: 4px;">
-                <button class="btn btn-accent" onclick="submitManualSong(false)">＋加入待播隊列</button>
-                <button class="btn btn-primary" onclick="submitManualSong(true)">⚡優先插播</button>
-            </div>
-        </div>
-
-        <!-- 即時演唱控制 -->
-        <div class="card">
-            <div class="card-title">即時演唱操控</div>
-            <div class="btn-grid">
-                <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
-                <button class="btn btn-accent" id="btn-toggle-vocal" onclick="toggleVocalTrack()">🎙 切換伴奏</button>
-            </div>
-            <button class="btn" style="width: 100%; margin-top: 10px; background: #1a2238; border: 1px solid #2d3b5e;" onclick="sendCmd({ action: 'SKIP_SONG' })">
-                ⏭️ 切歌（跳至下一首）
-            </button>
-        </div>
-
-        <!-- 歌詞時間軸微調校正卡片 -->
-        <div class="card">
-            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>⏱️ 歌詞時間軸微調 (校正 MV 前奏)</span>
-                <span id="remote-offset-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">0.0s</span>
-            </div>
-            <div style="font-size: 12px; color: #717894; margin-bottom: 12px;">
-                歌詞跑太慢按「提早」，跑太快按「延後」
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(-0.5)">
-                    ◀ 延後 0.5s
-                </button>
-                <button class="btn" style="background: #252f4a; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0, true)">
-                    ↺ 重置 0s
-                </button>
-                <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0.5)">
-                    提早 0.5s ▶
-                </button>
-            </div>
-        </div>
-
-        <!-- 歌詞字體大小調整卡片 -->
-        <div class="card">
-            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>🔤 歌詞字體大小調整</span>
-                <span id="remote-font-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">46px (標準)</span>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(-4)">
-                    A- 縮小
-                </button>
-                <button class="btn" style="background: #252f4a; padding: 12px 6px; font-size: 13px;" onclick="adjustFontSize(0, true)">
-                    ↺ 預設
-                </button>
-                <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(4)">
-                    A+ 放大
-                </button>
-            </div>
-        </div>
-
-        <!-- 待播清單 -->
-        <div class="card">
-            <div class="card-title" style="display: flex; justify-content: space-between;">
-                <span>📋 待播清單</span>
-                <span id="queue-count" style="color: var(--cyber-cyan);">0 首</span>
-            </div>
-            <div id="now-playing-box" style="font-size: 13px; color: #a0aec0; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0, 240, 255, 0.2);">
-                現正播放：<span id="now-playing-title" style="color: #fff; font-weight: bold;">無</span>
-            </div>
-            <div id="queue-list-box" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
-                <div style="font-size: 13px; color: #5a617a; text-align: center; padding: 10px;">目前尚無排隊歌曲</div>
-            </div>
-        </div>
-
-        <!-- 音效與音量微調 -->
-        <div class="card">
-            <div class="card-title">混音音效設定</div>
-            <div class="control-group">
-                <div class="control-label">
-                    <span>音樂音量</span>
-                    <span id="lbl-vol">80%</span>
+        <!-- 關卡 1：登入方式分流與身分設定頁面 -->
+        <div id="profile-setup-screen">
+            <div class="card">
+                <div class="card-title">🆔 選擇包廂登入方式</div>
+                
+                <div id="google-auth-box" style="margin-bottom: 14px; padding: 14px; background: rgba(20, 27, 45, 0.7); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; text-align: center;">
+                    <div style="font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 4px;">🌐 Google 帳號身分連結</div>
+                    <div style="font-size: 11px; color: #8e95ad; margin-bottom: 10px;">連結個人 Google 帳號，跨次自動載入專屬喜愛與歷史歌單</div>
+                    
+                    <div id="google-signin-btn" style="display: flex; justify-content: center; margin-bottom: 6px;"></div>
+                    <button class="btn" id="btn-google-demo" style="font-size: 12px; padding: 8px 14px; background: rgba(66, 133, 244, 0.2); border: 1px solid #4285f4; color: #fff; width: 100%;" onclick="loginWithGoogleDemo()">
+                        🚀 一鍵以 Google 帳號快速登入 (免配置測試)
+                    </button>
                 </div>
-                <input type="range" min="0" max="100" value="80" oninput="updateVol(this.value)">
-            </div>
-            <div class="control-group" style="margin-top: 14px;">
-                <div class="control-label">
-                    <span>麥克風迴音 (Echo 延遲)</span>
-                    <span id="lbl-echo">0.3</span>
+
+                <div id="google-linked-banner" class="hidden" style="margin-bottom: 14px; padding: 12px 14px; background: rgba(0, 255, 102, 0.1); border: 1px solid var(--cyber-green); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 18px;">✅</span>
+                        <div>
+                            <div style="font-size: 12px; color: #fff; font-weight: bold;">Google 帳號已連結</div>
+                            <div id="google-linked-name" style="font-size: 11px; color: var(--cyber-green);">Google 使用者</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="padding: 4px 8px; font-size: 11px; background: #1a2238;" onclick="unlinkGoogleAccount()">切換帳號</button>
                 </div>
-                <input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="updateEcho(this.value)">
+
+                <div style="font-size: 12px; color: var(--cyber-cyan); margin-bottom: 6px; font-weight: bold;">
+                    1. 挑選大頭貼 (支援 Google 原圖 / 12 款預設 Emoji)
+                </div>
+                <div class="avatar-grid" id="avatar-selector"></div>
+
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 10px; background: rgba(20, 27, 45, 0.6); border: 1px dashed var(--cyber-border); border-radius: 8px;">
+                    <input type="file" id="custom-photo-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+                    <button class="btn" style="padding: 8px 12px; font-size: 12px; background: #1a2238; border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan);" onclick="document.getElementById('custom-photo-input').click()">
+                        📷 自拍 / 相簿上傳
+                    </button>
+                    <div id="custom-photo-preview" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #07090e;">
+                        <span style="font-size: 18px; color: #717894;">👤</span>
+                    </div>
+                    <div style="font-size: 11px; color: #8e95ad;">自由切換 Google 原圖、照片或 Emoji</div>
+                </div>
+
+                <div style="font-size: 12px; color: var(--cyber-cyan); margin-bottom: 6px; font-weight: bold;">
+                    2. 輸入乘車暱稱 (Nickname)
+                </div>
+                <input type="text" id="setup-nickname" placeholder="例如: 麥霸阿豪" value="歡唱歌手">
+
+                <div style="font-size: 12px; color: var(--cyber-cyan); margin-bottom: 6px; font-weight: bold;">
+                    3. 車載座位標籤 (Seat Tag)
+                </div>
+                <div class="seat-tag-group" id="seat-selector">
+                    <div class="seat-tag selected" onclick="selectSeatTag(this, '副駕')">副駕</div>
+                    <div class="seat-tag" onclick="selectSeatTag(this, '後座左')">後座左</div>
+                    <div class="seat-tag" onclick="selectSeatTag(this, '後座中')">後座中</div>
+                    <div class="seat-tag" onclick="selectSeatTag(this, '後座右')">後座右</div>
+                </div>
+
+                <button class="btn btn-accent" id="btn-confirm-login" style="width: 100%; margin-top: 6px;" onclick="confirmProfileAndEnterRoom()">
+                    ⚡ 儲存個人資料並進入包廂
+                </button>
             </div>
+        </div>
+
+        <!-- 關卡 2：點歌與遙控控制台 (完成登入後解鎖) -->
+        <div id="remote-dashboard" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+            
+            <div class="card" style="border-left: 4px solid var(--cyber-cyan);">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div id="profile-badge-avatar" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">🤖</div>
+                        <div>
+                            <div id="profile-badge-name" style="font-size: 14px; font-weight: bold; color: #fff;">歡唱歌手 (副駕)</div>
+                            <div id="profile-badge-type" style="color: var(--cyber-cyan); font-size: 11px; margin-top: 2px;">訪客模式・歌庫本機已載入</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="padding: 6px 12px; font-size: 11px; background: #1a2238;" onclick="reopenProfileSetup()">修改資料</button>
+                </div>
+            </div>
+
+            <!-- 個人專屬歌庫卡片 (喜愛歌單 ❤️ 與 歷史紀錄 🕒) -->
+            <div class="card">
+                <div class="library-tab-group">
+                    <div class="library-tab active" id="tab-fav" onclick="switchLibraryTab('fav')">❤️ 喜愛歌單 (<span id="fav-count">0</span>)</div>
+                    <div class="library-tab" id="tab-history" onclick="switchLibraryTab('history')">🕒 歷史點播 (<span id="history-count">0</span>)</div>
+                </div>
+
+                <div id="library-fav-panel" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                    <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無收藏歌曲，點播新歌時點擊 ❤️ 即可永久珍藏</div>
+                </div>
+
+                <div id="library-history-panel" class="hidden" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                    <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無歷史點播紀錄</div>
+                </div>
+            </div>
+
+            <!-- 氣氛罐頭音效面板 -->
+            <div class="card">
+                <div class="card-title">🎉 氣氛罐頭音效 (車載音響即時放送)</div>
+                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn" style="background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: #fff;" onclick="triggerSfx('applause')">
+                        👏 熱烈鼓掌
+                    </button>
+                    <button class="btn" style="background: rgba(255, 0, 127, 0.15); border: 1px solid var(--cyber-magenta); color: #fff;" onclick="triggerSfx('cheer')">
+                        🎉 尖叫歡呼
+                    </button>
+                    <button class="btn" style="background: rgba(252, 238, 10, 0.15); border: 1px solid var(--cyber-yellow); color: #fff;" onclick="triggerSfx('airhorn')">
+                        🎺 派對氣笛
+                    </button>
+                    <button class="btn" style="background: rgba(0, 255, 102, 0.15); border: 1px solid var(--cyber-green); color: #fff;" onclick="triggerSfx('rimshot')">
+                        🥁 綜藝吐槽
+                    </button>
+                </div>
+            </div>
+
+            <!-- 點歌載入卡片 -->
+            <div class="card">
+                <div class="card-title">🔗 歌曲載入 (支援歌名與 YouTube 網址)</div>
+                <input type="text" id="manual-title" placeholder="歌曲名稱 (例: 晴天，自動解析動態歌詞)">
+                <input type="text" id="manual-artist" placeholder="演唱歌手 (選填，例: 周杰倫)">
+                <input type="text" id="manual-orig-id" placeholder="原唱 YouTube 完整網址或 11 碼 ID">
+                <input type="text" id="manual-inst-id" placeholder="伴奏版 YouTube 網址或 ID (選填)">
+                <div class="btn-grid" style="margin-top: 4px;">
+                    <button class="btn btn-accent" onclick="submitManualSong(false)">＋加入待播隊列</button>
+                    <button class="btn btn-primary" onclick="submitManualSong(true)">⚡優先插播</button>
+                </div>
+            </div>
+
+            <!-- 即時演唱控制 -->
+            <div class="card">
+                <div class="card-title">即時演唱操控</div>
+                <div class="btn-grid">
+                    <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
+                    <button class="btn btn-accent" id="btn-toggle-vocal" onclick="toggleVocalTrack()">🎙 切換伴奏</button>
+                </div>
+                <button class="btn" style="width: 100%; margin-top: 10px; background: #1a2238; border: 1px solid #2d3b5e;" onclick="sendCmd({ action: 'SKIP_SONG' })">
+                    ⏭️ 切歌（跳至下一首）
+                </button>
+            </div>
+
+            <!-- 歌詞時間軸微調校正卡片 -->
+            <div class="card">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>⏱️ 歌詞時間軸微調 (校正 MV 前奏)</span>
+                    <span id="remote-offset-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">0.0s</span>
+                </div>
+                <div style="font-size: 12px; color: #717894; margin-bottom: 12px;">
+                    歌詞跑太慢按「提早」，跑太快按「延後」
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(-0.5)">
+                        ◀ 延後 0.5s
+                    </button>
+                    <button class="btn" style="background: #252f4a; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0, true)">
+                        ↺ 重置 0s
+                    </button>
+                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 13px;" onclick="adjustLyricOffset(0.5)">
+                        提早 0.5s ▶
+                    </button>
+                </div>
+            </div>
+
+            <!-- 歌詞字體大小調整卡片 -->
+            <div class="card">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>🔤 歌詞字體大小調整</span>
+                    <span id="remote-font-display" style="color: var(--cyber-cyan); font-size: 14px; font-weight: bold;">46px (標準)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(-4)">
+                        A- 縮小
+                    </button>
+                    <button class="btn" style="background: #252f4a; padding: 12px 6px; font-size: 13px;" onclick="adjustFontSize(0, true)">
+                        ↺ 預設
+                    </button>
+                    <button class="btn" style="background: #141b2d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(4)">
+                        A+ 放大
+                    </button>
+                </div>
+            </div>
+
+            <!-- 待播清單 -->
+            <div class="card">
+                <div class="card-title" style="display: flex; justify-content: space-between;">
+                    <span>📋 待播清單</span>
+                    <span id="queue-count" style="color: var(--cyber-cyan);">0 首</span>
+                </div>
+                <div id="now-playing-box" style="font-size: 13px; color: #a0aec0; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(0, 240, 255, 0.2);">
+                    現正播放：<span id="now-playing-title" style="color: #fff; font-weight: bold;">無</span>
+                </div>
+                <div id="queue-list-box" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
+                    <div style="font-size: 13px; color: #5a617a; text-align: center; padding: 10px;">目前尚無排隊歌曲</div>
+                </div>
+            </div>
+
+            <!-- 音效與音量微調 -->
+            <div class="card">
+                <div class="card-title">混音音效設定</div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>音樂音量</span>
+                        <span id="lbl-vol">80%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="80" oninput="updateVol(this.value)">
+                </div>
+                <div class="control-group" style="margin-top: 14px;">
+                    <div class="control-label">
+                        <span>麥克風迴音 (Echo 延遲)</span>
+                        <span id="lbl-echo">0.3</span>
+                    </div>
+                    <input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="updateEcho(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <!-- 懸浮按鈕：常駐右下角 -->
+        <button id="diary-fab-btn" class="hidden" onclick="openDiaryModal()">
+            <span style="font-size: 16px;">🗺️</span>
+            <span>旅行手帳</span>
+        </button>
+
+        <!-- 旅行手帳彈窗 (Drawer / Modal) -->
+        <div id="diary-modal" class="hidden">
+            <div class="diary-drawer">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--cyber-border); padding-bottom: 10px; margin-bottom: 14px;">
+                    <div>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--cyber-cyan); letter-spacing: 1px;">🗺️ 車載歡唱旅行手帳</div>
+                        <div style="font-size: 10px; color: #8e95ad; margin-top: 2px;">ROADTRIP MEMORIES // GOOGLE DRIVE SYNC</div>
+                    </div>
+                    <button style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeDiaryModal()">✕ 關閉</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px;">
+                    <span style="color: #8e95ad;">雲端同步狀態：</span>
+                    <span id="diary-sync-status" style="color: var(--cyber-yellow); font-weight: bold;">未連線雲端</span>
+                </div>
+
+                <div style="background: rgba(20, 27, 45, 0.6); border: 1px solid var(--cyber-border); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 11px; color: #8e95ad;">📍 當前歡唱定位：</span>
+                        <button class="btn" style="padding: 3px 8px; font-size: 10px; background: #1a2238; color: var(--cyber-cyan);" onclick="fetchCurrentGPSLocation()">
+                            🔄 重新定位
+                        </button>
+                    </div>
+                    <div id="diary-current-location" style="font-size: 13px; color: #fff; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        點擊「重新定位」獲取目前公路位置...
+                    </div>
+
+                    <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; font-size: 12px; color: #a0aec0;">
+                        🎵 歡唱進行曲：<span id="diary-current-song" style="color: var(--cyber-cyan); font-weight: bold;">包廂待播隊列中</span>
+                    </div>
+                </div>
+
+                <textarea id="diary-note-input" placeholder="紀錄這趟旅程的心情、同行好友或沿途風景 (例：國道一號開往台南跨年，副駕直接連飆三首周杰倫！)" style="width: 100%; height: 75px; background: #090d17; border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 6px; color: #fff; padding: 10px; font-size: 13px; resize: none; font-family: inherit; margin-bottom: 10px;"></textarea>
+
+                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <button class="btn btn-accent" style="padding: 10px; font-size: 12px;" onclick="saveAndSyncTravelDiary()">
+                        💾 儲存並同步至 Drive
+                    </button>
+                    <button class="btn" style="padding: 10px; font-size: 12px; background: linear-gradient(135deg, rgba(255, 0, 127, 0.25) 0%, rgba(0, 240, 255, 0.25) 100%); border: 1px solid var(--cyber-cyan); color: #fff;" onclick="createCurrentPolaroid()">
+                        🖼️ 產生賽博拍立得
+                    </button>
+                </div>
+
+                <button class="btn" style="width: 100%; padding: 8px; font-size: 11px; background: #1a2238; color: #a0aec0; margin-bottom: 12px;" onclick="loadDiaryFromGoogleDrive()">
+                    📥 讀取雲端歷史日記
+                </button>
+
+                <div style="font-size: 11px; color: #8e95ad; margin-bottom: 6px; font-weight: bold;">📜 本車雲端旅行歷史足跡：</div>
+                <div id="diary-entries-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto;">
+                    <div style="font-size: 12px; color: #5a617a; text-align: center; padding: 12px;">尚無旅行紀錄，打卡後將自動上傳至 Google 雲端</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 賽博拍立得彈出預覽 Modal -->
+        <div id="polaroid-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 14, 0.94); backdrop-filter: blur(14px); z-index: 110; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+            <div style="width: 100%; max-width: 360px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="color: var(--cyber-cyan); font-weight: bold; font-size: 14px; letter-spacing: 1px;">📸 賽博拍立得生成完畢</span>
+                <button style="background: none; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;" onclick="closePolaroidModal()">✕ 關閉</button>
+            </div>
+            
+            <div style="width: 100%; max-width: 360px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 35px rgba(0, 240, 255, 0.35); border: 1px solid var(--cyber-border); background: #000;">
+                <img id="polaroid-preview-img" src="" style="width: 100%; height: auto; display: block;">
+            </div>
+
+            <div style="width: 100%; max-width: 360px; display: flex; gap: 10px; margin-top: 14px;">
+                <a id="polaroid-download-link" href="#" download="yunube_roadtrip_polaroid.png" class="btn btn-accent" style="flex: 1; text-decoration: none; padding: 12px; font-size: 13px; text-align: center;">
+                    ⬇️ 一鍵下載卡片
+                </a>
+            </div>
+            <div style="font-size: 11px; color: #8e95ad; margin-top: 8px;">手機用戶亦可「長按上方圖片」直接加入相簿</div>
         </div>
     </div>
 
@@ -557,6 +944,8 @@
 
     <script>
         // ================= 1. 環境參數與全域狀態 =================
+        const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
+
         const urlParams = new URLSearchParams(window.location.search);
         const isRemote = urlParams.get('role') === 'remote';
         const targetRoom = urlParams.get('room');
@@ -568,7 +957,7 @@
 
         let currentSong = null;
         let songQueue = [];
-        let currentOriginalId = 'd_43a4H70qU'; // 預設曲目：十年
+        let currentOriginalId = 'd_43a4H70qU';
         let currentInstId = 'nE8v6e7qJ6A';
         let isInstrumental = false;
         let parsedLyrics = [];
@@ -576,16 +965,824 @@
         let lyricOffset = 0.0;
         let activeFontSize = 46;
 
+        let roomMembers = {};
+
+        const AVATAR_LIST = ['👽', '🕶️', '🎤', '🎧', '🦄', '🐱', '🦊', '👾', '🧸', '🛸', '🪼', '👑'];
+        let selectedAvatar = '👽';
+        let selectedSeat = '副駕';
+        
+        let userProfile = {
+            id: 'guest_local',
+            type: 'guest',
+            googleAvatar: null,
+            avatar: '👽',
+            nickname: '歡唱歌手',
+            seat: '副駕'
+        };
+
+        let userFavorites = [];
+        let userHistory = [];
+
+        // 旅行日記狀態
+        let driveAccessToken = null;
+        let currentDiaryLocation = { address: "未定位", lat: null, lng: null };
+        let travelDiaries = [];
+        const DIARY_FILE_NAME = "yunube_travel_diary.json";
+        let driveTokenClient = null;
+
         // ================= 2. 視圖分流路由 =================
         if (isRemote) {
             document.getElementById('screen-view').classList.add('hidden');
             document.getElementById('remote-view').classList.remove('hidden');
-            initRemoteMode(targetRoom);
+            initProfileSetupUI();
+            initGoogleSDK();
         } else {
             initScreenMode();
         }
 
-        // 全螢幕切換函式
+        // ================= 3. 通用頭貼解析工具 =================
+        function getAvatarHTML(avatarData, size = 20) {
+            if (!avatarData) return `<span style="font-size: ${size}px; vertical-align: middle;">🎤</span>`;
+            if (avatarData.startsWith('data:image') || avatarData.startsWith('http')) {
+                return `<img src="${avatarData}" style="width: ${size}px; height: ${size}px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid var(--cyber-cyan); display: inline-block;">`;
+            }
+            return `<span style="font-size: ${size}px; vertical-align: middle; display: inline-block;">${avatarData}</span>`;
+        }
+
+        // ================= 4. 登入分流與大頭貼自由挑選 =================
+        function initGoogleSDK() {
+            if (window.google && GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.includes("YOUR_GOOGLE_CLIENT_ID")) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-signin-btn"),
+                    { theme: "filled_blue", size: "medium", shape: "pill", text: "signin_with" }
+                );
+            }
+        }
+
+        function handleGoogleCredentialResponse(response) {
+            try {
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const googleUser = JSON.parse(jsonPayload);
+
+                onGoogleAuthSuccess({
+                    id: 'google_' + googleUser.sub,
+                    name: googleUser.name,
+                    picture: googleUser.picture
+                });
+            } catch (err) {
+                console.error("Google 憑證解析錯誤：", err);
+            }
+        }
+
+        function loginWithGoogleDemo() {
+            const demoName = prompt("請輸入您的 Google 帳戶顯示名稱：", "Google歌手");
+            if (!demoName) return;
+            onGoogleAuthSuccess({
+                id: 'google_demo_user',
+                name: demoName,
+                picture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
+            });
+        }
+
+        function onGoogleAuthSuccess(googleData) {
+            userProfile.id = googleData.id;
+            userProfile.type = 'google';
+            userProfile.googleAvatar = googleData.picture;
+            userProfile.nickname = googleData.name;
+            
+            selectedAvatar = googleData.picture;
+            document.getElementById('setup-nickname').value = googleData.name;
+
+            renderAvatarGrid();
+
+            document.getElementById('google-auth-box').classList.add('hidden');
+            document.getElementById('google-linked-banner').classList.remove('hidden');
+            document.getElementById('google-linked-name').innerText = `${googleData.name} (已連結 Google 歌庫)`;
+            document.getElementById('btn-confirm-login').innerText = '⚡ 以 Google 身分進入包廂';
+        }
+
+        function unlinkGoogleAccount() {
+            userProfile.id = 'guest_local';
+            userProfile.type = 'guest';
+            userProfile.googleAvatar = null;
+            selectedAvatar = '🤖';
+            document.getElementById('setup-nickname').value = '歡唱歌手';
+
+            renderAvatarGrid();
+
+            document.getElementById('google-auth-box').classList.remove('hidden');
+            document.getElementById('google-linked-banner').classList.add('hidden');
+            document.getElementById('btn-confirm-login').innerText = '👤 以訪客身分進入包廂';
+        }
+
+        function initProfileSetupUI() {
+            const cached = localStorage.getItem('yunube_ktv_user_profile');
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    userProfile = parsed;
+                    selectedAvatar = parsed.avatar || '🤖';
+                    selectedSeat = parsed.seat || '副駕';
+                    document.getElementById('setup-nickname').value = parsed.nickname || '歡唱歌手';
+                    
+                    if (parsed.type === 'google' && parsed.googleAvatar) {
+                        onGoogleAuthSuccess({
+                            id: parsed.id,
+                            name: parsed.nickname,
+                            picture: parsed.googleAvatar
+                        });
+                        selectedAvatar = parsed.avatar;
+                    }
+                } catch (e) {}
+            }
+            renderAvatarGrid();
+        }
+
+        function renderAvatarGrid() {
+            const container = document.getElementById('avatar-selector');
+            container.innerHTML = '';
+
+            if (userProfile.type === 'google' && userProfile.googleAvatar) {
+                const gOption = document.createElement('div');
+                gOption.className = `avatar-option ${selectedAvatar === userProfile.googleAvatar ? 'selected' : ''}`;
+                gOption.title = "使用 Google 帳戶原照";
+                gOption.innerHTML = `<img src="${userProfile.googleAvatar}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">`;
+                gOption.onclick = () => {
+                    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                    gOption.classList.add('selected');
+                    selectedAvatar = userProfile.googleAvatar;
+                };
+                container.appendChild(gOption);
+            }
+
+            AVATAR_LIST.forEach(emoji => {
+                const item = document.createElement('div');
+                item.className = `avatar-option ${emoji === selectedAvatar ? 'selected' : ''}`;
+                item.innerText = emoji;
+                item.onclick = () => {
+                    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    selectedAvatar = emoji;
+                };
+                container.appendChild(item);
+            });
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return alert("請選擇圖片檔案！");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const targetSize = 96;
+                    canvas.width = targetSize;
+                    canvas.height = targetSize;
+                    const ctx = canvas.getContext('2d');
+                    const minEdge = Math.min(img.width, img.height);
+                    ctx.drawImage(img, (img.width - minEdge)/2, (img.height - minEdge)/2, minEdge, minEdge, 0, 0, targetSize, targetSize);
+                    selectedAvatar = canvas.toDataURL('image/jpeg', 0.75);
+
+                    const previewEl = document.getElementById('custom-photo-preview');
+                    previewEl.innerHTML = `<img src="${selectedAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    previewEl.style.borderColor = 'var(--cyber-cyan)';
+                    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function selectSeatTag(el, seatName) {
+            document.querySelectorAll('.seat-tag').forEach(tag => tag.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedSeat = seatName;
+        }
+
+        function confirmProfileAndEnterRoom() {
+            const nick = document.getElementById('setup-nickname').value.trim() || '歡唱歌手';
+            userProfile.avatar = selectedAvatar;
+            userProfile.nickname = nick;
+            userProfile.seat = selectedSeat;
+
+            localStorage.setItem('yunube_ktv_user_profile', JSON.stringify(userProfile));
+
+            loadUserLibrary();
+
+            document.getElementById('profile-badge-avatar').innerHTML = getAvatarHTML(userProfile.avatar, 28);
+            document.getElementById('profile-badge-name').innerText = `${userProfile.nickname} (${userProfile.seat})`;
+            document.getElementById('profile-badge-type').innerText = userProfile.type === 'google' 
+                ? '🌐 Google 雲端帳戶・歌庫已連結' 
+                : '👤 訪客模式・歌庫本地已載入';
+
+            document.getElementById('profile-setup-screen').classList.add('hidden');
+            document.getElementById('remote-dashboard').classList.remove('hidden');
+            document.getElementById('diary-fab-btn').classList.remove('hidden'); // 解鎖懸浮按鈕
+
+            if (!connToScreen) {
+                initRemoteMode(targetRoom);
+            } else {
+                sendCmd({ action: 'REGISTER_PROFILE', profile: userProfile });
+            }
+        }
+
+        function reopenProfileSetup() {
+            document.getElementById('remote-dashboard').classList.add('hidden');
+            document.getElementById('diary-fab-btn').classList.add('hidden');
+            document.getElementById('profile-setup-screen').classList.remove('hidden');
+        }
+
+        // ================= 5. 懸浮按鈕與旅行手帳彈窗控制 =================
+        function openDiaryModal() {
+            document.getElementById('diary-modal').classList.remove('hidden');
+        }
+
+        function closeDiaryModal() {
+            document.getElementById('diary-modal').classList.add('hidden');
+        }
+
+        // ================= 6. 個人專屬歌庫系統 =================
+        function loadUserLibrary() {
+            const favKey = `yunube_favs_${userProfile.id}`;
+            const histKey = `yunube_history_${userProfile.id}`;
+            userFavorites = JSON.parse(localStorage.getItem(favKey) || '[]');
+            userHistory = JSON.parse(localStorage.getItem(histKey) || '[]');
+            renderLibraryUI();
+        }
+
+        function saveUserLibrary() {
+            localStorage.setItem(`yunube_favs_${userProfile.id}`, JSON.stringify(userFavorites));
+            localStorage.setItem(`yunube_history_${userProfile.id}`, JSON.stringify(userHistory));
+            renderLibraryUI();
+        }
+
+        function switchLibraryTab(tab) {
+            document.getElementById('tab-fav').className = `library-tab ${tab === 'fav' ? 'active' : ''}`;
+            document.getElementById('tab-history').className = `library-tab ${tab === 'history' ? 'active' : ''}`;
+            if (tab === 'fav') {
+                document.getElementById('library-fav-panel').classList.remove('hidden');
+                document.getElementById('library-history-panel').classList.add('hidden');
+            } else {
+                document.getElementById('library-fav-panel').classList.add('hidden');
+                document.getElementById('library-history-panel').classList.remove('hidden');
+            }
+        }
+
+        function toggleFavoriteSong(song) {
+            const idx = userFavorites.findIndex(s => s.origId === song.origId);
+            if (idx >= 0) {
+                userFavorites.splice(idx, 1);
+            } else {
+                userFavorites.unshift({
+                    title: song.title,
+                    artist: song.artist,
+                    origId: song.origId,
+                    instId: song.instId,
+                    displayTitle: song.displayTitle
+                });
+            }
+            saveUserLibrary();
+        }
+
+        function recordSongToHistory(song) {
+            userHistory = userHistory.filter(s => s.origId !== song.origId);
+            userHistory.unshift({
+                title: song.title,
+                artist: song.artist,
+                origId: song.origId,
+                instId: song.instId,
+                displayTitle: song.displayTitle
+            });
+            if (userHistory.length > 30) userHistory.pop();
+            saveUserLibrary();
+        }
+
+        function renderLibraryUI() {
+            document.getElementById('fav-count').innerText = userFavorites.length;
+            document.getElementById('history-count').innerText = userHistory.length;
+
+            const favBox = document.getElementById('library-fav-panel');
+            favBox.innerHTML = '';
+            if (userFavorites.length === 0) {
+                favBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無收藏歌曲，點播新歌時點擊 ❤️ 即可永久珍藏</div>';
+            } else {
+                userFavorites.forEach((song) => {
+                    const row = document.createElement('div');
+                    row.style = "display: flex; align-items: center; justify-content: space-between; background: rgba(20, 27, 45, 0.6); padding: 7px 10px; border-radius: 6px; font-size: 12px;";
+                    row.innerHTML = `
+                        <div style="flex: 1; overflow: hidden; margin-right: 6px;">
+                            <span style="color: #ff3377;">❤️</span>
+                            <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle}</span>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button class="btn btn-accent" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, false)'>＋點</button>
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, true)'>⚡插</button>
+                            <button style="background: none; border: none; color: #8e95ad; cursor: pointer; padding: 0 4px;" onclick='toggleFavoriteSong(${JSON.stringify(song)})'>✕</button>
+                        </div>
+                    `;
+                    favBox.appendChild(row);
+                });
+            }
+
+            const histBox = document.getElementById('library-history-panel');
+            histBox.innerHTML = '';
+            if (userHistory.length === 0) {
+                histBox.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 15px;">尚無歷史點播紀錄</div>';
+            } else {
+                userHistory.forEach((song, idx) => {
+                    const isFav = userFavorites.some(s => s.origId === song.origId);
+                    const row = document.createElement('div');
+                    row.style = "display: flex; align-items: center; justify-content: space-between; background: rgba(20, 27, 45, 0.6); padding: 7px 10px; border-radius: 6px; font-size: 12px;";
+                    row.innerHTML = `
+                        <div style="flex: 1; overflow: hidden; margin-right: 6px;">
+                            <span style="color: var(--cyber-cyan); font-weight: bold;">${idx + 1}.</span>
+                            <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle}</span>
+                        </div>
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <button style="background: none; border: none; cursor: pointer; font-size: 13px;" onclick='toggleFavoriteSong(${JSON.stringify(song)})'>${isFav ? '❤️' : '🤍'}</button>
+                            <button class="btn btn-accent" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, false)'>＋點</button>
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, true)'>⚡插</button>
+                        </div>
+                    `;
+                    histBox.appendChild(row);
+                });
+            }
+        }
+
+        function requeueSong(song, isInsertNext) {
+            const songData = {
+                title: song.title,
+                artist: song.artist,
+                origId: song.origId,
+                instId: song.instId,
+                displayTitle: song.displayTitle,
+                requestedBy: `${userProfile.nickname} (${userProfile.seat})`,
+                userAvatar: userProfile.avatar
+            };
+            recordSongToHistory(songData);
+            queueSong(songData, isInsertNext);
+        }
+
+        // ================= 7. 車載旅行手帳與 Google Drive 雲端同步 =================
+        function fetchCurrentGPSLocation() {
+            const locDisplay = document.getElementById('diary-current-location');
+            if (!navigator.geolocation) {
+                locDisplay.innerText = "瀏覽器不支援 GPS 定位";
+                return;
+            }
+
+            locDisplay.innerText = "🛰️ 正在連線衛星定位中...";
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    currentDiaryLocation.lat = lat;
+                    currentDiaryLocation.lng = lng;
+
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+                            headers: { 'Accept-Language': 'zh-TW' }
+                        });
+                        const data = await res.json();
+                        const addr = data.display_name ? data.display_name.split(',').slice(0, 3).reverse().join(' ') : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        currentDiaryLocation.address = addr;
+                        locDisplay.innerText = `📍 ${addr}`;
+                    } catch (err) {
+                        currentDiaryLocation.address = `GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`;
+                        locDisplay.innerText = `📍 ${currentDiaryLocation.address}`;
+                    }
+                },
+                (err) => {
+                    locDisplay.innerText = "⚠️ 定位失敗 (請確認開啟手機定位權限)";
+                    console.warn("GPS 定位錯誤：", err);
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+            );
+        }
+
+        function requestDriveAccessToken(callback) {
+            if (driveAccessToken) {
+                callback(driveAccessToken);
+                return;
+            }
+
+            if (!window.google || !google.accounts || !google.accounts.oauth2) {
+                alert("Google Identity 服務尚未載入完成，請確認聯網！");
+                return;
+            }
+
+            if (!driveTokenClient) {
+                driveTokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/drive.file',
+                    callback: (tokenResp) => {
+                        if (tokenResp.error) {
+                            alert("Google Drive 授權失敗：" + tokenResp.error);
+                            return;
+                        }
+                        driveAccessToken = tokenResp.access_token;
+                        document.getElementById('diary-sync-status').innerText = "雲端已連線 ✅";
+                        document.getElementById('diary-sync-status').style.color = "var(--cyber-green)";
+                        callback(driveAccessToken);
+                    }
+                });
+            }
+
+            // 修正：不傳入空的 prompt 參數，避免觸發 400 invalid_request
+            driveTokenClient.requestAccessToken();
+        }
+
+        async function findDiaryFileId(accessToken) {
+            const query = encodeURIComponent(`name = '${DIARY_FILE_NAME}' and trashed = false`);
+            const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            const result = await res.json();
+            if (result.files && result.files.length > 0) {
+                return result.files[0].id;
+            }
+            return null;
+        }
+
+        async function loadDiaryFromGoogleDrive() {
+            requestDriveAccessToken(async (token) => {
+                try {
+                    document.getElementById('diary-sync-status').innerText = "正在讀取雲端...";
+                    const fileId = await findDiaryFileId(token);
+                    if (!fileId) {
+                        document.getElementById('diary-sync-status').innerText = "雲端檔案建立中";
+                        renderDiaryList();
+                        return;
+                    }
+
+                    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    travelDiaries = await res.json();
+                    document.getElementById('diary-sync-status').innerText = `已同步 (${travelDiaries.length} 篇)`;
+                    document.getElementById('diary-sync-status').style.color = "var(--cyber-cyan)";
+                    renderDiaryList();
+                } catch (err) {
+                    console.error("讀取 Drive 日記出錯：", err);
+                    document.getElementById('diary-sync-status').innerText = "讀取失敗";
+                }
+            });
+        }
+
+        async function saveAndSyncTravelDiary() {
+            const noteText = document.getElementById('diary-note-input').value.trim();
+            if (!noteText) return alert("請輸入一段旅行心情或打卡隨筆！");
+
+            const now = new Date();
+            const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由伴奏";
+
+            const newEntry = {
+                id: "diary_" + Date.now(),
+                timestamp: now.toISOString(),
+                dateStr: `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`,
+                location: currentDiaryLocation,
+                song: playingTitle,
+                singer: `${userProfile.nickname} (${userProfile.seat})`,
+                avatar: userProfile.avatar,
+                note: noteText
+            };
+
+            requestDriveAccessToken(async (token) => {
+                try {
+                    document.getElementById('diary-sync-status').innerText = "雲端同步中...";
+                    
+                    const fileId = await findDiaryFileId(token);
+                    if (fileId) {
+                        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        try { travelDiaries = await res.json(); } catch(e) { travelDiaries = []; }
+                    }
+
+                    travelDiaries.unshift(newEntry);
+                    const content = JSON.stringify(travelDiaries, null, 2);
+
+                    if (fileId) {
+                        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: content
+                        });
+                    } else {
+                        const metadata = {
+                            name: DIARY_FILE_NAME,
+                            mimeType: 'application/json'
+                        };
+                        const boundary = '-------yunube_ktv_boundary';
+                        const delimiter = "\r\n--" + boundary + "\r\n";
+                        const close_delim = "\r\n--" + boundary + "--";
+
+                        const multipartRequestBody =
+                            delimiter +
+                            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+                            JSON.stringify(metadata) +
+                            delimiter +
+                            'Content-Type: application/json\r\n\r\n' +
+                            content +
+                            close_delim;
+
+                        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': `multipart/related; boundary=${boundary}`
+                            },
+                            body: multipartRequestBody
+                        });
+                    }
+
+                    document.getElementById('diary-note-input').value = '';
+                    document.getElementById('diary-sync-status').innerText = "同步完成 ✅";
+                    document.getElementById('diary-sync-status').style.color = "var(--cyber-cyan)";
+                    alert("🎉 旅行歡唱日記已成功同步至您的個人 Google Drive！");
+                    renderDiaryList();
+                } catch (err) {
+                    console.error("同步至 Drive 失敗：", err);
+                    alert("同步失敗，請檢查網路狀態或重新授權。");
+                }
+            });
+        }
+
+        function renderDiaryList() {
+            const listEl = document.getElementById('diary-entries-list');
+            listEl.innerHTML = '';
+
+            if (travelDiaries.length === 0) {
+                listEl.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; padding: 12px;">尚無旅行紀錄，打卡後將自動上傳至 Google 雲端</div>';
+                return;
+            }
+
+            travelDiaries.forEach((entry) => {
+                const item = document.createElement('div');
+                item.style = "background: rgba(26, 34, 56, 0.7); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 8px; padding: 10px; font-size: 12px;";
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="color: var(--cyber-cyan); font-weight: bold;">${entry.dateStr}</span>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="btn" style="padding: 2px 7px; font-size: 11px; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: #fff;" onclick='renderPolaroidCard(${JSON.stringify(entry)})'>
+                                📸 拍立得
+                            </button>
+                            <span style="font-size: 11px; background: rgba(0,240,255,0.1); color: #fff; padding: 1px 6px; border-radius: 4px;">
+                                ${entry.singer}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="color: #a0aec0; margin-bottom: 4px;">📍 ${entry.location.address || entry.location}</div>
+                    <div style="color: var(--cyber-yellow); margin-bottom: 6px;">🎵 ${entry.song}</div>
+                    <div style="color: #fff; background: rgba(0,0,0,0.3); padding: 6px 8px; border-radius: 4px; line-height: 1.4;">
+                        ${entry.note}
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        // ================= 8. 賽博龐克拍立得 Canvas 繪製引擎 =================
+        function createCurrentPolaroid() {
+            const noteText = document.getElementById('diary-note-input').value.trim() || "沿著公路迎風奔馳，車內就是專屬移動歌廳！";
+            const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由巡航中";
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} - ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const diaryData = {
+                dateStr: dateStr,
+                location: currentDiaryLocation.address !== "未定位" ? currentDiaryLocation.address : "國道移動歡唱中",
+                song: playingTitle,
+                singer: `${userProfile.nickname} (${userProfile.seat})`,
+                avatar: userProfile.avatar,
+                note: noteText
+            };
+
+            renderPolaroidCard(diaryData);
+        }
+
+        async function renderPolaroidCard(entry) {
+            const canvas = document.createElement('canvas');
+            const w = 800;
+            const h = 1200;
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#07090e';
+            ctx.fillRect(0, 0, w, h);
+
+            const grad = ctx.createRadialGradient(w * 0.2, h * 0.15, 20, w * 0.5, h * 0.5, 600);
+            grad.addColorStop(0, 'rgba(0, 240, 255, 0.12)');
+            grad.addColorStop(0.5, 'rgba(255, 0, 127, 0.08)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.04)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 30) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 0; y < h; y += 30) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+
+            const margin = 40;
+            const cardW = w - margin * 2;
+            const cardH = h - margin * 2;
+            
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(margin, margin, cardW, cardH);
+
+            const bracketLen = 25;
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(margin, margin + bracketLen); ctx.lineTo(margin, margin); ctx.lineTo(margin + bracketLen, margin); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(w - margin - bracketLen, margin); ctx.lineTo(w - margin, margin); ctx.lineTo(w - margin, margin + bracketLen); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(margin, h - margin - bracketLen); ctx.lineTo(margin, h - margin); ctx.lineTo(margin + bracketLen, h - margin); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(w - margin - bracketLen, h - margin); ctx.lineTo(w - margin, h - margin); ctx.lineTo(w - margin, h - margin - bracketLen); ctx.stroke();
+
+            ctx.fillStyle = '#00f0ff';
+            ctx.font = 'bold 20px -apple-system, sans-serif';
+            ctx.fillText('YUNUBE 大歌廳 // ROADTRIP MEMORY CARD', margin + 25, margin + 45);
+
+            ctx.fillStyle = '#8e95ad';
+            ctx.font = '14px monospace';
+            ctx.fillText('NODE_VER: 2026.11 // GPS_LOGGED', w - margin - 230, margin + 45);
+
+            const photoX = margin + 25;
+            const photoY = margin + 70;
+            const photoW = cardW - 50;
+            const photoH = 540;
+
+            ctx.fillStyle = 'rgba(12, 16, 28, 0.85)';
+            ctx.fillRect(photoX, photoY, photoW, photoH);
+            ctx.strokeStyle = 'rgba(255, 0, 127, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(photoX, photoY, photoW, photoH);
+
+            if (entry.avatar && (entry.avatar.startsWith('data:image') || entry.avatar.startsWith('http'))) {
+                try {
+                    const avatarImg = await loadCanvasImage(entry.avatar);
+                    const imgSize = 240;
+                    const imgX = photoX + (photoW - imgSize) / 2;
+                    const imgY = photoY + 90;
+                    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(imgX + imgSize/2, imgY + imgSize/2, imgSize/2, 0, Math.PI * 2);
+                    ctx.clip();
+                    ctx.drawImage(avatarImg, imgX, imgY, imgSize, imgSize);
+                    ctx.restore();
+
+                    ctx.strokeStyle = '#00f0ff';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(imgX + imgSize/2, imgY + imgSize/2, imgSize/2, 0, Math.PI * 2);
+                    ctx.stroke();
+                } catch(e) {
+                    drawFallbackIcon(ctx, photoX, photoY, photoW, photoH, '🎤');
+                }
+            } else {
+                drawFallbackIcon(ctx, photoX, photoY, photoW, photoH, entry.avatar || '🤖');
+            }
+
+            const songBannerH = 75;
+            const songBannerY = photoY + photoH - songBannerH;
+            ctx.fillStyle = 'rgba(7, 9, 14, 0.9)';
+            ctx.fillRect(photoX, songBannerY, photoW, songBannerH);
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.2)';
+            ctx.strokeRect(photoX, songBannerY, photoW, songBannerH);
+
+            ctx.fillStyle = '#00f0ff';
+            ctx.font = 'bold 22px -apple-system, sans-serif';
+            ctx.fillText('🎵 ' + truncateText(ctx, entry.song, 480), photoX + 20, songBannerY + 34);
+
+            ctx.fillStyle = '#fcee0a';
+            ctx.font = '14px -apple-system, sans-serif';
+            ctx.fillText('演唱者：' + entry.singer, photoX + 20, songBannerY + 58);
+
+            let contentY = photoY + photoH + 45;
+
+            ctx.fillStyle = '#8e95ad';
+            ctx.font = '14px monospace';
+            ctx.fillText('⏰ 時間：' + entry.dateStr, margin + 25, contentY);
+
+            contentY += 28;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px -apple-system, sans-serif';
+            const locAddr = entry.location && entry.location.address ? entry.location.address : (entry.location || '國道巡航');
+            ctx.fillText('📍 地點：' + truncateText(ctx, locAddr, cardW - 60), margin + 25, contentY);
+
+            contentY += 25;
+            const noteBoxH = 180;
+            ctx.fillStyle = 'rgba(16, 21, 35, 0.7)';
+            ctx.fillRect(margin + 25, contentY, cardW - 50, noteBoxH);
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+            ctx.strokeRect(margin + 25, contentY, cardW - 50, noteBoxH);
+
+            ctx.fillStyle = '#ff007f';
+            ctx.fillRect(margin + 25, contentY, 4, noteBoxH);
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '16px -apple-system, sans-serif';
+            drawWrappedText(ctx, entry.note, margin + 45, contentY + 35, cardW - 90, 26);
+
+            const footerY = h - margin - 35;
+            ctx.fillStyle = '#717894';
+            ctx.font = '11px monospace';
+            ctx.fillText('PASSENGER DIARY LOG // SYSTEM GENERATED // CLOUD ARCHIVE', margin + 25, footerY);
+
+            drawCyberBarcode(ctx, w - margin - 190, footerY - 20, 160, 22);
+
+            const imgDataUrl = canvas.toDataURL('image/png', 0.95);
+            document.getElementById('polaroid-preview-img').src = imgDataUrl;
+            document.getElementById('polaroid-download-link').href = imgDataUrl;
+            document.getElementById('polaroid-download-link').download = `yunube_polaroid_${Date.now()}.png`;
+
+            document.getElementById('polaroid-modal').classList.remove('hidden');
+        }
+
+        function loadCanvasImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = (e) => reject(e);
+                img.src = src;
+            });
+        }
+
+        function drawFallbackIcon(ctx, px, py, pw, ph, emoji) {
+            ctx.font = '110px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, px + pw / 2, py + ph / 2 - 30);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+        }
+
+        function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+            let line = '';
+            for (let n = 0; n < text.length; n++) {
+                const testLine = line + text[n];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, y);
+                    line = text[n];
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, y);
+        }
+
+        function truncateText(ctx, text, maxWidth) {
+            if (ctx.measureText(text).width <= maxWidth) return text;
+            let t = text;
+            while (t.length > 0 && ctx.measureText(t + '...').width > maxWidth) {
+                t = t.substring(0, t.length - 1);
+            }
+            return t + '...';
+        }
+
+        function drawCyberBarcode(ctx, x, y, width, height) {
+            let curX = x;
+            ctx.fillStyle = '#00f0ff';
+            while (curX < x + width) {
+                const barW = Math.floor(Math.random() * 4) + 1;
+                const spaceW = Math.floor(Math.random() * 3) + 1;
+                ctx.fillRect(curX, y, barW, height);
+                curX += (barW + spaceW);
+            }
+        }
+
+        function closePolaroidModal() {
+            document.getElementById('polaroid-modal').classList.add('hidden');
+        }
+
+        // ================= 9. 車機大螢幕端邏輯 =================
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
@@ -599,7 +1796,6 @@
             }
         }
 
-        // 解鎖瀏覽器 Autoplay 限制並進入全螢幕
         function unlockAutoplay() {
             const overlay = document.getElementById('start-overlay');
             if (overlay) overlay.style.display = 'none';
@@ -617,7 +1813,158 @@
             }
         }
 
-        // ================= 3. 車機大螢幕端邏輯 (Screen Mode) =================
+        function toggleMembersModal(show) {
+            const modal = document.getElementById('members-modal');
+            if (show) {
+                renderMembersModalUI();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderMembersModalUI() {
+            const container = document.getElementById('modal-members-list');
+            container.innerHTML = '';
+
+            const memberKeys = Object.keys(roomMembers);
+            if (memberKeys.length === 0) {
+                container.innerHTML = '<div style="color: #717894; text-align: center; padding: 30px;">目前尚無成員連線進入包廂<br>請乘客掃描主機 QR Code 登入</div>';
+                return;
+            }
+
+            memberKeys.forEach((key, idx) => {
+                const member = roomMembers[key];
+                const card = document.createElement('div');
+                card.className = 'member-card-row';
+                card.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 13px; color: var(--cyber-cyan); font-weight: bold;">#${idx + 1}</span>
+                        ${getAvatarHTML(member.avatar, 34)}
+                        <div>
+                            <div style="font-size: 15px; font-weight: bold; color: #fff;">${member.nickname}</div>
+                            <div style="font-size: 11px; color: #8e95ad; margin-top: 2px;">身分：${member.type === 'google' ? 'Google 雲端帳戶' : '本機訪客'} ｜ 登入時間：${member.joinedAt}</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 11px; background: rgba(0,240,255,0.15); color: var(--cyber-cyan); border: 1px solid var(--cyber-cyan); padding: 3px 8px; border-radius: 4px; font-weight: bold;">
+                        ${member.seat}
+                    </span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function showFloatingSfxAnimation(emoji) {
+            const el = document.createElement('div');
+            el.className = 'sfx-floating-emoji';
+            el.style.marginLeft = `${Math.random() * 80 - 40}px`;
+            el.innerText = emoji;
+            document.getElementById('video-container').appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        function playKtvSfx(type) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+
+            switch (type) {
+                case 'applause':
+                    const bufferSize = audioCtx.sampleRate * 2.2;
+                    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.8));
+                    const noise = audioCtx.createBufferSource();
+                    noise.buffer = buffer;
+                    const bandpass = audioCtx.createBiquadFilter();
+                    bandpass.type = "bandpass";
+                    bandpass.frequency.setValueAtTime(1000, now);
+                    bandpass.Q.setValueAtTime(1.2, now);
+                    const gainApplause = audioCtx.createGain();
+                    gainApplause.gain.setValueAtTime(1.5, now);
+                    noise.connect(bandpass);
+                    bandpass.connect(gainApplause);
+                    gainApplause.connect(audioCtx.destination);
+                    noise.start(now);
+                    showFloatingSfxAnimation('👏');
+                    break;
+
+                case 'cheer':
+                    const oscWhistle = audioCtx.createOscillator();
+                    const gainWhistle = audioCtx.createGain();
+                    oscWhistle.type = 'sine';
+                    oscWhistle.frequency.setValueAtTime(1600, now);
+                    oscWhistle.frequency.exponentialRampToValueAtTime(2800, now + 0.3);
+                    oscWhistle.frequency.exponentialRampToValueAtTime(2200, now + 0.8);
+                    gainWhistle.gain.setValueAtTime(0, now);
+                    gainWhistle.gain.linearRampToValueAtTime(0.8, now + 0.1);
+                    gainWhistle.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
+                    oscWhistle.connect(gainWhistle);
+                    gainWhistle.connect(audioCtx.destination);
+                    oscWhistle.start(now);
+                    oscWhistle.stop(now + 0.9);
+                    showFloatingSfxAnimation('🎉');
+                    break;
+
+                case 'airhorn':
+                    const chordFreqs = [155.56, 196.00, 233.08, 311.13];
+                    [0, 0.18, 0.36].forEach((delay, idx) => {
+                        const burstStart = now + delay;
+                        const burstDuration = idx === 2 ? 0.6 : 0.12;
+                        chordFreqs.forEach(freq => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.type = 'sawtooth';
+                            osc.frequency.setValueAtTime(freq, burstStart);
+                            osc.frequency.exponentialRampToValueAtTime(freq * 0.96, burstStart + burstDuration);
+                            gain.gain.setValueAtTime(0.25, burstStart);
+                            gain.gain.exponentialRampToValueAtTime(0.01, burstStart + burstDuration);
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.start(burstStart);
+                            osc.stop(burstStart + burstDuration);
+                        });
+                    });
+                    showFloatingSfxAnimation('🎺');
+                    break;
+
+                case 'rimshot':
+                    playDrumHit(now, 150, 60, 0.12);
+                    playDrumHit(now + 0.15, 120, 50, 0.15);
+                    playCymbalSplash(now + 0.32, 0.6);
+                    showFloatingSfxAnimation('🥁');
+                    break;
+            }
+        }
+
+        function playDrumHit(time, startFreq, endFreq, dur) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(startFreq, time);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, time + dur);
+            gain.gain.setValueAtTime(0.9, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(time);
+            osc.stop(time + dur);
+        }
+
+        function playCymbalSplash(time, dur) {
+            const bufferSize = audioCtx.sampleRate * dur;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.2));
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const highpass = audioCtx.createBiquadFilter();
+            highpass.type = "highpass";
+            highpass.frequency.setValueAtTime(5000, time);
+            noise.connect(highpass);
+            highpass.connect(audioCtx.destination);
+            noise.start(time);
+        }
+
         function initScreenMode() {
             const roomId = 'ktv-' + Math.floor(1000 + Math.random() * 9000);
             peer = new Peer(roomId);
@@ -649,16 +1996,18 @@
                 });
 
                 c.on('data', (data) => {
-                    handleRemoteCommand(data);
+                    handleRemoteCommand(data, c);
                 });
 
                 c.on('close', () => {
                     remoteClients = remoteClients.filter(client => client !== c);
+                    delete roomMembers[c.peer];
                     updateConnectedCountUI();
                 });
 
                 c.on('error', () => {
                     remoteClients = remoteClients.filter(client => client !== c);
+                    delete roomMembers[c.peer];
                     updateConnectedCountUI();
                 });
             });
@@ -678,14 +2027,14 @@
 
             if (songQueue.length > 0) {
                 const nextItem = songQueue[0];
-                hudNext.innerText = `${nextItem.displayTitle || nextItem.title} (${nextItem.requestedBy || '乘客'})`;
+                hudNext.innerHTML = `${getAvatarHTML(nextItem.userAvatar, 16)} ${nextItem.displayTitle || nextItem.title} (${nextItem.requestedBy || '乘客'})`;
             } else {
                 hudNext.innerText = '(隊列等待中)';
             }
 
             listEl.innerHTML = '';
             if (songQueue.length === 0) {
-                listEl.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; margin-top: 30px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>';
+                listEl.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; margin-top: 25px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>';
                 return;
             }
 
@@ -693,8 +2042,9 @@
                 const row = document.createElement('div');
                 row.style = "display: flex; align-items: center; justify-content: space-between; background: rgba(26, 34, 56, 0.7); border: 1px solid rgba(0,240,255,0.1); padding: 7px 10px; border-radius: 6px; font-size: 12px;";
                 row.innerHTML = `
-                    <div style="flex: 1; overflow: hidden; margin-right: 6px;">
-                        <span style="color: var(--cyber-cyan); font-weight: bold; margin-right: 4px;">#${idx + 1}</span>
+                    <div style="flex: 1; overflow: hidden; margin-right: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: var(--cyber-cyan); font-weight: bold;">#${idx + 1}</span>
+                        ${getAvatarHTML(item.userAvatar, 16)}
                         <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayTitle || item.title}</span>
                     </div>
                     <span style="font-size: 10px; background: rgba(0,240,255,0.1); color: var(--cyber-cyan); border: 1px solid rgba(0,240,255,0.2); padding: 1px 5px; border-radius: 4px; white-space: nowrap;">
@@ -727,14 +2077,20 @@
         }
 
         function updateConnectedCountUI() {
+            const memberCount = Object.keys(roomMembers).length;
             const statusEl = document.getElementById('remote-status');
-            if (!statusEl) return;
-            if (remoteClients.length > 0) {
-                statusEl.innerText = `${remoteClients.length} 節點連線 ✅`;
-                statusEl.style.color = 'var(--cyber-cyan)';
-            } else {
-                statusEl.innerText = '等待連線 ⏳';
-                statusEl.style.color = 'var(--cyber-yellow)';
+            const btnCountEl = document.getElementById('member-btn-count');
+            
+            if (btnCountEl) btnCountEl.innerText = memberCount;
+
+            if (statusEl) {
+                if (memberCount > 0) {
+                    statusEl.innerText = `${memberCount} 人在線 ✅`;
+                    statusEl.style.color = 'var(--cyber-cyan)';
+                } else {
+                    statusEl.innerText = '等待連線 ⏳';
+                    statusEl.style.color = 'var(--cyber-yellow)';
+                }
             }
         }
 
@@ -793,7 +2149,29 @@
             broadcastQueueToRemote();
         }
 
-        function handleRemoteCommand(cmd) {
+        function handleRemoteCommand(cmd, clientConn) {
+            if (!cmd) return;
+
+            if (cmd.action === 'REGISTER_PROFILE') {
+                if (clientConn && clientConn.peer) {
+                    roomMembers[clientConn.peer] = {
+                        id: cmd.profile.id || 'guest_local',
+                        type: cmd.profile.type || 'guest',
+                        nickname: cmd.profile.nickname || '乘客',
+                        avatar: cmd.profile.avatar || '🤖',
+                        seat: cmd.profile.seat || '車內',
+                        joinedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+                    updateConnectedCountUI();
+                }
+                return;
+            }
+
+            if (cmd.action === 'TRIGGER_SFX') {
+                playKtvSfx(cmd.sfxType);
+                return;
+            }
+
             if (!ytPlayer || !isPlayerReady) return;
 
             switch (cmd.action) {
@@ -873,7 +2251,7 @@
             }
         }
 
-        // ================= 4. 男女合唱動態時間軸解析 (LRCLIB) =================
+        // ================= 10. 男女合唱動態時間軸解析 =================
         function detectSingerRole(rawText) {
             const maleRegex = /^(?:\(|（|\[)?(?:男|M|Boy|Male)(?:\)|）|\]|：|:)\s*/i;
             const femaleRegex = /^(?:\(|（|\[)?(?:女|F|Girl|Female)(?:\)|）|\]|：|:)\s*/i;
@@ -997,19 +2375,27 @@
             el.className = `ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 5. 手機遙控端邏輯 (Remote Mode) =================
+        // ================= 11. 手機遙控端通訊 =================
         function initRemoteMode(roomId) {
             peer = new Peer();
             peer.on('open', () => {
                 connToScreen = peer.connect(roomId);
                 connToScreen.on('open', () => {
-                    document.getElementById('mobile-status-text').innerText = `已連接包廂終端：${roomId} ✅`;
+                    document.getElementById('mobile-status-text').innerText = `已連接包廂：${roomId} ✅`;
+                    sendCmd({ action: 'REGISTER_PROFILE', profile: userProfile });
                 });
                 connToScreen.on('data', (data) => {
                     if (data.action === 'SYNC_QUEUE') {
                         renderQueueUI(data.currentSong, data.queue);
                         if (data.offset !== undefined) updateRemoteOffsetDisplay(data.offset);
                         if (data.fontSize !== undefined) updateRemoteFontDisplay(data.fontSize);
+                        
+                        const diarySongEl = document.getElementById('diary-current-song');
+                        if (diarySongEl) {
+                            diarySongEl.innerText = data.currentSong 
+                                ? `${data.currentSong.displayTitle || data.currentSong.title}` 
+                                : '包廂待播隊列中';
+                        }
                     }
                     if (data.action === 'SYNC_OFFSET') {
                         updateRemoteOffsetDisplay(data.offset);
@@ -1025,6 +2411,10 @@
             if (connToScreen && connToScreen.open) {
                 connToScreen.send(obj);
             }
+        }
+
+        function triggerSfx(type) {
+            sendCmd({ action: 'TRIGGER_SFX', sfxType: type });
         }
 
         function toggleVocalTrack() {
@@ -1087,10 +2477,7 @@
             const origId = extractVideoId(rawOrig);
             const instId = extractVideoId(rawInst) || origId;
 
-            if (!origId) {
-                alert("請填入原唱的 YouTube 網址或 11 碼 Video ID！");
-                return;
-            }
+            if (!origId) return alert("請填入原唱的 YouTube 網址或 11 碼 Video ID！");
 
             const songTitle = rawTitle || '自訂點播曲目';
             const displayTitle = rawTitle ? (rawArtist ? `${rawTitle} - ${rawArtist}` : rawTitle) : `自訂影片 (${origId})`;
@@ -1100,9 +2487,12 @@
                 artist: rawArtist,
                 origId: origId,
                 instId: instId,
-                displayTitle: displayTitle
+                displayTitle: displayTitle,
+                requestedBy: `${userProfile.nickname} (${userProfile.seat})`,
+                userAvatar: userProfile.avatar
             };
 
+            recordSongToHistory(songData);
             queueSong(songData, isInsertNext);
 
             document.getElementById('manual-title').value = '';
@@ -1112,9 +2502,6 @@
         }
 
         function queueSong(song, isInsertNext) {
-            const nickname = document.getElementById('user-nickname').value.trim() || '車上乘客';
-            song.requestedBy = nickname;
-
             if (isInsertNext) {
                 sendCmd({ action: 'INSERT_NEXT', song: song });
                 alert(`已優先插播：《${song.displayTitle}》`);
@@ -1137,23 +2524,28 @@
             }
 
             queue.forEach((item, idx) => {
+                const isFav = userFavorites.some(s => s.origId === item.origId);
                 const row = document.createElement('div');
                 row.style = "display: flex; align-items: center; justify-content: space-between; background: rgba(26, 34, 56, 0.7); border: 1px solid rgba(0, 240, 255, 0.1); padding: 8px 12px; border-radius: 6px; font-size: 13px;";
                 row.innerHTML = `
-                    <div style="flex: 1; overflow: hidden; margin-right: 8px;">
-                        <span style="color: var(--cyber-cyan); font-weight: bold; margin-right: 6px;">#${idx + 1}</span>
+                    <div style="flex: 1; overflow: hidden; margin-right: 8px; display: flex; align-items: center; gap: 6px;">
+                        <span style="color: var(--cyber-cyan); font-weight: bold;">#${idx + 1}</span>
+                        ${getAvatarHTML(item.userAvatar, 16)}
                         <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayTitle || item.title}</span>
-                        <span style="display: inline-block; font-size: 10px; background: rgba(0, 240, 255, 0.1); color: var(--cyber-cyan); border: 1px solid rgba(0, 240, 255, 0.2); padding: 2px 6px; border-radius: 4px; margin-left: 6px;">
+                        <span style="display: inline-block; font-size: 10px; background: rgba(0, 240, 255, 0.1); color: var(--cyber-cyan); border: 1px solid rgba(0, 240, 255, 0.2); padding: 1px 6px; border-radius: 4px; margin-left: 4px; white-space: nowrap;">
                             ${item.requestedBy || '乘客'}
                         </span>
                     </div>
-                    <button style="background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer;" onclick="sendCmd({ action: 'REMOVE_FROM_QUEUE', index: ${idx} })">刪除</button>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <button style="background: none; border: none; cursor: pointer; font-size: 14px;" onclick='toggleFavoriteSong(${JSON.stringify(item)})'>${isFav ? '❤️' : '🤍'}</button>
+                        <button style="background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer;" onclick="sendCmd({ action: 'REMOVE_FROM_QUEUE', index: ${idx} })">刪除</button>
+                    </div>
                 `;
                 listBox.appendChild(row);
             });
         }
 
-        // ================= 6. YouTube Player 實例化與錯誤攔截 =================
+        // ================= 12. YouTube Player 實例化 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
             
@@ -1190,15 +2582,9 @@
             let canFallback = false;
 
             switch (e.data) {
-                case 2:
-                    errorText = "無效的影片 ID，請檢查網址";
-                    break;
-                case 5:
-                    errorText = "HTML5 播放器錯誤，請重新整理";
-                    break;
-                case 100:
-                    errorText = "影片已被設為私人或已刪除";
-                    break;
+                case 2: errorText = "無效的影片 ID，請檢查網址"; break;
+                case 5: errorText = "HTML5 播放器錯誤，請重新整理"; break;
+                case 100: errorText = "影片已被設為私人或已刪除"; break;
                 case 101:
                 case 150:
                 case 153:
@@ -1206,8 +2592,6 @@
                     canFallback = true;
                     break;
             }
-
-            console.error(`YouTube 錯誤代碼: ${e.data} - ${errorText}`);
 
             if (canFallback && currentInstId && currentInstId !== currentOriginalId) {
                 alert(`【版權提醒】原唱 MV 禁止外部嵌入播放，系統將自動為您切換至伴奏/備用版本！`);
@@ -1225,7 +2609,7 @@
             }
         }
 
-        // ================= 7. Web Audio API 車載麥克風迴音混音 =================
+        // ================= 13. Web Audio API 車載麥克風迴音混音 =================
         async function enableAudioMixer() {
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
