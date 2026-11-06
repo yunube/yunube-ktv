@@ -12,6 +12,7 @@
         :root {
             --ktv-font-active: 46px;
             --ktv-font-preview: 32px;
+            --ktv-stroke-width: 4px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +39,25 @@
         }
         #player { width: 100%; height: 100%; pointer-events: none; }
         
-        /* HUD 即時狀態列（左上角：含模式、音量、校正與下一首預告） */
+        /* 瀏覽器自動播放解鎖覆蓋層 */
+        #start-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 12, 16, 0.92);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+        #start-overlay:active { background: rgba(11, 12, 16, 0.96); }
+
+        /* HUD 即時狀態列（左上角） */
         #hud-overlay { 
             position: absolute; 
             top: 24px; 
@@ -90,7 +109,6 @@
             paint-order: stroke fill;
         }
 
-        /* 經典上左下右對齊 */
         #lyric-top { text-align: left; padding-right: 15%; }
         #lyric-bottom { text-align: right; padding-left: 15%; }
 
@@ -100,7 +118,7 @@
         .ktv-line.role-duet    { color: rgba(34, 197, 94, 0.4); }
         .ktv-line.role-default { color: rgba(255, 255, 255, 0.35); }
 
-        /* 當前演唱句：無發光、立體粗外框填滿 */
+        /* 當前演唱句：無發光、實心填滿搭配實線粗描邊 */
         .ktv-line.active {
             font-size: var(--ktv-font-active);
             font-weight: 900;
@@ -110,26 +128,26 @@
         /* 1. 獨唱 / 預設：藍外框白字 */
         .ktv-line.role-default.active {
             color: #ffffff;
-            -webkit-text-stroke: 4px #1e90ff;
-            text-stroke: 4px #1e90ff;
+            -webkit-text-stroke: var(--ktv-stroke-width) #1e90ff;
+            text-stroke: var(--ktv-stroke-width) #1e90ff;
         }
         /* 2. 男生：白外框藍字 */
         .ktv-line.role-male.active {
             color: #2563eb;
-            -webkit-text-stroke: 4px #ffffff;
-            text-stroke: 4px #ffffff;
+            -webkit-text-stroke: var(--ktv-stroke-width) #ffffff;
+            text-stroke: var(--ktv-stroke-width) #ffffff;
         }
         /* 3. 女生：白外框粉字 */
         .ktv-line.role-female.active {
             color: #ec4899;
-            -webkit-text-stroke: 4px #ffffff;
-            text-stroke: 4px #ffffff;
+            -webkit-text-stroke: var(--ktv-stroke-width) #ffffff;
+            text-stroke: var(--ktv-stroke-width) #ffffff;
         }
         /* 4. 合唱：白外框綠字 */
         .ktv-line.role-duet.active {
             color: #10b981;
-            -webkit-text-stroke: 4px #ffffff;
-            text-stroke: 4px #ffffff;
+            -webkit-text-stroke: var(--ktv-stroke-width) #ffffff;
+            text-stroke: var(--ktv-stroke-width) #ffffff;
         }
 
         /* 側邊主機欄（右側） */
@@ -155,7 +173,7 @@
         .hud-stat { font-size: 12px; color: #8e95ad; margin-bottom: 4px; }
         .hud-stat span { color: #fff; font-weight: bold; }
 
-        /* 車機端待播清單專用容器樣式 */
+        /* 車機待播清單樣式 */
         #screen-queue-panel {
             flex: 1;
             background: #191c2b;
@@ -175,7 +193,6 @@
             flex-direction: column;
             gap: 6px;
         }
-        /* 自訂滾動條 */
         #screen-queue-list::-webkit-scrollbar { width: 4px; }
         #screen-queue-list::-webkit-scrollbar-thumb { background: #2f3652; border-radius: 4px; }
 
@@ -243,6 +260,13 @@
     <!-- ================= 車機大螢幕介面 ================= -->
     <div id="screen-view">
         <div id="video-container">
+            <!-- 瀏覽器自動播放解鎖遮罩 -->
+            <div id="start-overlay" onclick="unlockAutoplay()">
+                <div style="font-size: 64px; margin-bottom: 16px;">🎤</div>
+                <div style="font-size: 26px; font-weight: bold; color: #00ffcc; letter-spacing: 1px;">點擊螢幕任意處開始歡唱</div>
+                <div style="font-size: 14px; color: #8e95ad; margin-top: 10px;">（解鎖車機音效輸出與 YouTube 播放權限）</div>
+            </div>
+
             <div id="player"></div>
             
             <!-- HUD 狀態列 -->
@@ -253,7 +277,6 @@
                     迴音：<span id="hud-echo" style="color:#fff;">0.3</span> ｜
                     校正：<span id="hud-offset" style="color:#00ffcc;">0.0s</span>
                 </div>
-                <!-- 新增：抬頭下一首預告 -->
                 <div style="margin-top: 4px; font-size: 12px; color: #facc15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     下一首：<span id="hud-next-song" style="color: #fff; font-weight: bold;">(待播隊列為空)</span>
                 </div>
@@ -267,14 +290,13 @@
         </div>
 
         <div id="sidebar">
-            <!-- 上方：QR Code 與連線配對 -->
             <div style="text-align: center; width: 100%;">
                 <h2 style="font-size: 16px; margin-bottom: 2px;">車用 KTV 智慧主機</h2>
                 <div id="qrcode-box"></div>
                 <div class="hud-stat">房號：<span id="room-id-display">建立中...</span> ｜ 裝置：<span id="remote-status" style="color: #ffaa00;">等待中 ⏳</span></div>
             </div>
 
-            <!-- 中間新增：車機專屬待播歌單卡片 -->
+            <!-- 車機端待播歌單面板 -->
             <div id="screen-queue-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 12px; font-weight: 700; color: #717894; letter-spacing: 0.5px;">📋 待播歌單</span>
@@ -285,7 +307,6 @@
                 </div>
             </div>
 
-            <!-- 下方：車載麥克風按鈕 -->
             <button class="btn btn-accent" style="width: 100%; padding: 12px; font-size: 14px;" onclick="enableAudioMixer()">🎤 啟用車載麥克風＋迴音</button>
         </div>
     </div>
@@ -422,10 +443,11 @@
         const targetRoom = urlParams.get('room');
 
         let peer, remoteClients = [], connToScreen = null;
-        let ytPlayer;
+        let ytPlayer = null;
+        let isPlayerReady = false;
         let audioCtx, micDelayNode, micFeedbackGain;
 
-        // 當前歌曲與狀態
+        // 當前歌曲與狀態（示範曲設為公開可嵌入版本）
         let currentSong = null;
         let songQueue = [];
         let currentOriginalId = 'd_43a4H70qU';
@@ -443,6 +465,22 @@
             initRemoteMode(targetRoom);
         } else {
             initScreenMode();
+        }
+
+        // 解鎖瀏覽器 Autoplay 限制函式
+        function unlockAutoplay() {
+            const overlay = document.getElementById('start-overlay');
+            if (overlay) overlay.style.display = 'none';
+
+            if (ytPlayer && isPlayerReady) {
+                try {
+                    ytPlayer.unMute();
+                    ytPlayer.setVolume(80);
+                    ytPlayer.playVideo();
+                } catch (e) {
+                    console.warn("啟動播放例外：", e);
+                }
+            }
         }
 
         // ================= 3. 車機大螢幕端邏輯 (Screen Mode) =================
@@ -491,10 +529,9 @@
 
             fetchSyncedLyrics("十年", "陳奕迅");
             setInterval(syncLyricsScroll, 80);
-            renderScreenQueueUI(); // 初始化車機端待播列表
+            renderScreenQueueUI();
         }
 
-        // 車機專屬待播清單渲染
         function renderScreenQueueUI() {
             const countEl = document.getElementById('screen-queue-count');
             const listEl = document.getElementById('screen-queue-list');
@@ -503,7 +540,6 @@
 
             countEl.innerText = `${songQueue.length} 首`;
 
-            // 更新左上角 HUD 狀態列預告
             if (songQueue.length > 0) {
                 const nextItem = songQueue[0];
                 hudNext.innerText = `${nextItem.displayTitle || nextItem.title} (${nextItem.requestedBy || '乘客'})`;
@@ -544,7 +580,7 @@
         }
 
         function broadcastQueueToRemote() {
-            renderScreenQueueUI(); // 同步更新車機螢幕待播清單
+            renderScreenQueueUI();
             broadcastToAllRemotes({
                 action: 'SYNC_QUEUE',
                 currentSong: currentSong,
@@ -600,7 +636,9 @@
                 isInstrumental = false;
 
                 document.getElementById('hud-mode').innerText = "原唱模式";
-                ytPlayer.loadVideoById(currentOriginalId);
+                if (ytPlayer && isPlayerReady) {
+                    ytPlayer.loadVideoById(currentOriginalId);
+                }
                 
                 if (currentSong.title) {
                     fetchSyncedLyrics(currentSong.title, currentSong.artist);
@@ -620,7 +658,7 @@
         }
 
         function handleRemoteCommand(cmd) {
-            if (!ytPlayer) return;
+            if (!ytPlayer || !isPlayerReady) return;
 
             switch (cmd.action) {
                 case 'PLAY_PAUSE':
@@ -773,7 +811,7 @@
         }
 
         function syncLyricsScroll() {
-            if (!ytPlayer || !ytPlayer.getCurrentTime || parsedLyrics.length === 0) return;
+            if (!ytPlayer || !isPlayerReady || !ytPlayer.getCurrentTime || parsedLyrics.length === 0) return;
 
             const curTime = ytPlayer.getCurrentTime() + lyricOffset;
             let matchedIdx = -1;
@@ -909,7 +947,7 @@
             const resultsBox = document.getElementById('search-results-box');
 
             if (!keyword) return alert("請先輸入想唱的歌名！");
-            if (YT_API_KEY === "你的_API_KEY_填在這裡") {
+            if (YT_API_KEY === "AIzaSyBmHhxAPntqs7KE-6Sl0NbTsHLdpQ815D0") {
                 return alert("請先在程式碼中的 YT_API_KEY 填入 Google Cloud 申請的金鑰！");
             }
 
@@ -1043,27 +1081,80 @@
             });
         }
 
-        // ================= 6. YouTube Player 實例化 =================
+        // ================= 6. YouTube Player 實例化與錯誤攔截 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
+            
+            // 安全取得當前網域，若為 file:/// 則不設 origin 避免破壞安全性交握
+            const safeOrigin = (window.location.origin && window.location.origin !== "null") ? window.location.origin : undefined;
+
             ytPlayer = new YT.Player('player', {
                 videoId: currentOriginalId,
                 playerVars: {
-                    'autoplay': 1,
+                    'autoplay': 0,
                     'controls': 0,
                     'modestbranding': 1,
                     'rel': 0,
-                    'playsinline': 1
+                    'playsinline': 1,
+                    'enablejsapi': 1,
+                    ...(safeOrigin ? { 'origin': safeOrigin } : {})
                 },
                 events: {
-                    'onReady': (e) => e.target.playVideo(),
+                    'onReady': (e) => {
+                        isPlayerReady = true;
+                        e.target.setVolume(80);
+                    },
                     'onStateChange': (e) => {
                         if (e.data === YT.PlayerState.ENDED) {
                             playNextSong();
                         }
-                    }
+                    },
+                    'onError': onPlayerError
                 }
             });
+        }
+
+        // 播放錯誤備援機制
+        function onPlayerError(e) {
+            let errorText = "未知播放異常";
+            let canFallback = false;
+
+            switch (e.data) {
+                case 2:
+                    errorText = "無效的影片 ID，請檢查網址是否正確";
+                    break;
+                case 5:
+                    errorText = "HTML5 播放器錯誤，請重新載入頁面";
+                    break;
+                case 100:
+                    errorText = "影片已被設為私人或已刪除";
+                    break;
+                case 101:
+                case 150:
+                case 153:
+                    errorText = "版權限制：唱片公司禁止外部網頁嵌入播放";
+                    canFallback = true;
+                    break;
+            }
+
+            console.error(`YouTube 錯誤代碼: ${e.data} - ${errorText}`);
+
+            // 若遇到版權限制，且當前有設定不同的伴奏版 ID，自動切換至伴奏版嘗試
+            if (canFallback && currentInstId && currentInstId !== currentOriginalId) {
+                alert(`【版權提醒】原唱 MV 禁止外部嵌入播放，系統將自動為您切換至伴奏/備用版本！`);
+                currentOriginalId = currentInstId;
+                isInstrumental = true;
+                document.getElementById('hud-mode').innerText = "伴奏模式";
+                ytPlayer.loadVideoById(currentInstId);
+                return;
+            }
+
+            // 無法自動備援時，在歌詞列提示
+            const elTop = document.getElementById('lyric-top');
+            if (elTop) {
+                elTop.innerText = `⚠️ 播放失敗：${errorText} (錯誤碼: ${e.data})`;
+                elTop.className = 'ktv-line active';
+            }
         }
 
         // ================= 7. Web Audio API 車載麥克風迴音混音 =================
