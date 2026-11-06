@@ -8,6 +8,12 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        /* 全域字體縮放變數 (可由手機 A+ / A- 動態調整) */
+        :root {
+            --ktv-font-active: 46px;
+            --ktv-font-preview: 32px;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             background: #0b0c10; 
@@ -32,12 +38,12 @@
         }
         #player { width: 100%; height: 100%; pointer-events: none; }
         
-        /* HUD 即時狀態列（左上角） */
+        /* HUD 即時狀態列（左上角：含模式、音量、校正與下一首預告） */
         #hud-overlay { 
             position: absolute; 
             top: 24px; 
             left: 24px; 
-            background: rgba(15, 16, 22, 0.85); 
+            background: rgba(15, 16, 22, 0.88); 
             padding: 12px 20px; 
             border-radius: 14px; 
             font-size: 14px; 
@@ -46,9 +52,10 @@
             backdrop-filter: blur(10px);
             z-index: 10;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-width: 65%;
         }
 
-        /* 擴大後的錢櫃雙行 KTV 懸浮歌詞層 */
+        /* 雙行交替 KTV 懸浮歌詞層 */
         #lyrics-container {
             position: absolute;
             bottom: 30px;
@@ -72,7 +79,7 @@
         }
 
         .ktv-line {
-            font-size: 32px;
+            font-size: var(--ktv-font-preview);
             font-weight: 700;
             line-height: 1.35;
             letter-spacing: 2px;
@@ -83,73 +90,94 @@
             paint-order: stroke fill;
         }
 
-        /* 上左下右經典對齊 */
+        /* 經典上左下右對齊 */
         #lyric-top { text-align: left; padding-right: 15%; }
         #lyric-bottom { text-align: right; padding-left: 15%; }
 
-        /* 預覽等待角色色彩（暗淡微光，供歌手預覽） */
+        /* 預覽等待角色色彩 */
         .ktv-line.role-male    { color: rgba(56, 189, 248, 0.4); }
         .ktv-line.role-female  { color: rgba(244, 114, 182, 0.4); }
         .ktv-line.role-duet    { color: rgba(34, 197, 94, 0.4); }
         .ktv-line.role-default { color: rgba(255, 255, 255, 0.35); }
 
-        /* 當前演唱句：通用放大、完全關閉發光 */
+        /* 當前演唱句：無發光、立體粗外框填滿 */
         .ktv-line.active {
-            font-size: 46px;
+            font-size: var(--ktv-font-active);
             font-weight: 900;
             text-shadow: none !important;
             transform: scale(1.02);
         }
-
-        /* 1. 預設 / 獨唱演唱：藍色外框、白色填滿、不發光 */
+        /* 1. 獨唱 / 預設：藍外框白字 */
         .ktv-line.role-default.active {
             color: #ffffff;
-            -webkit-text-stroke: 3px #1e90ff;
-            text-stroke: 3px #1e90ff;
+            -webkit-text-stroke: 4px #1e90ff;
+            text-stroke: 4px #1e90ff;
         }
-
-        /* 2. 男生演唱：白色外框、藍色填滿、不發光 */
+        /* 2. 男生：白外框藍字 */
         .ktv-line.role-male.active {
             color: #2563eb;
-            -webkit-text-stroke: 3px #ffffff;
-            text-stroke: 3px #ffffff;
+            -webkit-text-stroke: 4px #ffffff;
+            text-stroke: 4px #ffffff;
         }
-
-        /* 3. 女生演唱：白色外框、粉色填滿、不發光 */
+        /* 3. 女生：白外框粉字 */
         .ktv-line.role-female.active {
             color: #ec4899;
-            -webkit-text-stroke: 3px #ffffff;
-            text-stroke: 3px #ffffff;
+            -webkit-text-stroke: 4px #ffffff;
+            text-stroke: 4px #ffffff;
         }
-
-        /* 4. 合唱演唱：白色外框、綠色填滿、不發光 */
+        /* 4. 合唱：白外框綠字 */
         .ktv-line.role-duet.active {
             color: #10b981;
-            -webkit-text-stroke: 3px #ffffff;
-            text-stroke: 3px #ffffff;
+            -webkit-text-stroke: 4px #ffffff;
+            text-stroke: 4px #ffffff;
         }
 
         /* 側邊主機欄（右側） */
         #sidebar { 
-            width: 330px; 
+            width: 350px; 
             background: #141622; 
-            padding: 24px; 
+            padding: 20px; 
             display: flex; 
             flex-direction: column; 
-            align-items: center; 
             justify-content: space-between; 
             border-left: 1px solid #23273a;
             z-index: 20;
+            height: 100vh;
         }
         #qrcode-box { 
             background: #fff; 
-            padding: 12px; 
-            border-radius: 14px; 
-            margin: 16px 0; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            padding: 8px; 
+            border-radius: 12px; 
+            margin: 10px auto; 
+            width: fit-content;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
         }
-        .hud-stat { font-size: 13px; color: #8e95ad; margin-bottom: 6px; }
+        .hud-stat { font-size: 12px; color: #8e95ad; margin-bottom: 4px; }
         .hud-stat span { color: #fff; font-weight: bold; }
+
+        /* 車機端待播清單專用容器樣式 */
+        #screen-queue-panel {
+            flex: 1;
+            background: #191c2b;
+            border: 1px solid #282d42;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #screen-queue-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        /* 自訂滾動條 */
+        #screen-queue-list::-webkit-scrollbar { width: 4px; }
+        #screen-queue-list::-webkit-scrollbar-thumb { background: #2f3652; border-radius: 4px; }
 
         /* ================= 2. 手機遙控器端 UI ================= */
         #remote-view { 
@@ -217,6 +245,7 @@
         <div id="video-container">
             <div id="player"></div>
             
+            <!-- HUD 狀態列 -->
             <div id="hud-overlay">
                 <div>模式：<span id="hud-mode" style="color: #00ffcc;">原唱模式</span></div>
                 <div style="margin-top: 4px; font-size: 12px; color: #a0a6be;">
@@ -224,9 +253,13 @@
                     迴音：<span id="hud-echo" style="color:#fff;">0.3</span> ｜
                     校正：<span id="hud-offset" style="color:#00ffcc;">0.0s</span>
                 </div>
+                <!-- 新增：抬頭下一首預告 -->
+                <div style="margin-top: 4px; font-size: 12px; color: #facc15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    下一首：<span id="hud-next-song" style="color: #fff; font-weight: bold;">(待播隊列為空)</span>
+                </div>
             </div>
 
-            <!-- 放大版雙行交替 KTV 歌詞容器 -->
+            <!-- 雙行交替 KTV 歌詞容器 -->
             <div id="lyrics-container">
                 <div id="lyric-top" class="ktv-line">🎵 準備歡唱...</div>
                 <div id="lyric-bottom" class="ktv-line"></div>
@@ -234,14 +267,26 @@
         </div>
 
         <div id="sidebar">
+            <!-- 上方：QR Code 與連線配對 -->
             <div style="text-align: center; width: 100%;">
-                <h2 style="font-size: 18px; margin-bottom: 4px;">車用 KTV 智慧主機</h2>
-                <p style="font-size: 12px; color: #717894;">副駕與後座請掃碼連線點歌</p>
-                <div id="qrcode-box" style="display: flex; justify-content: center;"></div>
-                <div class="hud-stat">房號：<span id="room-id-display">建立中...</span></div>
-                <div class="hud-stat">連線裝置：<span id="remote-status" style="color: #ffaa00;">等待掃碼中 ⏳</span></div>
+                <h2 style="font-size: 16px; margin-bottom: 2px;">車用 KTV 智慧主機</h2>
+                <div id="qrcode-box"></div>
+                <div class="hud-stat">房號：<span id="room-id-display">建立中...</span> ｜ 裝置：<span id="remote-status" style="color: #ffaa00;">等待中 ⏳</span></div>
             </div>
-            <button class="btn btn-accent" style="width: 100%;" onclick="enableAudioMixer()">🎤 啟用車載麥克風＋迴音</button>
+
+            <!-- 中間新增：車機專屬待播歌單卡片 -->
+            <div id="screen-queue-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; font-weight: 700; color: #717894; letter-spacing: 0.5px;">📋 待播歌單</span>
+                    <span id="screen-queue-count" style="font-size: 11px; color: #00ffcc; font-weight: bold;">0 首</span>
+                </div>
+                <div id="screen-queue-list">
+                    <div style="font-size: 12px; color: #5a617a; text-align: center; margin-top: 30px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>
+                </div>
+            </div>
+
+            <!-- 下方：車載麥克風按鈕 -->
+            <button class="btn btn-accent" style="width: 100%; padding: 12px; font-size: 14px;" onclick="enableAudioMixer()">🎤 啟用車載麥克風＋迴音</button>
         </div>
     </div>
 
@@ -312,6 +357,25 @@
             </div>
         </div>
 
+        <!-- 歌詞字體大小調整卡片 -->
+        <div class="card">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>🔤 歌詞字體大小調整</span>
+                <span id="remote-font-display" style="color: #00ffcc; font-size: 14px; font-weight: bold;">46px (標準)</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <button class="btn" style="background: #252a3d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(-4)">
+                    A- 縮小
+                </button>
+                <button class="btn" style="background: #393e5a; padding: 12px 6px; font-size: 13px;" onclick="adjustFontSize(0, true)">
+                    ↺ 預設
+                </button>
+                <button class="btn" style="background: #252a3d; padding: 12px 6px; font-size: 14px;" onclick="adjustFontSize(4)">
+                    A+ 放大
+                </button>
+            </div>
+        </div>
+
         <!-- 待播清單 -->
         <div class="card">
             <div class="card-title" style="display: flex; justify-content: space-between;">
@@ -370,6 +434,7 @@
         let parsedLyrics = [];
         let activeLyricIndex = -1;
         let lyricOffset = 0.0;
+        let activeFontSize = 46;
 
         // ================= 2. 路由分流 =================
         if (isRemote) {
@@ -390,8 +455,8 @@
                 const remoteUrl = window.location.origin + window.location.pathname + `?role=remote&room=${id}`;
                 new QRCode(document.getElementById("qrcode-box"), {
                     text: remoteUrl,
-                    width: 140,
-                    height: 140
+                    width: 105,
+                    height: 105
                 });
             });
 
@@ -404,7 +469,8 @@
                         action: 'SYNC_QUEUE',
                         currentSong: currentSong,
                         queue: songQueue,
-                        offset: lyricOffset
+                        offset: lyricOffset,
+                        fontSize: activeFontSize
                     });
                 });
 
@@ -425,6 +491,46 @@
 
             fetchSyncedLyrics("十年", "陳奕迅");
             setInterval(syncLyricsScroll, 80);
+            renderScreenQueueUI(); // 初始化車機端待播列表
+        }
+
+        // 車機專屬待播清單渲染
+        function renderScreenQueueUI() {
+            const countEl = document.getElementById('screen-queue-count');
+            const listEl = document.getElementById('screen-queue-list');
+            const hudNext = document.getElementById('hud-next-song');
+            if (!listEl) return;
+
+            countEl.innerText = `${songQueue.length} 首`;
+
+            // 更新左上角 HUD 狀態列預告
+            if (songQueue.length > 0) {
+                const nextItem = songQueue[0];
+                hudNext.innerText = `${nextItem.displayTitle || nextItem.title} (${nextItem.requestedBy || '乘客'})`;
+            } else {
+                hudNext.innerText = '(待播隊列為空)';
+            }
+
+            listEl.innerHTML = '';
+            if (songQueue.length === 0) {
+                listEl.innerHTML = '<div style="font-size: 12px; color: #5a617a; text-align: center; margin-top: 30px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>';
+                return;
+            }
+
+            songQueue.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.style = "display: flex; align-items: center; justify-content: space-between; background: #202438; padding: 7px 10px; border-radius: 8px; font-size: 12px;";
+                row.innerHTML = `
+                    <div style="flex: 1; overflow: hidden; margin-right: 6px;">
+                        <span style="color: #00ffcc; font-weight: bold; margin-right: 4px;">${idx + 1}.</span>
+                        <span style="color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayTitle || item.title}</span>
+                    </div>
+                    <span style="font-size: 10px; background: #2d334d; color: #a5b4fc; padding: 1px 5px; border-radius: 4px; white-space: nowrap;">
+                        ${item.requestedBy || '乘客'}
+                    </span>
+                `;
+                listEl.appendChild(row);
+            });
         }
 
         function broadcastToAllRemotes(payload) {
@@ -438,11 +544,13 @@
         }
 
         function broadcastQueueToRemote() {
+            renderScreenQueueUI(); // 同步更新車機螢幕待播清單
             broadcastToAllRemotes({
                 action: 'SYNC_QUEUE',
                 currentSong: currentSong,
                 queue: songQueue,
-                offset: lyricOffset
+                offset: lyricOffset,
+                fontSize: activeFontSize
             });
         }
 
@@ -450,10 +558,10 @@
             const statusEl = document.getElementById('remote-status');
             if (!statusEl) return;
             if (remoteClients.length > 0) {
-                statusEl.innerText = `已連線：${remoteClients.length} 台裝置 ✅`;
+                statusEl.innerText = `${remoteClients.length} 台連線 ✅`;
                 statusEl.style.color = '#00ffcc';
             } else {
-                statusEl.innerText = '等待掃碼中 ⏳';
+                statusEl.innerText = '等待中 ⏳';
                 statusEl.style.color = '#ffaa00';
             }
         }
@@ -467,6 +575,17 @@
             broadcastToAllRemotes({
                 action: 'SYNC_OFFSET',
                 offset: lyricOffset
+            });
+        }
+
+        function updateFontSizeUI() {
+            const previewSize = Math.round(activeFontSize * 0.7);
+            document.documentElement.style.setProperty('--ktv-font-active', `${activeFontSize}px`);
+            document.documentElement.style.setProperty('--ktv-font-preview', `${previewSize}px`);
+
+            broadcastToAllRemotes({
+                action: 'SYNC_FONT_SIZE',
+                fontSize: activeFontSize
             });
         }
 
@@ -540,6 +659,15 @@
                         lyricOffset = Math.round((lyricOffset + cmd.delta) * 10) / 10;
                     }
                     updateOffsetUI();
+                    break;
+
+                case 'ADJUST_FONT_SIZE':
+                    if (cmd.reset) {
+                        activeFontSize = 46;
+                    } else {
+                        activeFontSize = Math.min(68, Math.max(30, activeFontSize + cmd.delta));
+                    }
+                    updateFontSizeUI();
                     break;
 
                 case 'ADD_TO_QUEUE':
@@ -707,9 +835,13 @@
                     if (data.action === 'SYNC_QUEUE') {
                         renderQueueUI(data.currentSong, data.queue);
                         if (data.offset !== undefined) updateRemoteOffsetDisplay(data.offset);
+                        if (data.fontSize !== undefined) updateRemoteFontDisplay(data.fontSize);
                     }
                     if (data.action === 'SYNC_OFFSET') {
                         updateRemoteOffsetDisplay(data.offset);
+                    }
+                    if (data.action === 'SYNC_FONT_SIZE') {
+                        updateRemoteFontDisplay(data.fontSize);
                     }
                 });
             });
@@ -740,11 +872,11 @@
         }
 
         function adjustLyricOffset(delta, isReset = false) {
-            sendCmd({
-                action: 'ADJUST_OFFSET',
-                delta: delta,
-                reset: isReset
-            });
+            sendCmd({ action: 'ADJUST_OFFSET', delta: delta, reset: isReset });
+        }
+
+        function adjustFontSize(delta, isReset = false) {
+            sendCmd({ action: 'ADJUST_FONT_SIZE', delta: delta, reset: isReset });
         }
 
         function updateRemoteOffsetDisplay(val) {
@@ -754,6 +886,16 @@
                 el.innerText = `${sign}${val.toFixed(1)}s`;
                 el.style.color = val === 0 ? '#00ffcc' : '#ff0055';
             }
+        }
+
+        function updateRemoteFontDisplay(size) {
+            const el = document.getElementById('remote-font-display');
+            if (!el) return;
+            let label = '標準';
+            if (size > 46) label = '特大';
+            if (size < 46) label = '精簡';
+            el.innerText = `${size}px (${label})`;
+            el.style.color = size === 46 ? '#00ffcc' : '#facc15';
         }
 
         function extractVideoId(str) {
