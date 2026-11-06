@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>yunube大歌廳 // CAR KTV TERMINAL</title>
     <!-- PWA / 行動設備全螢幕沉浸標籤 -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -119,7 +119,7 @@
             color: #4a3b47 !important;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { 
             background: var(--theme-bg); 
             background-image: 
@@ -137,7 +137,7 @@
         .hidden { display: none !important; }
 
         /* ================= 2. 車機大螢幕端 UI ================= */
-        #screen-view { display: flex; height: 100vh; width: 100vw; position: relative; }
+        #screen-view { display: flex; height: 100vh; height: 100dvh; width: 100vw; position: relative; }
         
         #video-container { 
             flex: 1; 
@@ -278,7 +278,6 @@
             text-stroke: var(--ktv-stroke-width) #ffffff;
         }
 
-        /* 跑馬燈彈幕圖層與動畫 */
         #danmaku-container {
             position: absolute;
             top: 0;
@@ -386,6 +385,7 @@
             border-left: 1px solid var(--theme-border);
             z-index: 20;
             height: 100vh;
+            height: 100dvh;
             box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
         #qrcode-box { 
@@ -474,16 +474,18 @@
 
         /* ================= 3. 手機遙控器端 UI ================= */
         #remote-view { 
-            padding: 16px 14px 190px 14px; /* 保留三層圓形 FAB 呼吸空間 */
-            max-width: 480px; 
+            padding: max(16px, env(safe-area-inset-top)) 14px max(190px, calc(170px + env(safe-area-inset-bottom))) 14px;
+            max-width: 520px; 
             margin: 0 auto; 
             display: flex; 
             flex-direction: column; 
             gap: 14px; 
             overflow-y: auto;
             height: 100vh;
+            height: 100dvh;
             user-select: auto;
             position: relative;
+            scroll-behavior: smooth;
         }
 
         .cyber-header {
@@ -492,21 +494,21 @@
             border-left: 4px solid var(--theme-primary);
             border-right: 4px solid var(--theme-accent);
             border-radius: var(--theme-radius);
-            padding: 16px 14px;
+            padding: 14px;
             text-align: center;
             box-shadow: var(--theme-shadow);
         }
         .cyber-header-title {
-            font-size: 26px;
+            font-size: clamp(20px, 6vw, 26px);
             font-weight: 900;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             color: var(--theme-accent);
             text-transform: uppercase;
         }
         .cyber-header-sub {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--theme-text-sub);
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             margin-top: 4px;
         }
 
@@ -514,7 +516,7 @@
             background: var(--theme-panel); 
             border: 1px solid var(--theme-border); 
             border-radius: var(--theme-radius); 
-            padding: 16px; 
+            padding: 14px; 
             box-shadow: var(--theme-shadow);
             position: relative;
         }
@@ -533,20 +535,20 @@
             color: var(--theme-text-sub); 
             margin-bottom: 12px; 
             font-weight: 700; 
-            letter-spacing: 1.5px; 
+            letter-spacing: 1px; 
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
         .btn { 
             background: var(--theme-card-bg); 
             color: var(--theme-text); 
             border: 1px solid var(--theme-border); 
-            padding: 14px; 
+            padding: 12px 10px; 
             border-radius: var(--theme-radius); 
-            font-size: 14px; 
+            font-size: clamp(12px, 3.5vw, 14px); 
             font-weight: 700; 
             cursor: pointer; 
             transition: all 0.15s; 
@@ -566,8 +568,8 @@
             border: 1px solid var(--theme-accent);
         }
         
-        .control-group { margin-top: 10px; }
-        .control-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--theme-text-sub); }
+        .control-group { margin-top: 8px; }
+        .control-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--theme-text-sub); }
         input[type="range"] { 
             width: 100%; 
             height: 6px; 
@@ -577,12 +579,12 @@
         }
         input[type="text"], input[type="password"] { 
             width: 100%; 
-            padding: 12px 14px; 
+            padding: 10px 12px; 
             background: var(--theme-input-bg); 
             border: 1px solid var(--theme-border); 
             border-radius: var(--theme-radius); 
             color: var(--theme-text); 
-            font-size: 14px; 
+            font-size: 13px; 
             margin-bottom: 8px;
             font-family: inherit;
         }
@@ -594,7 +596,7 @@
         #profile-setup-screen {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn {
@@ -604,37 +606,37 @@
         .avatar-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 12px;
         }
         .avatar-option {
             background: var(--theme-card-bg);
             border: 2px solid var(--theme-border);
             border-radius: var(--theme-radius);
-            font-size: 24px;
-            padding: 8px 0;
+            font-size: 22px;
+            padding: 6px 0;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 48px;
+            min-height: 44px;
         }
         .avatar-option.selected {
             border-color: var(--theme-accent);
-            transform: scale(1.08);
-            box-shadow: 0 0 12px var(--theme-accent);
+            transform: scale(1.06);
+            box-shadow: 0 0 10px var(--theme-accent);
         }
         .seat-tag-group {
             display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
+            gap: 6px;
+            margin-bottom: 12px;
         }
         .seat-tag {
             flex: 1;
-            padding: 8px 4px;
-            font-size: 12px;
+            padding: 8px 2px;
+            font-size: 11px;
             background: var(--theme-card-bg);
             border: 1px solid var(--theme-border);
             color: var(--theme-text-sub);
@@ -654,7 +656,7 @@
             background: var(--theme-panel);
             border: 1px solid var(--theme-border);
             border-radius: var(--theme-radius);
-            padding: 14px 16px;
+            padding: 12px 14px;
             box-shadow: var(--theme-shadow);
             position: relative;
             transition: all 0.2s ease;
@@ -676,7 +678,7 @@
             align-items: center;
             font-size: 13px;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             color: var(--theme-accent);
             outline: none;
             user-select: none;
@@ -692,10 +694,10 @@
             color: var(--theme-primary);
         }
         details.cyber-accordion .accordion-body {
-            margin-top: 14px;
+            margin-top: 12px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             animation: fadeIn 0.25s ease;
         }
 
@@ -736,8 +738,8 @@
         .danmaku-color-dot:active { transform: scale(0.9); }
         .danmaku-color-dot.selected {
             border-color: #fff;
-            transform: scale(1.22);
-            box-shadow: 0 0 12px var(--c);
+            transform: scale(1.2);
+            box-shadow: 0 0 10px var(--c);
         }
 
         .btn-cooldown {
@@ -750,41 +752,42 @@
             transform: none !important;
         }
 
-        /* 🌟 極簡圓形懸浮按鈕 (三層 FAB 堆疊) */
-        .fab-circle {
+        /* 🌟 48px 精緻圓形懸浮按鈕 (三層垂直堆疊) */
+        .fab-circle-btn {
             position: fixed;
-            right: 20px;
+            right: max(16px, env(safe-area-inset-right));
             z-index: 85;
             width: 48px;
             height: 48px;
             border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.35);
+            font-size: 21px;
+            cursor: pointer;
+            box-shadow: var(--theme-shadow);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: var(--theme-shadow);
             transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
             user-select: none;
+            backdrop-filter: blur(8px);
         }
-        .fab-circle:active { transform: scale(0.9); }
+        .fab-circle-btn:active { transform: scale(0.88); }
 
         #diary-fab-btn {
-            bottom: 24px;
+            bottom: max(22px, env(safe-area-inset-bottom));
             background: var(--theme-accent);
             color: #fff;
         }
         #library-fab-btn {
-            bottom: 82px;
+            bottom: calc(max(22px, env(safe-area-inset-bottom)) + 56px);
             background: var(--theme-primary);
             color: #fff;
         }
         #guide-fab-btn {
-            bottom: 140px;
-            background: var(--theme-panel);
-            color: var(--theme-highlight);
-            border-color: var(--theme-highlight);
+            bottom: calc(max(22px, env(safe-area-inset-bottom)) + 112px);
+            background: var(--theme-card-bg);
+            border-color: var(--theme-accent);
+            color: var(--theme-accent);
         }
 
         #diary-modal, #change-room-modal, #library-modal, #guide-modal {
@@ -793,6 +796,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             background: rgba(5, 7, 14, 0.9);
             backdrop-filter: blur(12px);
             z-index: 95;
@@ -807,9 +811,10 @@
             border-bottom: none;
             border-radius: 16px 16px 0 0;
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
             max-height: 85vh;
-            padding: 18px 16px;
+            max-height: 85dvh;
+            padding: 16px 14px max(24px, env(safe-area-inset-bottom)) 14px;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
@@ -843,7 +848,7 @@
         }
 
         .mobile-ktv-line {
-            font-size: clamp(20px, 5.5vw, 28px);
+            font-size: clamp(18px, 5vw, 26px);
             font-weight: 700;
             line-height: 1.4;
             letter-spacing: 1.5px;
@@ -864,9 +869,9 @@
         .mobile-ktv-line.role-default { color: rgba(255, 255, 255, 0.4); }
 
         .mobile-ktv-line.active {
-            font-size: clamp(26px, 7.5vw, 38px);
+            font-size: clamp(24px, 7vw, 36px);
             font-weight: 900;
-            transform: scale(1.03);
+            transform: scale(1.02);
         }
 
         .mobile-ktv-line.role-default.active {
@@ -899,7 +904,7 @@
         }
         .theme-pill {
             flex: 1;
-            padding: 7px 6px;
+            padding: 6px 4px;
             font-size: 11px;
             background: var(--theme-card-bg);
             border: 1px solid var(--theme-border);
@@ -915,6 +920,24 @@
             border-color: var(--theme-accent);
             color: #fff;
             background: var(--theme-accent);
+        }
+
+        /* 小螢幕緊湊微調 */
+        @media (max-width: 360px) {
+            #remote-view { padding-left: 10px; padding-right: 10px; }
+            .card { padding: 12px; }
+            .btn { padding: 10px 6px; font-size: 12px; }
+            .fab-circle-btn { width: 44px; height: 44px; font-size: 19px; right: 12px; }
+            #library-fab-btn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 50px); }
+            #guide-fab-btn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 100px); }
+            .avatar-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        /* 橫向或超短螢幕微調 */
+        @media (max-height: 520px) {
+            .diary-drawer { max-height: 94vh; max-height: 94dvh; }
+            .mobile-ktv-line { font-size: 18px; }
+            .mobile-ktv-line.active { font-size: 24px; }
         }
     </style>
 </head>
@@ -974,7 +997,6 @@
                     </button>
                 </div>
 
-                <!-- 車機端風格切換器 -->
                 <div style="margin-top: 8px; border-top: 1px dashed var(--theme-border); padding-top: 6px;">
                     <div style="font-size: 11px; color: var(--theme-text-sub); margin-bottom: 4px;">🎨 車機大螢幕風格：</div>
                     <div class="theme-pill-group" id="screen-theme-pills">
@@ -1223,7 +1245,7 @@
                 </div>
             </div>
 
-            <!-- 2. 下拉選單：控台、音效、EQ等化器、手機無線麥、跑馬燈彈幕(置於罐頭音效上方)、罐頭音效 -->
+            <!-- 2. 下拉選單：控台、音效、EQ等化器、手機無線麥、跑馬燈彈幕、罐頭音效 -->
             <details class="cyber-accordion" id="accordion-controls-audio">
                 <summary>
                     <span>🎛️ 控台與音效 (操控 / EQ / 麥克風 / 彈幕 / 罐頭音效)</span>
@@ -1325,7 +1347,7 @@
                         </div>
                     </div>
 
-                    <!-- 跑馬燈即時發送列 (置於罐頭音效正上方) -->
+                    <!-- 跑馬燈即時發送列 -->
                     <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                             <span style="font-size: 11px; color: var(--theme-primary); font-weight: bold;">💬 車機即時跑馬燈彈幕</span>
@@ -1416,75 +1438,80 @@
                     </div>
 
                     <div id="mobile-lyrics-scroll-box" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; padding-right: 4px;">
-                        <div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 20px;">
-                            等待車機載入動態歌詞...
-                        </div>
+                        <!-- 初始預覽歌詞將由 JavaScript 自動生成注入 -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 🌟 圓形懸浮按鈕：操作指引 ❔ (頂) ➔ 專屬歌庫 🎼 (中) ➔ 旅行手帳 🗺️ (底) -->
-        <button id="guide-fab-btn" class="fab-circle hidden" title="操作指引" onclick="openGuideModal()">
+        <!-- 🌟 5. 圓形懸浮按鈕組 (三層垂直堆疊) -->
+        <!-- 頂層：操作指引 ❔ -->
+        <button id="guide-fab-btn" class="fab-circle-btn hidden" onclick="openGuideModal()" title="操作指引">
             <span>❔</span>
         </button>
 
-        <button id="library-fab-btn" class="fab-circle hidden" title="專屬歌庫" onclick="openLibraryModal()">
+        <!-- 中層：專屬歌庫 🎼 -->
+        <button id="library-fab-btn" class="fab-circle-btn hidden" onclick="openLibraryModal()" title="專屬歌庫">
             <span>🎼</span>
         </button>
 
-        <button id="diary-fab-btn" class="fab-circle hidden" title="旅行手帳" onclick="openDiaryModal()">
+        <!-- 底層：旅行手帳 🗺️ -->
+        <button id="diary-fab-btn" class="fab-circle-btn hidden" onclick="openDiaryModal()" title="旅行手帳">
             <span>🗺️</span>
         </button>
 
-        <!-- 🌟 簡易操作指引彈窗 (Modal) -->
+        <!-- 🌟 操作指引彈窗 (Modal Drawer) -->
         <div id="guide-modal" class="hidden">
-            <div class="diary-drawer" style="max-height: 82vh;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px; margin-bottom: 12px;">
+            <div class="diary-drawer" style="max-height: 82vh; max-height: 82dvh;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px; margin-bottom: 14px;">
                     <div>
-                        <div style="font-size: 16px; font-weight: 800; color: var(--theme-highlight); letter-spacing: 1px;">❔ 車載歡唱終端操作指南</div>
-                        <div style="font-size: 10px; color: var(--theme-text-sub); margin-top: 2px;">QUICK USER MANUAL // YUNUBE CAR KTV</div>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--theme-accent); letter-spacing: 1px;">❔ 車載歡唱終端操作指南</div>
+                        <div style="font-size: 10px; color: var(--theme-text-sub); margin-top: 2px;">QUICK START & USER MANUAL</div>
                     </div>
                     <button style="background: none; border: 1px solid var(--theme-border); color: var(--theme-text); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeGuideModal()">✕ 關閉</button>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 12px; line-height: 1.5; color: var(--theme-text);">
-                    <div style="background: var(--theme-card-bg); padding: 10px 12px; border-radius: var(--theme-radius); border-left: 3px solid var(--theme-accent);">
-                        <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 4px;">1. 點歌與待播管理</div>
-                        <div>輸入歌曲名稱或貼上 YouTube 網址即可點歌；點擊「⚡優先插播」可排至下一首播放。</div>
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; line-height: 1.5; color: var(--theme-text);">
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-accent); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 2px;">1. 快速點歌與插播 🔗</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">在上方「歌曲載入」輸入歌名（自動檢索歌詞）或貼上 YouTube 網址，點「＋點」排隊或「⚡插播」置頂播放。</div>
                     </div>
 
-                    <div style="background: var(--theme-card-bg); padding: 10px 12px; border-radius: var(--theme-radius); border-left: 3px solid var(--theme-primary);">
-                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 4px;">2. 控台、EQ 與無線麥克風</div>
-                        <div>支援隨時切換原唱/伴奏與切歌；點擊「🎙️ 開啟手機收音」即可將手機當成無線麥克風直接連線車載喇叭；下方 3-Band EQ 可自由調校重低音與人聲。</div>
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-primary); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 手機無線麥克風 🎤</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">在控台選單點擊「開啟手機收音」，對準手機底部話筒演唱，聲音即時直通車載喇叭（同車載 Wi-Fi 熱點延遲最低）。</div>
                     </div>
 
-                    <div style="background: var(--theme-card-bg); padding: 10px 12px; border-radius: var(--theme-radius); border-left: 3px solid var(--theme-highlight);">
-                        <div style="font-weight: bold; color: var(--theme-highlight); margin-bottom: 4px;">3. 彈幕跑馬燈與巨大廣播</div>
-                        <div>可自選 5 款霓虹發光色隨時對車機發送彈幕；開啟「📢 巨大廣播」會於大螢幕中央放大 2 倍懸浮 3 秒（送出後有 15 秒冷卻防洗版）。</div>
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-highlight); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--theme-highlight); margin-bottom: 2px;">3. 3-Band EQ 音質等化器 🎚️</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">演唱時隨時切換「標準、重擊、清脆、穿透」風格，或手動滑動低音/人聲/高音滑桿消除車內噪音。</div>
                     </div>
 
-                    <div style="background: var(--theme-card-bg); padding: 10px 12px; border-radius: var(--theme-radius); border-left: 3px solid var(--cyber-green);">
-                        <div style="font-weight: bold; color: var(--cyber-green); margin-bottom: 4px;">4. 歌詞即時校準與後座跟唱</div>
-                        <div>遇前奏不同步可左右拖動滑桿微調；後座乘客點擊「📱 開啟後座沉浸跟唱視窗」即可在手機全螢幕看雙行卡拉OK大字跟唱。</div>
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-magenta); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--cyber-magenta); margin-bottom: 2px;">4. 跑馬燈彈幕與巨大廣播 💬</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">選取 5 款霓虹發光色送出橫移彈幕；開啟「巨大廣播」文字放大 2 倍置中懸浮 3 秒（防洗版 15 秒冷卻）。</div>
                     </div>
 
-                    <div style="background: var(--theme-card-bg); padding: 10px 12px; border-radius: var(--theme-radius); border-left: 3px solid var(--theme-accent);">
-                        <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 4px;">5. 🎼 專屬歌庫 (中間圓形按鈕)</div>
-                        <div>點選 ❤️ 珍藏喜愛歌曲，具備即時搜尋 🔍、單曲移除 🗑️ 與一鍵防呆清空 🧹 功能。</div>
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-green); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--cyber-green); margin-bottom: 2px;">5. AI 評分與專屬歌庫 🎯</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">開啟「AI 練歌評分」結算音準/節奏/情感客觀點評；點擊右側「🎼」隨時搜尋、單曲刪除 🗑️ 或清空 🧹 歌單。</div>
                     </div>
 
-                    <div style="background: var(--theme-card-bg); padding: 10px 12px; border-radius: var(--theme-radius); border-left: 3px solid var(--theme-primary);">
-                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 4px;">6. 🗺️ 旅行手帳 (底部圓形按鈕)</div>
-                        <div>GPS 經緯度地址定位打卡、沿途風景即時拍照 📸，可產生自動適應 4 大主題質感的賽博拍立得，並一鍵同步備份至個人 Google Drive。</div>
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-accent); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 2px;">6. 實況拍照與拍立得手帳 🗺️</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">點擊右下角「🗺️」即時拍照打卡，自動套用賽博/無印/Y3K/可愛風排版，一鍵備份至 Google Drive。</div>
                     </div>
                 </div>
+
+                <button class="btn btn-accent" style="width: 100%; margin-top: 14px; padding: 11px;" onclick="closeGuideModal()">
+                    我知道了，開始歡唱！
+                </button>
             </div>
         </div>
 
-        <!-- 專屬歌庫彈窗 (Modal) -->
+        <!-- 專屬歌庫彈窗 (Modal Drawer) -->
         <div id="library-modal" class="hidden">
-            <div class="diary-drawer" style="max-height: 80vh;">
+            <div class="diary-drawer" style="max-height: 80vh; max-height: 80dvh;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px; margin-bottom: 10px;">
                     <div>
                         <div style="font-size: 16px; font-weight: 800; color: var(--theme-accent); letter-spacing: 1px;">🎼 專屬歌庫與點播足跡</div>
@@ -1522,7 +1549,7 @@
 
         <!-- 換包廂彈窗 (Modal) -->
         <div id="change-room-modal" class="hidden">
-            <div class="diary-drawer" style="max-height: 55vh;">
+            <div class="diary-drawer" style="max-height: 55vh; max-height: 55dvh;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px; margin-bottom: 14px;">
                     <div style="font-size: 16px; font-weight: 800; color: var(--theme-accent); letter-spacing: 1px;">🔄 重新連線 / 切換包廂</div>
                     <button style="background: none; border: 1px solid var(--theme-border); color: var(--theme-text); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeChangeRoomModal()">✕ 關閉</button>
@@ -1544,7 +1571,7 @@
         </div>
 
         <!-- 全螢幕雙行卡拉OK跟唱燈箱 -->
-        <div id="mobile-karaoke-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 14, 0.96); backdrop-filter: blur(16px); z-index: 120; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 18px; box-sizing: border-box;">
+        <div id="mobile-karaoke-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(5, 7, 14, 0.96); backdrop-filter: blur(16px); z-index: 120; display: flex; flex-direction: column; justify-content: space-between; padding: 24px 18px; box-sizing: border-box;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 18px;">🎤</span>
@@ -1567,7 +1594,7 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
                 <div style="font-size: 11px; color: var(--theme-text-sub);">歌詞偏慢/快？</div>
-                <div style="display: gap; 8px;">
+                <div style="display: flex; gap: 8px;">
                     <button class="btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustLyricOffset(-0.5)">◀ 延後 0.5s</button>
                     <button class="btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustLyricOffset(0, true)">↺ 歸零</button>
                     <button class="btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustLyricOffset(0.5)">提早 0.5s ▶</button>
@@ -1577,7 +1604,7 @@
 
         <!-- 旅行手帳彈窗 (含即時拍照/相簿選取 + 預覽) -->
         <div id="diary-modal" class="hidden">
-            <div class="diary-drawer">
+            <div class="diary-drawer" style="max-height: 85vh; max-height: 85dvh;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px; margin-bottom: 14px;">
                     <div>
                         <div style="font-size: 16px; font-weight: 800; color: var(--theme-accent); letter-spacing: 1px;">🗺️ 車載歡唱旅行手帳</div>
@@ -1607,6 +1634,7 @@
                     </div>
                 </div>
 
+                <!-- 即時拍照與相簿選取區塊 -->
                 <div style="background: var(--theme-card-bg); border: 1px dashed var(--theme-border); border-radius: var(--theme-radius); padding: 10px; margin-bottom: 10px;">
                     <input type="file" id="diary-camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handleDiaryPhotoCapture(event)">
                     <input type="file" id="diary-gallery-input" accept="image/*" style="display: none;" onchange="handleDiaryPhotoCapture(event)">
@@ -1654,7 +1682,7 @@
         </div>
 
         <!-- 拍立得彈出預覽 Modal -->
-        <div id="polaroid-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 14, 0.94); backdrop-filter: blur(14px); z-index: 110; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+        <div id="polaroid-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(5, 7, 14, 0.94); backdrop-filter: blur(14px); z-index: 110; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
             <div style="width: 100%; max-width: 360px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span style="color: var(--theme-accent); font-weight: bold; font-size: 14px; letter-spacing: 1px;">📸 風格拍立得生成完畢</span>
                 <button style="background: none; border: 1px solid var(--theme-border); color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;" onclick="closePolaroidModal()">✕ 關閉</button>
@@ -1678,7 +1706,7 @@
 
     <script>
         // ================= 1. 環境參數與全域狀態 =================
-        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+        const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
 
         const PEER_CONFIG = {
             config: {
@@ -1738,17 +1766,20 @@
         let micAnalyser = null;
         let micDataArray = null;
 
+        // 手機無線麥克風串流狀態
         let mobileMicStream = null;
         let currentMicCall = null;
-        let mobileMicGainNode = null;
-        let mobileAudioCtx = null;
+        let remoteMicGainNode = null; // 🌟 車機端遠端麥克風增益控制節點
 
+        // 車機 Web Audio 3-Band EQ 節點
         let eqLowNode = null;
         let eqMidNode = null;
         let eqHighNode = null;
 
+        // 旅行手帳實拍照片狀態
         let capturedDiaryPhoto = null;
 
+        // 歌庫管理與即時過濾狀態
         let currentActiveLibraryTab = 'fav';
         let librarySearchQuery = '';
 
@@ -1777,6 +1808,16 @@
         let driveTokenClient = null;
 
         let remoteLyricsList = [];
+
+        // 🌟 開局動態歌詞預覽範例
+        const DEFAULT_PREVIEW_LYRICS = [
+            { time: 14.0, text: "🎵 [預覽範例] 如果那兩個字沒有顫抖", role: "default", tag: "預覽" },
+            { time: 20.5, text: "我不會發現 我難受", role: "default", tag: "預覽" },
+            { time: 27.0, text: "怎麼說出口 也不過是分手", role: "male", tag: "👨 男" },
+            { time: 34.5, text: "如果對於明天沒有要求", role: "female", tag: "👩 女" },
+            { time: 41.0, text: "牽牽手就像旅遊 成千上萬個門口", role: "duet", tag: "👫 合" },
+            { time: 48.0, text: "總有一個人要先走 (連線車機後將即時同步曲目)", role: "default", tag: "提示" }
+        ];
 
         const POLAROID_THEMES = {
             cyberpunk: {
@@ -1905,6 +1946,7 @@
             initProfileSetupUI();
             initGoogleSDK();
             checkInAppBrowser();
+            renderMobileLyricsUI(DEFAULT_PREVIEW_LYRICS);
         } else {
             switchTheme(currentScreenTheme, true);
             initScreenMode();
@@ -2181,27 +2223,25 @@
             
             document.getElementById('profile-setup-screen').classList.add('hidden');
             document.getElementById('remote-dashboard').classList.remove('hidden');
-            
-            // 🌟 顯示三層圓形 FAB
-            document.getElementById('guide-fab-btn').classList.remove('hidden');
-            document.getElementById('library-fab-btn').classList.remove('hidden');
+
             document.getElementById('diary-fab-btn').classList.remove('hidden');
+            document.getElementById('library-fab-btn').classList.remove('hidden');
+            document.getElementById('guide-fab-btn').classList.remove('hidden');
 
             initRemoteMode(targetRoom);
         }
 
         function reopenProfileSetup() {
             document.getElementById('remote-dashboard').classList.add('hidden');
-            document.getElementById('guide-fab-btn').classList.add('hidden');
-            document.getElementById('library-fab-btn').classList.add('hidden');
             document.getElementById('diary-fab-btn').classList.add('hidden');
-
+            document.getElementById('library-fab-btn').classList.add('hidden');
+            document.getElementById('guide-fab-btn').classList.add('hidden');
             document.getElementById('setup-room-code').value = targetRoom;
             document.getElementById('setup-room-pin').value = targetPin;
             document.getElementById('profile-setup-screen').classList.remove('hidden');
         }
 
-        // ================= 7. 換包廂彈窗邏輯 =================
+        // ================= 7. 手機端換包廂與輸入密碼 =================
         function openChangeRoomModal() {
             document.getElementById('manual-room-input').value = targetRoom || '';
             document.getElementById('manual-pin-input').value = targetPin || '';
@@ -2443,7 +2483,7 @@
             }
         }
 
-        // ================= 10. 手機無線麥克風 (音訊發射端) =================
+        // ================= 10. 手機無線麥克風 (音訊發射端 - 關鍵修復) =================
         async function toggleMobileMicStream() {
             const btn = document.getElementById('btn-toggle-mic-stream');
             const statusText = document.getElementById('mobile-mic-status');
@@ -2468,6 +2508,7 @@
             try {
                 statusText.innerText = "麥克風授權中...";
                 
+                // 🌟 直接擷取原生硬體串流，關閉所有瀏覽器自帶抑制以降低延遲
                 const rawStream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: false,
@@ -2477,20 +2518,10 @@
                     }
                 });
 
-                mobileAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (mobileAudioCtx.state === 'suspended') await mobileAudioCtx.resume();
-
-                const source = mobileAudioCtx.createMediaStreamSource(rawStream);
-                mobileMicGainNode = mobileAudioCtx.createGain();
-                mobileMicGainNode.gain.value = 1.0;
-
-                const destination = mobileAudioCtx.createMediaStreamDestination();
-                source.connect(mobileMicGainNode);
-                mobileMicGainNode.connect(destination);
-
-                mobileMicStream = destination.stream;
+                mobileMicStream = rawStream;
 
                 statusText.innerText = "連線車載音響中...";
+                // 直接將 rawStream 發送至車機
                 currentMicCall = peer.call(targetRoom, mobileMicStream);
 
                 btn.innerText = "🔴 停止手機收音 (通話中)";
@@ -2510,30 +2541,50 @@
 
             } catch (err) {
                 console.error("無法取得麥克風權限：", err);
-                alert("無法啟動手機麥克風！請確認瀏覽器已允許麥克風權限，且連線為 HTTPS。");
+                alert("無法啟動手機麥克風！請確認：\n1. 網址開頭必須為 https://\n2. 已允許瀏覽器麥克風權限。");
                 statusText.innerText = "授權失敗";
                 statusText.style.color = "#ff0055";
             }
         }
 
         function updateMobileMicGain(val) {
-            if (mobileMicGainNode && mobileAudioCtx) {
-                mobileMicGainNode.gain.setValueAtTime(parseFloat(val), mobileAudioCtx.currentTime);
-                document.getElementById('lbl-mic-gain').innerText = `${val}x`;
-            }
+            document.getElementById('lbl-mic-gain').innerText = `${val}x`;
+            sendCmd({ action: 'SET_REMOTE_MIC_GAIN', gain: parseFloat(val) });
         }
 
+        // ================= 11. 車機接收手機麥克風 (關鍵修復：Chromium 激活器與 Gain 控制) =================
         function connectRemoteMicToCarMixer(stream) {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
             initAudioEQNodes();
 
+            // 🌟 關鍵修復：透過靜音的 HTMLAudioElement 喚醒 Chromium WebRTC 底層解碼
+            let dummyAudio = document.getElementById('webrtc-audio-activator');
+            if (!dummyAudio) {
+                dummyAudio = document.createElement('audio');
+                dummyAudio.id = 'webrtc-audio-activator';
+                dummyAudio.autoplay = true;
+                dummyAudio.playsInline = true;
+                dummyAudio.muted = true; // 靜音避免重複播放，但能成功激活串流
+                dummyAudio.style.display = 'none';
+                document.body.appendChild(dummyAudio);
+            }
+            dummyAudio.srcObject = stream;
+            dummyAudio.play().catch(e => console.warn("Audio activator play:", e));
+
             const remoteSource = audioCtx.createMediaStreamSource(stream);
 
-            remoteSource.connect(eqLowNode);
+            if (!remoteMicGainNode) {
+                remoteMicGainNode = audioCtx.createGain();
+                remoteMicGainNode.gain.value = 1.0;
+            }
+
+            // 串接：遠端麥克風 -> 增益節點 -> EQ 低音入口
+            remoteSource.connect(remoteMicGainNode);
+            remoteMicGainNode.connect(eqLowNode);
 
             if (micAnalyser) {
-                remoteSource.connect(micAnalyser);
+                remoteMicGainNode.connect(micAnalyser);
             }
 
             const hudMode = document.getElementById('hud-mode');
@@ -2542,7 +2593,7 @@
             }
         }
 
-        // ================= 11. AI 練歌模式與正向客觀點評 =================
+        // ================= 12. AI 練歌模式與正向客觀點評 =================
         function togglePracticeMode() {
             isPracticeMode = !isPracticeMode;
             sendCmd({ action: 'TOGGLE_PRACTICE_MODE', isPracticeMode: isPracticeMode });
@@ -2618,7 +2669,7 @@
             document.getElementById('ai-score-modal').classList.add('hidden');
         }
 
-        // ================= 12. 沉浸式雙行卡拉OK跟唱燈箱 =================
+        // ================= 13. 沉浸式雙行卡拉OK跟唱燈箱 =================
         function openMobileKaraokeModal() {
             document.getElementById('mobile-karaoke-modal').classList.remove('hidden');
             const titleEl = document.getElementById('mobile-karaoke-song-title');
@@ -2667,7 +2718,7 @@
             el.className = `mobile-ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 13. 旅行手帳即時實拍與上傳處理 =================
+        // ================= 14. 旅行手帳即時實拍與上傳處理 =================
         function handleDiaryPhotoCapture(event) {
             const file = event.target.files[0];
             if (!file || !file.type.startsWith('image/')) return;
@@ -2715,15 +2766,7 @@
             document.getElementById('btn-remove-diary-photo').classList.add('hidden');
         }
 
-        function openDiaryModal() {
-            document.getElementById('diary-modal').classList.remove('hidden');
-        }
-
-        function closeDiaryModal() {
-            document.getElementById('diary-modal').classList.add('hidden');
-        }
-
-        // ================= 14. 簡易操作指引彈窗開關 =================
+        // ================= 15. 懸浮彈窗控制 (指南、歌庫、手帳) =================
         function openGuideModal() {
             document.getElementById('guide-modal').classList.remove('hidden');
         }
@@ -2732,7 +2775,6 @@
             document.getElementById('guide-modal').classList.add('hidden');
         }
 
-        // ================= 15. 專屬歌庫彈窗與進階管理 =================
         function openLibraryModal() {
             document.getElementById('library-modal').classList.remove('hidden');
             renderLibraryUI();
@@ -2742,6 +2784,15 @@
             document.getElementById('library-modal').classList.add('hidden');
         }
 
+        function openDiaryModal() {
+            document.getElementById('diary-modal').classList.remove('hidden');
+        }
+
+        function closeDiaryModal() {
+            document.getElementById('diary-modal').classList.add('hidden');
+        }
+
+        // ================= 16. 專屬歌庫系統與進階管理 =================
         function loadUserLibrary() {
             const favKey = `yunube_favs_${userProfile.id}`;
             const histKey = `yunube_history_${userProfile.id}`;
@@ -2964,7 +3015,294 @@
             queueSong(songData, isInsertNext);
         }
 
-        // ================= 16. 拍立得多風格與實拍照片 Canvas 繪圖引擎 =================
+        // ================= 17. 手機端動態歌詞渲染 =================
+        function renderMobileLyricsUI(lyrics) {
+            remoteLyricsList = lyrics || [];
+            const container = document.getElementById('mobile-lyrics-scroll-box');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            if (!remoteLyricsList || remoteLyricsList.length === 0) {
+                container.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 20px;">此歌曲尚無動態時間軸歌詞</div>';
+                return;
+            }
+
+            remoteLyricsList.forEach((line, index) => {
+                const min = Math.floor(line.time / 60).toString().padStart(2, '0');
+                const sec = Math.floor(line.time % 60).toString().padStart(2, '0');
+                const timeTag = `${min}:${sec}`;
+
+                const item = document.createElement('div');
+                item.className = 'mobile-lyric-item';
+                item.id = `mobile-lyric-${index}`;
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;">
+                        <span class="mobile-lyric-time">${timeTag}</span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${line.text}</span>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                        <button style="background: rgba(0,0,0,0.05); border: 1px solid var(--theme-accent); color: var(--theme-accent); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="seekToLyricTime(${line.time})">
+                            ⏩ 跳至
+                        </button>
+                        <button style="background: var(--theme-primary); color: #fff; border: 1px solid var(--theme-primary); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="alignSelectedLyric(${line.time})">
+                            🎯 對齊
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function highlightMobileActiveLyric(index) {
+            document.querySelectorAll('.mobile-lyric-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(`mobile-lyric-${index}`);
+            if (activeEl) {
+                activeEl.classList.add('active');
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function onOffsetSliderDrag(val) {
+            const floatVal = Math.round(parseFloat(val) * 10) / 10;
+            updateRemoteOffsetDisplay(floatVal);
+            sendCmd({ action: 'SET_EXACT_OFFSET', value: floatVal });
+        }
+
+        function seekToLyricTime(timeInSec) {
+            sendCmd({ action: 'SEEK_TO', seconds: timeInSec });
+        }
+
+        function alignSelectedLyric(targetTime) {
+            sendCmd({ action: 'ALIGN_LINE_TO_NOW', targetTime: targetTime });
+        }
+
+        // ================= 18. 旅行手帳與 Google Drive 雲端同步 =================
+        function fetchCurrentGPSLocation() {
+            const locDisplay = document.getElementById('diary-current-location');
+            if (!navigator.geolocation) {
+                locDisplay.innerText = "瀏覽器不支援 GPS 定位";
+                return;
+            }
+
+            locDisplay.innerText = "🛰️ 正在連線衛星定位中...";
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    currentDiaryLocation.lat = lat;
+                    currentDiaryLocation.lng = lng;
+
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+                            headers: { 'Accept-Language': 'zh-TW' }
+                        });
+                        const data = await res.json();
+                        const addr = data.display_name ? data.display_name.split(',').slice(0, 3).reverse().join(' ') : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        currentDiaryLocation.address = addr;
+                        locDisplay.innerText = `📍 ${addr}`;
+                    } catch (err) {
+                        currentDiaryLocation.address = `GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`;
+                        locDisplay.innerText = `📍 ${currentDiaryLocation.address}`;
+                    }
+                },
+                (err) => {
+                    locDisplay.innerText = "⚠️ 定位失敗 (請確認開啟手機定位權限)";
+                    console.warn("GPS 定位錯誤：", err);
+                },
+                { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+            );
+        }
+
+        function requestDriveAccessToken(callback) {
+            if (driveAccessToken) {
+                callback(driveAccessToken);
+                return;
+            }
+
+            if (!window.google || !google.accounts || !google.accounts.oauth2) {
+                alert("Google Identity 服務尚未載入完成，請確認聯網！");
+                return;
+            }
+
+            if (!driveTokenClient) {
+                driveTokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/drive.file',
+                    callback: (tokenResp) => {
+                        if (tokenResp.error) {
+                            alert("Google Drive 授權失敗：" + tokenResp.error);
+                            return;
+                        }
+                        driveAccessToken = tokenResp.access_token;
+                        document.getElementById('diary-sync-status').innerText = "雲端已連線 ✅";
+                        document.getElementById('diary-sync-status').style.color = "var(--cyber-green)";
+                        callback(driveAccessToken);
+                    }
+                });
+            }
+
+            driveTokenClient.requestAccessToken();
+        }
+
+        async function findDiaryFileId(accessToken) {
+            const query = encodeURIComponent(`name = '${DIARY_FILE_NAME}' and trashed = false`);
+            const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            const result = await res.json();
+            if (result.files && result.files.length > 0) {
+                return result.files[0].id;
+            }
+            return null;
+        }
+
+        async function loadDiaryFromGoogleDrive() {
+            requestDriveAccessToken(async (token) => {
+                try {
+                    document.getElementById('diary-sync-status').innerText = "正在讀取雲端...";
+                    const fileId = await findDiaryFileId(token);
+                    if (!fileId) {
+                        document.getElementById('diary-sync-status').innerText = "雲端檔案建立中";
+                        renderDiaryList();
+                        return;
+                    }
+
+                    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    travelDiaries = await res.json();
+                    document.getElementById('diary-sync-status').innerText = `已同步 (${travelDiaries.length} 篇)`;
+                    document.getElementById('diary-sync-status').style.color = "var(--theme-accent)";
+                    renderDiaryList();
+                } catch (err) {
+                    console.error("讀取 Drive 日記出錯：", err);
+                    document.getElementById('diary-sync-status').innerText = "讀取失敗";
+                }
+            });
+        }
+
+        async function saveAndSyncTravelDiary() {
+            const noteText = document.getElementById('diary-note-input').value.trim();
+            if (!noteText) return alert("請輸入一段旅行心情或打卡隨筆！");
+
+            const now = new Date();
+            const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由伴奏";
+
+            const newEntry = {
+                id: "diary_" + Date.now(),
+                timestamp: now.toISOString(),
+                dateStr: `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`,
+                location: currentDiaryLocation,
+                song: playingTitle,
+                singer: `${userProfile.nickname} (${userProfile.seat})`,
+                avatar: userProfile.avatar,
+                photo: capturedDiaryPhoto,
+                note: noteText,
+                theme: currentRemoteTheme || 'cyberpunk'
+            };
+
+            requestDriveAccessToken(async (token) => {
+                try {
+                    document.getElementById('diary-sync-status').innerText = "雲端同步中...";
+                    
+                    const fileId = await findDiaryFileId(token);
+                    if (fileId) {
+                        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        try { travelDiaries = await res.json(); } catch(e) { travelDiaries = []; }
+                    }
+
+                    travelDiaries.unshift(newEntry);
+                    const content = JSON.stringify(travelDiaries, null, 2);
+
+                    if (fileId) {
+                        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: content
+                        });
+                    } else {
+                        const metadata = {
+                            name: DIARY_FILE_NAME,
+                            mimeType: 'application/json'
+                        };
+                        const boundary = '-------yunube_ktv_boundary';
+                        const delimiter = "\r\n--" + boundary + "\r\n";
+                        const close_delim = "\r\n--" + boundary + "--";
+
+                        const multipartRequestBody =
+                            delimiter +
+                            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+                            JSON.stringify(metadata) +
+                            delimiter +
+                            'Content-Type: application/json\r\n\r\n' +
+                            content +
+                            close_delim;
+
+                        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': `multipart/related; boundary=${boundary}`
+                            },
+                            body: multipartRequestBody
+                        });
+                    }
+
+                    document.getElementById('diary-note-input').value = '';
+                    removeDiaryPhoto();
+                    document.getElementById('diary-sync-status').innerText = "同步完成 ✅";
+                    document.getElementById('diary-sync-status').style.color = "var(--theme-accent)";
+                    alert("🎉 旅行歡唱日記與實拍照片已成功同步至您的個人 Google Drive！");
+                    renderDiaryList();
+                } catch (err) {
+                    console.error("同步至 Drive 失敗：", err);
+                    alert("同步失敗，請檢查網路狀態或重新授權。");
+                }
+            });
+        }
+
+        function renderDiaryList() {
+            const listEl = document.getElementById('diary-entries-list');
+            listEl.innerHTML = '';
+
+            if (travelDiaries.length === 0) {
+                listEl.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 12px;">尚無旅行紀錄，打卡後將自動上傳至 Google 雲端</div>';
+                return;
+            }
+
+            travelDiaries.forEach((entry) => {
+                const item = document.createElement('div');
+                item.style = "background: var(--theme-card-bg); border: 1px solid var(--theme-border); border-radius: var(--theme-radius); padding: 10px; font-size: 12px;";
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="color: var(--theme-accent); font-weight: bold;">${entry.dateStr}</span>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="btn" style="padding: 2px 7px; font-size: 11px; border: 1px solid var(--theme-accent); color: var(--theme-accent);" onclick='renderPolaroidCard(${JSON.stringify(entry)})'>
+                                📸 拍立得
+                            </button>
+                            <span style="font-size: 11px; background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px;">
+                                ${entry.singer}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="color: var(--theme-text-sub); margin-bottom: 4px;">📍 ${entry.location.address || entry.location}</div>
+                    <div style="color: var(--theme-highlight); margin-bottom: 6px;">🎵 ${entry.song}</div>
+                    <div style="background: rgba(0,0,0,0.04); padding: 6px 8px; border-radius: 4px; line-height: 1.4;">
+                        ${entry.note}
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        // ================= 19. 拍立得多風格與實拍照片 Canvas 繪圖引擎 =================
         function createCurrentPolaroid() {
             const noteText = document.getElementById('diary-note-input').value.trim() || "沿著公路迎風奔馳，車內就是專屬移動歌廳！";
             const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由巡航中";
@@ -3311,7 +3649,7 @@
             document.getElementById('polaroid-modal').classList.add('hidden');
         }
 
-        // ================= 17. 車機大螢幕端邏輯 =================
+        // ================= 20. 車機大螢幕端邏輯 =================
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
@@ -3325,11 +3663,20 @@
             }
         }
 
+        // 🌟 關鍵修復：在使用者點擊「開啟歡唱終端」的手勢回呼中解凍 AudioContext
         function unlockAutoplay() {
             const overlay = document.getElementById('start-overlay');
             if (overlay) overlay.style.display = 'none';
 
             toggleFullScreen();
+
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            initAudioEQNodes();
 
             if (ytPlayer && isPlayerReady) {
                 try {
@@ -3547,6 +3894,7 @@
                 });
             });
 
+            // 🌟 車機端接聽手機麥克風通話
             peer.on('call', (call) => {
                 call.answer();
                 call.on('stream', (remoteMicStream) => {
@@ -3765,6 +4113,14 @@
                 return;
             }
 
+            // 🌟 處理遠端麥克風增益指令
+            if (cmd.action === 'SET_REMOTE_MIC_GAIN') {
+                if (remoteMicGainNode && audioCtx) {
+                    remoteMicGainNode.gain.setTargetAtTime(cmd.gain, audioCtx.currentTime, 0.05);
+                }
+                return;
+            }
+
             if (cmd.action === 'SEND_DANMAKU') {
                 renderDanmakuOnScreen(cmd);
                 return;
@@ -3882,7 +4238,7 @@
             }
         }
 
-        // ================= 18. 男女合唱動態時間軸解析 =================
+        // ================= 21. 男女合唱動態時間軸解析 =================
         function detectSingerRole(rawText) {
             const maleRegex = /^(?:\(|（|\[)?(?:男|M|Boy|Male)(?:\)|）|\]|：|:)\s*/i;
             const femaleRegex = /^(?:\(|（|\[)?(?:女|F|Girl|Female)(?:\)|）|\]|：|:)\s*/i;
@@ -4018,7 +4374,7 @@
             el.className = `ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 19. 手機遙控端通訊與重連機制 =================
+        // ================= 22. 手機遙控端通訊與重連機制 =================
         function initRemoteMode(roomId) {
             if (!roomId) {
                 const statusEl = document.getElementById('mobile-status-text');
@@ -4285,7 +4641,7 @@
             });
         }
 
-        // ================= 20. YouTube Player 實例化 =================
+        // ================= 23. YouTube Player 實例化 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
             
@@ -4349,7 +4705,7 @@
             }
         }
 
-        // ================= 21. Web Audio API 車載麥克風迴音混音 =================
+        // ================= 24. Web Audio API 車載麥克風迴音混音 =================
         async function enableAudioMixer() {
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -4380,7 +4736,7 @@
                 micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
 
                 micSource.connect(micAnalyser);
-                micSource.connect(eqLowNode);
+                micSource.connect(eqLowNode); // 送進 3-Band EQ 鏈
                 micDelayNode.connect(micFeedbackGain);
                 micFeedbackGain.connect(micDelayNode);
                 micDelayNode.connect(audioCtx.destination);
