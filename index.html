@@ -472,7 +472,7 @@
             justify-content: space-between;
         }
 
-        /* ================= 3. 手機遙控器端 UI ================= */
+        /* ================= 3. 手機遙控器端 UI (純點歌/互動控制台適配) ================= */
         #remote-view { 
             padding: max(16px, env(safe-area-inset-top)) 14px max(190px, calc(170px + env(safe-area-inset-bottom))) 14px;
             max-width: 520px; 
@@ -1020,7 +1020,7 @@
                 <button class="btn" style="width: 100%; padding: 10px; font-size: 13px;" onclick="toggleMembersModal(true)">
                     👥 查看包廂成員 (<span id="member-btn-count">0</span>)
                 </button>
-                <button class="btn btn-accent" style="width: 100%; padding: 11px; font-size: 13px;" onclick="enableAudioMixer()">
+                <button class="btn btn-accent" id="mic-mixer-btn" style="width: 100%; padding: 11px; font-size: 13px;" onclick="enableAudioMixer()">
                     🎤 啟用車載麥克風混音
                 </button>
             </div>
@@ -1120,7 +1120,7 @@
 
                 <div style="font-size: 12px; color: var(--theme-highlight); margin-bottom: 6px; font-weight: bold; display: flex; justify-content: space-between;">
                     <span>🔑 4 位數包廂密碼 (Passcode)</span>
-                    <span style="font-size: 10px; color: var(--theme-text-sub);">掃碼自動帶入，手動輸入需填寫</span>
+                    <span style="font-size: 10px; color: var(--theme-text-sub);">掃碼帶入房號，密碼請向車主索取</span>
                 </div>
                 <input type="password" maxlength="4" id="setup-room-pin" placeholder="例如: 8888" value="" style="margin-bottom: 12px; letter-spacing: 3px;">
 
@@ -1171,7 +1171,7 @@
             </div>
         </div>
 
-        <!-- 關卡 2：點歌與遙控控制台 (完成登入後解鎖) -->
+        <!-- 關卡 2：點歌與遙控控制台 (純點歌與互動終端) -->
         <div id="remote-dashboard" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
             
             <!-- 身分狀態列 -->
@@ -1241,10 +1241,10 @@
                 </div>
             </div>
 
-            <!-- 2. 下拉選單：控台、音效、EQ等化器、手機無線麥、跑馬燈彈幕、罐頭音效 -->
+            <!-- 2. 下拉選單：控台、車載音效、車載麥克風EQ、跑馬燈彈幕、罐頭音效 -->
             <details class="cyber-accordion" id="accordion-controls-audio">
                 <summary>
-                    <span>🎛️ 控台與音效 (操控 / EQ / 麥克風 / 彈幕 / 罐頭音效)</span>
+                    <span>🎛️ 控台與音效 (操控 / 車載EQ / 彈幕 / 罐頭音效)</span>
                     <span class="accordion-icon">▼</span>
                 </summary>
                 <div class="accordion-body">
@@ -1267,10 +1267,10 @@
                         </button>
                     </div>
 
-                    <!-- 三段式 EQ 等化器 (3-Band EQ) -->
+                    <!-- 車載麥克風三段式 EQ 等化器 (3-Band EQ) -->
                     <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 11px; color: var(--theme-accent); font-weight: bold;">🎚️ 麥克風音質等化器 (3-Band EQ)</span>
+                            <span style="font-size: 11px; color: var(--theme-accent); font-weight: bold;">🎚️ 車載麥克風音質等化器 (3-Band EQ)</span>
                             <span id="current-eq-preset-name" style="font-size: 10px; color: var(--theme-highlight); font-weight: bold;">原廠標準</span>
                         </div>
 
@@ -1306,24 +1306,6 @@
                         </div>
                     </div>
 
-                    <!-- 手機無線麥克風 (低延遲收音) -->
-                    <div style="margin-top: 4px; border-top: 1px dashed var(--theme-border); padding-top: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 11px; color: var(--theme-accent); font-weight: bold;">🎤 手機無線麥克風 (極致低延遲)</span>
-                            <span id="mobile-mic-status" style="font-size: 10px; color: var(--theme-text-sub);">未啟動</span>
-                        </div>
-                        <button id="btn-toggle-mic-stream" type="button" class="btn" style="width: 100%; padding: 10px; font-size: 13px; border: 1px solid var(--theme-accent); color: var(--theme-text);" onclick="toggleMobileMicStream()">
-                            🎙️ 開啟手機收音 (連線車載喇叭)
-                        </button>
-                        <div id="mobile-mic-gain-box" class="hidden" style="margin-top: 8px;">
-                            <div class="control-label" style="font-size: 11px;">
-                                <span>手機收音靈敏度 (Gain)</span>
-                                <span id="lbl-mic-gain" style="color: var(--theme-accent);">1.0x</span>
-                            </div>
-                            <input type="range" min="0.5" max="3.0" step="0.1" value="1.0" oninput="updateMobileMicGain(this.value)">
-                        </div>
-                    </div>
-
                     <!-- 車載音樂與迴音設定 -->
                     <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
                         <div style="font-size: 11px; color: var(--theme-text-sub); font-weight: bold; margin-bottom: 6px;">車載音樂與迴音微調</div>
@@ -1336,7 +1318,7 @@
                         </div>
                         <div class="control-group" style="margin-top: 10px;">
                             <div class="control-label">
-                                <span>麥克風迴音 (Echo 延遲)</span>
+                                <span>麥克風迴音強度 (Echo Feedback)</span>
                                 <span id="lbl-echo">0.3</span>
                             </div>
                             <input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="updateEcho(this.value)">
@@ -1470,13 +1452,13 @@
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-primary); padding: 10px 12px; border-radius: 4px;">
-                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 手機無線麥克風 (極致低延遲) 🎤</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">點擊「開啟手機收音」直通車載音響。建議手機開熱點給筆電連線以確保區網封包直連（延遲小於 30ms），筆電音源請優先使用 3.5mm AUX 實體線。</div>
+                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 零延遲車載演唱體驗 🎤</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">建議將專用車載無線麥克風接收機插在筆電/車機 AUX 或 USB 孔，由車載喇叭零延遲直接擴音，手機則專注於點歌、彈幕與調音。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-highlight); padding: 10px 12px; border-radius: 4px;">
                         <div style="font-weight: bold; color: var(--theme-highlight); margin-bottom: 2px;">3. 3-Band EQ 音質等化器 🎚️</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">演唱時隨時切換「標準、重擊、清脆、穿透」風格，或手動滑動低音/人聲/高音滑桿消除車內噪音。</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">演唱時隨時切換「標準、重擊、清脆、穿透」風格，或手動滑動低音/人聲/高音滑桿即時調節車載混音。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-magenta); padding: 10px 12px; border-radius: 4px;">
@@ -1697,7 +1679,7 @@
 
     <script>
         // ================= 1. 環境參數與全域狀態 =================
-        const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
+        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
 
         const PEER_CONFIG = {
             config: {
@@ -1713,8 +1695,19 @@
         const SAVED_SCREEN_PIN_KEY = 'yunube_screen_room_pin';
         const SAVED_THEME_SCREEN_KEY = 'yunube_theme_screen';
         const SAVED_THEME_REMOTE_KEY = 'yunube_theme_remote';
+        const SAVED_SCREEN_STATE_KEY = 'yunube_screen_session_state_v1';
 
-        let screenPin = localStorage.getItem(SAVED_SCREEN_PIN_KEY) || '8888';
+        function generateSecureRoomPin() {
+            const cryptoObj = window.crypto;
+            const value = cryptoObj && cryptoObj.getRandomValues
+                ? cryptoObj.getRandomValues(new Uint32Array(1))[0] % 10000
+                : Math.floor(Math.random() * 10000);
+            return String(value).padStart(4, '0');
+        }
+
+        const storedRoomPin = localStorage.getItem(SAVED_SCREEN_PIN_KEY);
+        let screenPin = storedRoomPin && storedRoomPin !== '8888' ? storedRoomPin : generateSecureRoomPin();
+        if (screenPin !== storedRoomPin) localStorage.setItem(SAVED_SCREEN_PIN_KEY, screenPin);
         let currentScreenTheme = localStorage.getItem(SAVED_THEME_SCREEN_KEY) || 'cyberpunk';
         let currentRemoteTheme = localStorage.getItem(SAVED_THEME_REMOTE_KEY) || 'cyberpunk';
 
@@ -1722,12 +1715,35 @@
         const isRemote = urlParams.get('role') === 'remote';
         let targetRoom = urlParams.get('room') || '';
         let targetPin = urlParams.get('pin') || '';
+        // Legacy QR links may contain a PIN; remove it from the visible URL after reading it.
+        if (isRemote && urlParams.has('pin')) {
+            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${encodeURIComponent(targetRoom)}`);
+        }
 
         let peer, remoteClients = [], connToScreen = null;
         let ytPlayer = null;
         let isPlayerReady = false;
-        let audioCtx, micDelayNode, micFeedbackGain;
+        let audioCtx = null;
+        let micDelayNode = null, micFeedbackGain = null;
+        let micStream = null, micSource = null, micEchoSendGain = null, micEchoWetGain = null;
+        let micEchoFilter = null, micCompressorNode = null, micOutputGain = null;
+        let micEnabled = false;
         let connectTimeoutTimer = null;
+        let remoteReconnectTimer = null;
+        let remoteReconnectAttempts = 0;
+        let remoteAuthFailed = false;
+        let suppressRemoteCloseReconnect = false;
+        let screenSyncTimer = null;
+        let lyricSyncTimer = null;
+        let authAttemptWindowStart = 0;
+        let authAttemptCount = 0;
+        let playbackErrorTimer = null;
+        let fallbackAttemptedForCurrentSong = false;
+        let isAdvancingSong = false;
+        const authenticatedConnections = new WeakSet();
+        const authenticatedPeers = new Set();
+        const commandRateWindows = new Map();
+        const DANMAKU_COLOR_ALLOWLIST = new Set(['#00f0ff', '#ff007f', '#fcee0a', '#00ff66', '#b026ff']);
 
         let currentSong = null;
         let songQueue = [];
@@ -1756,11 +1772,6 @@
         let isPracticeMode = false;
         let micAnalyser = null;
         let micDataArray = null;
-
-        // 手機無線麥克風串流狀態
-        let mobileMicStream = null;
-        let currentMicCall = null;
-        let remoteMicGainNode = null;
 
         // 車機 Web Audio 3-Band EQ 節點
         let eqLowNode = null;
@@ -1800,7 +1811,7 @@
 
         let remoteLyricsList = [];
 
-        // 🌟 開局動態歌詞預覽範例
+        // 開局動態歌詞預覽範例
         const DEFAULT_PREVIEW_LYRICS = [
             { time: 14.0, text: "🎵 [預覽範例] 如果那兩個字沒有顫抖", role: "default", tag: "預覽" },
             { time: 20.5, text: "我不會發現 我難受", role: "default", tag: "預覽" },
@@ -1956,12 +1967,87 @@
         }
 
         // ================= 4. 通用頭貼解析工具 =================
-        function getAvatarHTML(avatarData, size = 20) {
-            if (!avatarData) return `<span style="font-size: ${size}px; vertical-align: middle;">🎤</span>`;
-            if (avatarData.startsWith('data:image') || avatarData.startsWith('http')) {
-                return `<img src="${avatarData}" style="width: ${size}px; height: ${size}px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid var(--theme-accent); display: inline-block;">`;
+        function sanitizePlainText(value, maxLength = 80) {
+            return String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, maxLength);
+        }
+
+        function sanitizeAvatarValue(value) {
+            const raw = String(value ?? '').trim();
+            if (!raw) return '🎤';
+            if (raw.startsWith('https://')) {
+                try {
+                    const url = new URL(raw);
+                    return url.protocol === 'https:' ? url.href : '🎤';
+                } catch (_) { return '🎤'; }
             }
-            return `<span style="font-size: ${size}px; vertical-align: middle; display: inline-block;">${avatarData}</span>`;
+            if (/^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(raw) && raw.length <= 1500000) return raw;
+            if (raw.length <= 8 && !/[<>"'`]/.test(raw)) return raw;
+            return '🎤';
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
+        function appendAvatarElement(parent, avatarData, size = 20) {
+            const safeAvatar = sanitizeAvatarValue(avatarData);
+            if (safeAvatar.startsWith('https://') || safeAvatar.startsWith('data:image/')) {
+                const img = document.createElement('img');
+                img.src = safeAvatar;
+                img.alt = '使用者頭像';
+                img.referrerPolicy = 'no-referrer';
+                Object.assign(img.style, { width: `${size}px`, height: `${size}px`, borderRadius: '50%', objectFit: 'cover', verticalAlign: 'middle', border: '1px solid var(--theme-accent)', flexShrink: '0' });
+                parent.appendChild(img);
+            } else {
+                const span = document.createElement('span');
+                span.textContent = safeAvatar;
+                span.style.fontSize = `${size}px`;
+                span.style.verticalAlign = 'middle';
+                parent.appendChild(span);
+            }
+        }
+
+        function getAvatarHTML(avatarData, size = 20) {
+            const safeAvatar = sanitizeAvatarValue(avatarData);
+            if (safeAvatar.startsWith('https://') || safeAvatar.startsWith('data:image/')) {
+                return `<img src="${escapeHtml(safeAvatar)}" referrerpolicy="no-referrer" style="width: ${size}px; height: ${size}px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid var(--theme-accent); display: inline-block;">`;
+            }
+            return `<span style="font-size: ${size}px; vertical-align: middle; display: inline-block;">${escapeHtml(safeAvatar)}</span>`;
+        }
+
+        function createStatusAction(container, message, actionLabel, actionHandler) {
+            if (!container) return;
+            container.replaceChildren();
+            const text = document.createElement('span');
+            text.textContent = message;
+            container.appendChild(text);
+            if (actionLabel && typeof actionHandler === 'function') {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = actionLabel;
+                button.className = 'btn';
+                button.style.cssText = 'margin-left:8px;padding:4px 8px;font-size:11px;';
+                button.addEventListener('click', actionHandler);
+                container.appendChild(button);
+            }
+        }
+
+        function normalizeSongPayload(song, fallbackProfile = null) {
+            if (!song || typeof song !== 'object') return null;
+            const origId = String(song.origId || '').trim();
+            const instId = String(song.instId || origId).trim();
+            if (!/^[A-Za-z0-9_-]{11}$/.test(origId) || !/^[A-Za-z0-9_-]{11}$/.test(instId)) return null;
+            const title = sanitizePlainText(song.title || '自訂點播曲目', 100) || '自訂點播曲目';
+            const artist = sanitizePlainText(song.artist || '', 80);
+            return {
+                title,
+                artist,
+                origId,
+                instId,
+                displayTitle: sanitizePlainText(song.displayTitle || (artist ? `${title} - ${artist}` : title), 140),
+                requestedBy: sanitizePlainText(song.requestedBy || (fallbackProfile ? `${fallbackProfile.nickname} (${fallbackProfile.seat})` : '乘客'), 60),
+                userAvatar: sanitizeAvatarValue(song.userAvatar || (fallbackProfile && fallbackProfile.avatar) || '🎤')
+            };
         }
 
         // ================= 5. 車機端自訂房號與密碼管理 =================
@@ -2004,14 +2090,15 @@
             localStorage.setItem(SAVED_SCREEN_PIN_KEY, screenPin);
             updateScreenPinUI();
             refreshScreenQRCode();
-            alert(`包廂通關密碼已變更為：${screenPin}`);
+            alert('包廂通關密碼已更新。請將新密碼告知乘客；QR Code 不會包含密碼。');
         }
 
         function refreshScreenQRCode() {
             const roomId = document.getElementById('room-id-display').innerText;
             if (!roomId || roomId === '建立中...') return;
 
-            const remoteUrl = `${window.location.origin}${window.location.pathname}?role=remote&room=${roomId}&pin=${screenPin}`;
+            // QR code exposes only the room ID. The PIN is entered separately on the remote device.
+            const remoteUrl = `${window.location.origin}${window.location.pathname}?role=remote&room=${encodeURIComponent(roomId)}`;
             const qrBox = document.getElementById("qrcode-box");
             qrBox.innerHTML = '';
             new QRCode(qrBox, {
@@ -2123,30 +2210,36 @@
 
         function renderAvatarGrid() {
             const container = document.getElementById('avatar-selector');
-            container.innerHTML = '';
+            container.replaceChildren();
 
-            if (userProfile.type === 'google' && userProfile.googleAvatar) {
+            const googleAvatar = sanitizeAvatarValue(userProfile.googleAvatar);
+            if (userProfile.type === 'google' && (googleAvatar.startsWith('https://') || googleAvatar.startsWith('data:image/'))) {
                 const gOption = document.createElement('div');
                 gOption.className = `avatar-option ${selectedAvatar === userProfile.googleAvatar ? 'selected' : ''}`;
-                gOption.title = "使用 Google 帳戶原照";
-                gOption.innerHTML = `<img src="${userProfile.googleAvatar}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">`;
-                gOption.onclick = () => {
+                gOption.title = '使用 Google 帳戶原照';
+                const img = document.createElement('img');
+                img.src = googleAvatar;
+                img.alt = 'Google 頭像';
+                img.referrerPolicy = 'no-referrer';
+                img.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;';
+                gOption.appendChild(img);
+                gOption.addEventListener('click', () => {
                     document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
                     gOption.classList.add('selected');
-                    selectedAvatar = userProfile.googleAvatar;
-                };
+                    selectedAvatar = googleAvatar;
+                });
                 container.appendChild(gOption);
             }
 
             AVATAR_LIST.forEach(emoji => {
                 const item = document.createElement('div');
                 item.className = `avatar-option ${emoji === selectedAvatar ? 'selected' : ''}`;
-                item.innerText = emoji;
-                item.onclick = () => {
+                item.textContent = emoji;
+                item.addEventListener('click', () => {
                     document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
                     item.classList.add('selected');
                     selectedAvatar = emoji;
-                };
+                });
                 container.appendChild(item);
             });
         }
@@ -2169,7 +2262,12 @@
                     selectedAvatar = canvas.toDataURL('image/jpeg', 0.75);
 
                     const previewEl = document.getElementById('custom-photo-preview');
-                    previewEl.innerHTML = `<img src="${selectedAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    previewEl.replaceChildren();
+                    const previewImage = document.createElement('img');
+                    previewImage.src = sanitizeAvatarValue(selectedAvatar);
+                    previewImage.alt = '自訂頭像預覽';
+                    previewImage.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                    previewEl.appendChild(previewImage);
                     previewEl.style.borderColor = 'var(--theme-accent)';
                     document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
                 };
@@ -2185,7 +2283,7 @@
         }
 
         function confirmProfileAndEnterRoom() {
-            const nick = document.getElementById('setup-nickname').value.trim() || '歡唱歌手';
+            const nick = sanitizePlainText(document.getElementById('setup-nickname').value, 24) || '歡唱歌手';
             const inputRoom = document.getElementById('setup-room-code').value.trim();
             const inputPin = document.getElementById('setup-room-pin').value.trim();
 
@@ -2199,7 +2297,7 @@
             }
             targetPin = inputPin || targetPin;
 
-            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${targetRoom}&pin=${targetPin}`);
+            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${encodeURIComponent(targetRoom)}`);
 
             userProfile.avatar = selectedAvatar;
             userProfile.nickname = nick;
@@ -2251,7 +2349,9 @@
 
             targetRoom = normalizeRoomId(rawVal);
             targetPin = rawPin;
-            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${targetRoom}&pin=${targetPin}`);
+            remoteAuthFailed = false;
+            remoteReconnectAttempts = 0;
+            window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${encodeURIComponent(targetRoom)}`);
 
             closeChangeRoomModal();
             initRemoteMode(targetRoom);
@@ -2349,53 +2449,49 @@
 
         function renderDanmakuOnScreen(data) {
             const container = document.getElementById('danmaku-container');
-            if (!container) return;
+            if (!container || !data) return;
 
-            const themeColor = data.color || '#00f0ff';
+            const message = sanitizePlainText(data.text, 100);
+            if (!message) return;
+            const nickname = sanitizePlainText(data.nickname || '乘客', 24);
+            const avatar = sanitizeAvatarValue(data.avatar);
+            const themeColor = DANMAKU_COLOR_ALLOWLIST.has(data.color) ? data.color : '#00f0ff';
             const danmaku = document.createElement('div');
             danmaku.className = 'danmaku-item';
+            danmaku.style.borderColor = themeColor;
 
-            if (data.isMega) {
+            if (data.isMega === true) {
                 danmaku.classList.add('mega-horn');
-                danmaku.style.borderColor = themeColor;
                 danmaku.style.boxShadow = `0 0 35px ${themeColor}, inset 0 0 15px ${themeColor}66`;
-
-                danmaku.innerHTML = `
-                    <span class="avatar-box">${getAvatarHTML(data.avatar, 30)}</span>
-                    <span style="color: ${themeColor}; font-weight: bold;">📢 [${data.nickname}]:</span>
-                    <span style="color: #ffffff; text-shadow: 0 0 12px ${themeColor}; font-weight: 900;">${data.text}</span>
-                `;
-
-                container.appendChild(danmaku);
-
-                if (typeof playDrumHit === 'function' && audioCtx) {
-                    playDrumHit(audioCtx.currentTime, 260, 90, 0.2);
-                }
-
-                setTimeout(() => {
-                    danmaku.remove();
-                }, 3500);
             } else {
-                const randomTop = Math.floor(Math.random() * 65) + 10;
-                danmaku.style.top = `${randomTop}%`;
-                danmaku.style.borderColor = themeColor;
+                danmaku.style.top = `${Math.floor(Math.random() * 65) + 10}%`;
                 danmaku.style.boxShadow = `0 0 16px ${themeColor}88, inset 0 0 8px ${themeColor}33`;
-
-                danmaku.innerHTML = `
-                    ${getAvatarHTML(data.avatar, 20)}
-                    <span style="color: ${themeColor}; font-size: 13px; font-weight: bold;">${data.nickname}:</span>
-                    <span style="color: #ffffff; text-shadow: 0 0 6px ${themeColor};">${data.text}</span>
-                `;
-
-                container.appendChild(danmaku);
-
-                setTimeout(() => {
-                    danmaku.remove();
-                }, 8200);
             }
+
+            const avatarBox = document.createElement('span');
+            avatarBox.className = 'avatar-box';
+            appendAvatarElement(avatarBox, avatar, data.isMega ? 30 : 20);
+            const name = document.createElement('span');
+            name.textContent = data.isMega ? `📢 [${nickname}]:` : `${nickname}:`;
+            name.style.color = themeColor;
+            name.style.fontWeight = 'bold';
+            if (data.isMega) name.style.fontSize = '30px';
+            const text = document.createElement('span');
+            text.textContent = message;
+            text.style.color = '#ffffff';
+            text.style.fontWeight = data.isMega ? '900' : 'normal';
+            text.style.textShadow = data.isMega ? `0 0 12px ${themeColor}` : `0 0 6px ${themeColor}`;
+
+            danmaku.append(avatarBox, name, text);
+            container.appendChild(danmaku);
+
+            if (data.isMega === true && typeof playDrumHit === 'function' && audioCtx) {
+                playDrumHit(audioCtx.currentTime, 260, 90, 0.2);
+            }
+            window.setTimeout(() => danmaku.remove(), data.isMega === true ? 3500 : 8200);
         }
 
-        // ================= 9. 麥克風音質等化器 (3-Band EQ) =================
+        // ================= 9. 車載音響 3-Band EQ 控台 =================
         const EQ_PRESETS = {
             flat:  { name: '原廠標準', low: 0,  mid: 0,  high: 0 },
             bass:  { name: '低音重擊', low: 8,  mid: 0,  high: -2 },
@@ -2444,175 +2540,109 @@
             document.getElementById('lbl-eq-high').innerText = `${high > 0 ? '+' : ''}${high} dB`;
         }
 
+        function ensureAudioContext() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) throw new Error('此瀏覽器不支援 Web Audio API');
+            if (!audioCtx || audioCtx.state === 'closed') {
+                audioCtx = new AudioContextClass({ latencyHint: 'interactive' });
+                eqLowNode = eqMidNode = eqHighNode = null;
+                micCompressorNode = micOutputGain = null;
+                micEchoSendGain = micEchoWetGain = micEchoFilter = micDelayNode = micFeedbackGain = null;
+            }
+            return audioCtx;
+        }
+
         function initAudioEQNodes() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-                    latencyHint: 'interactive',
-                    sampleRate: 48000
-                });
-            }
+            ensureAudioContext();
+            if (eqLowNode && eqLowNode.context === audioCtx) return;
 
-            if (!eqLowNode) {
-                eqLowNode = audioCtx.createBiquadFilter();
-                eqLowNode.type = 'lowshelf';
-                eqLowNode.frequency.value = 150;
-                eqLowNode.gain.value = 0;
+            eqLowNode = audioCtx.createBiquadFilter();
+            eqLowNode.type = 'lowshelf';
+            eqLowNode.frequency.value = 150;
+            eqLowNode.gain.value = 0;
 
-                eqMidNode = audioCtx.createBiquadFilter();
-                eqMidNode.type = 'peaking';
-                eqMidNode.frequency.value = 1800;
-                eqMidNode.Q.value = 1.0;
-                eqMidNode.gain.value = 0;
+            eqMidNode = audioCtx.createBiquadFilter();
+            eqMidNode.type = 'peaking';
+            eqMidNode.frequency.value = 1800;
+            eqMidNode.Q.value = 1.0;
+            eqMidNode.gain.value = 0;
 
-                eqHighNode = audioCtx.createBiquadFilter();
-                eqHighNode.type = 'highshelf';
-                eqHighNode.frequency.value = 7000;
-                eqHighNode.gain.value = 0;
+            eqHighNode = audioCtx.createBiquadFilter();
+            eqHighNode.type = 'highshelf';
+            eqHighNode.frequency.value = 7000;
+            eqHighNode.gain.value = 0;
+            eqLowNode.connect(eqMidNode);
+            eqMidNode.connect(eqHighNode);
 
-                eqLowNode.connect(eqMidNode);
-                eqMidNode.connect(eqHighNode);
-                eqHighNode.connect(audioCtx.destination);
+            // Dry signal path with peak control.
+            micOutputGain = audioCtx.createGain();
+            micOutputGain.gain.value = 0.85;
+            micCompressorNode = audioCtx.createDynamicsCompressor();
+            micCompressorNode.threshold.value = -10;
+            micCompressorNode.knee.value = 12;
+            micCompressorNode.ratio.value = 4;
+            micCompressorNode.attack.value = 0.004;
+            micCompressorNode.release.value = 0.25;
+            eqHighNode.connect(micOutputGain);
+            micOutputGain.connect(micCompressorNode);
+            micCompressorNode.connect(audioCtx.destination);
 
-                if (micDelayNode) {
-                    eqHighNode.connect(micDelayNode);
-                }
-            }
+            // Wet echo path. Feedback is intentionally capped below unity to avoid runaway feedback.
+            micEchoSendGain = audioCtx.createGain();
+            micEchoSendGain.gain.value = 0;
+            micDelayNode = audioCtx.createDelay(1.0);
+            micDelayNode.delayTime.value = 0.22;
+            micEchoWetGain = audioCtx.createGain();
+            micEchoWetGain.gain.value = 0.22;
+            micFeedbackGain = audioCtx.createGain();
+            micFeedbackGain.gain.value = 0.25;
+            micEchoFilter = audioCtx.createBiquadFilter();
+            micEchoFilter.type = 'lowpass';
+            micEchoFilter.frequency.value = 3800;
+            eqHighNode.connect(micEchoSendGain);
+            micEchoSendGain.connect(micDelayNode);
+            micDelayNode.connect(micEchoWetGain);
+            micEchoWetGain.connect(micCompressorNode);
+            micDelayNode.connect(micFeedbackGain);
+            micFeedbackGain.connect(micEchoFilter);
+            micEchoFilter.connect(micDelayNode);
         }
 
-        // ================= 10. 手機無線麥克風 (極致低延遲收音與 SDP 改寫) =================
-        function optimizeSdpForLowLatency(sdp) {
-            return sdp.replace(
-                /a=fmtp:111 ((?:(?!ptime=).)*)\r\n/g,
-                'a=fmtp:111 $1;ptime=10;minptime=10;maxptime=10;stereo=0;sprop-stereo=0;cbr=1;useinbandfec=0\r\n'
-            );
+        function setEchoAmount(value) {
+            if (!audioCtx || !micFeedbackGain || !micEchoSendGain) return;
+            const amount = Math.max(0, Math.min(0.7, Number(value) || 0));
+            const now = audioCtx.currentTime;
+            micFeedbackGain.gain.setTargetAtTime(Math.min(amount, 0.65), now, 0.04);
+            micEchoSendGain.gain.setTargetAtTime(amount > 0 ? 0.32 : 0, now, 0.04);
+            if (micEchoWetGain) micEchoWetGain.gain.setTargetAtTime(amount > 0 ? 0.22 : 0, now, 0.04);
+            const hudEcho = document.getElementById('hud-echo');
+            if (hudEcho) hudEcho.innerText = amount.toFixed(2);
         }
 
-        async function toggleMobileMicStream() {
-            const btn = document.getElementById('btn-toggle-mic-stream');
-            const statusText = document.getElementById('mobile-mic-status');
-            const gainBox = document.getElementById('mobile-mic-gain-box');
-
-            if (mobileMicStream) {
-                if (currentMicCall) {
-                    try { currentMicCall.close(); } catch(e) {}
-                    currentMicCall = null;
-                }
-                mobileMicStream.getTracks().forEach(track => track.stop());
-                mobileMicStream = null;
-
-                btn.innerText = "🎙️ 開啟手機收音 (連線車載喇叭)";
-                btn.style.background = "var(--theme-card-bg)";
-                statusText.innerText = "已關閉";
-                statusText.style.color = "var(--theme-text-sub)";
-                gainBox.classList.add('hidden');
-                return;
-            }
-
-            try {
-                statusText.innerText = "麥克風授權中...";
-                
-                // 🌟 低延遲硬體參數：Mono 單聲道 + 48kHz + 關閉回音與降噪緩衝
-                const rawStream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false,
-                        channelCount: 1,
-                        sampleRate: 48000,
-                        latency: 0
-                    }
-                });
-
-                mobileMicStream = rawStream;
-
-                statusText.innerText = "連線車載音響中...";
-                currentMicCall = peer.call(targetRoom, mobileMicStream);
-
-                // 🌟 SDP 攔截優化：切片為 10ms 發送，關閉前向糾錯減少計算
-                if (currentMicCall && currentMicCall.peerConnection) {
-                    const pc = currentMicCall.peerConnection;
-                    const origCreateOffer = pc.createOffer.bind(pc);
-                    pc.createOffer = async function(options) {
-                        const offer = await origCreateOffer(options);
-                        offer.sdp = optimizeSdpForLowLatency(offer.sdp);
-                        return offer;
-                    };
-                }
-
-                btn.innerText = "🔴 停止手機收音 (通話中)";
-                btn.style.background = "var(--theme-primary)";
-                statusText.innerText = "已連線至車載喇叭 🟢";
-                statusText.style.color = "var(--cyber-green)";
-                gainBox.classList.remove('hidden');
-
-                currentMicCall.on('close', () => {
-                    statusText.innerText = "通話結束";
-                });
-
-                currentMicCall.on('error', (err) => {
-                    console.error("麥克風通話錯誤：", err);
-                    statusText.innerText = "通話中斷 ⚠️";
-                });
-
-            } catch (err) {
-                console.error("無法取得麥克風權限：", err);
-                alert("無法啟動手機麥克風！請確認：\n1. 網址開頭必須為 https://\n2. 已允許瀏覽器麥克風權限。");
-                statusText.innerText = "授權失敗";
-                statusText.style.color = "#ff0055";
-            }
+        function updateMixerButtonUI(active) {
+            const button = document.getElementById('mic-mixer-btn');
+            if (!button) return;
+            button.innerText = active ? '⏹ 停止車載麥克風混音' : '🎤 啟用車載麥克風混音';
+            button.classList.toggle('btn-primary', active);
+            button.classList.toggle('btn-accent', !active);
         }
 
-        function updateMobileMicGain(val) {
-            document.getElementById('lbl-mic-gain').innerText = `${val}x`;
-            sendCmd({ action: 'SET_REMOTE_MIC_GAIN', gain: parseFloat(val) });
+        function disableAudioMixer() {
+            try { if (micSource) micSource.disconnect(); } catch (_) {}
+            try { if (micStream) micStream.getTracks().forEach(track => track.stop()); } catch (_) {}
+            try { if (micAnalyser) micAnalyser.disconnect(); } catch (_) {}
+            micSource = null;
+            micStream = null;
+            micAnalyser = null;
+            micDataArray = null;
+            micEnabled = false;
+            if (audioCtx && micEchoSendGain) micEchoSendGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
+            updateMixerButtonUI(false);
+            const status = document.getElementById('remote-status');
+            if (status && Object.keys(roomMembers).length === 0) status.innerText = '等待連線 ⏳';
         }
 
-        // ================= 11. 車機接收手機麥克風 (Chromium 激活器與 0 延遲播放) =================
-        function connectRemoteMicToCarMixer(stream) {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-                    latencyHint: 'interactive',
-                    sampleRate: 48000
-                });
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            initAudioEQNodes();
-
-            // 🌟 解決 Chromium WebRTC 遠端串流未綁定 audio 元素時靜音的 Bug
-            let dummyAudio = document.getElementById('webrtc-audio-activator');
-            if (!dummyAudio) {
-                dummyAudio = document.createElement('audio');
-                dummyAudio.id = 'webrtc-audio-activator';
-                dummyAudio.autoplay = true;
-                dummyAudio.playsInline = true;
-                dummyAudio.muted = true;
-                dummyAudio.style.display = 'none';
-                document.body.appendChild(dummyAudio);
-            }
-            dummyAudio.srcObject = stream;
-            dummyAudio.play().catch(e => console.warn("Audio activator play:", e));
-
-            const remoteSource = audioCtx.createMediaStreamSource(stream);
-
-            if (!remoteMicGainNode) {
-                remoteMicGainNode = audioCtx.createGain();
-                remoteMicGainNode.gain.value = 1.0;
-            }
-
-            remoteSource.connect(remoteMicGainNode);
-            remoteMicGainNode.connect(eqLowNode);
-
-            if (micAnalyser) {
-                remoteMicGainNode.connect(micAnalyser);
-            }
-
-            const hudMode = document.getElementById('hud-mode');
-            if (hudMode && !hudMode.innerText.includes('手機無線麥')) {
-                hudMode.innerHTML += ' <span style="color: var(--cyber-green);">[🎤 手機無線麥已連線]</span>';
-            }
-        }
-
-        // ================= 12. AI 練歌模式與正向客觀點評 =================
+        // ================= 10. AI 練歌模式與正向客觀點評 =================
         function togglePracticeMode() {
             isPracticeMode = !isPracticeMode;
             sendCmd({ action: 'TOGGLE_PRACTICE_MODE', isPracticeMode: isPracticeMode });
@@ -2688,7 +2718,7 @@
             document.getElementById('ai-score-modal').classList.add('hidden');
         }
 
-        // ================= 13. 沉浸式雙行卡拉OK跟唱燈箱 =================
+        // ================= 11. 沉浸式雙行卡拉OK跟唱燈箱 =================
         function openMobileKaraokeModal() {
             document.getElementById('mobile-karaoke-modal').classList.remove('hidden');
             const titleEl = document.getElementById('mobile-karaoke-song-title');
@@ -2737,7 +2767,7 @@
             el.className = `mobile-ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 14. 旅行手帳即時實拍與上傳處理 =================
+        // ================= 12. 旅行手帳即時實拍與上傳處理 =================
         function handleDiaryPhotoCapture(event) {
             const file = event.target.files[0];
             if (!file || !file.type.startsWith('image/')) return;
@@ -2785,7 +2815,7 @@
             document.getElementById('btn-remove-diary-photo').classList.add('hidden');
         }
 
-        // ================= 15. 懸浮彈窗控制 (指南、歌庫、手帳) =================
+        // ================= 13. 懸浮彈窗控制 (指南、歌庫、手帳) =================
         function openGuideModal() {
             document.getElementById('guide-modal').classList.remove('hidden');
         }
@@ -2811,12 +2841,21 @@
             document.getElementById('diary-modal').classList.add('hidden');
         }
 
-        // ================= 16. 專屬歌庫系統與進階管理 =================
+        // ================= 14. 專屬歌庫系統與進階管理 =================
         function loadUserLibrary() {
             const favKey = `yunube_favs_${userProfile.id}`;
             const histKey = `yunube_history_${userProfile.id}`;
-            userFavorites = JSON.parse(localStorage.getItem(favKey) || '[]');
-            userHistory = JSON.parse(localStorage.getItem(histKey) || '[]');
+            const readSongs = key => {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+                    return Array.isArray(parsed) ? parsed.slice(0, 300).map(song => normalizeSongPayload(song)).filter(Boolean) : [];
+                } catch (err) {
+                    console.warn('歌庫資料讀取失敗，已載入空清單：', err);
+                    return [];
+                }
+            };
+            userFavorites = readSongs(favKey);
+            userHistory = readSongs(histKey);
             renderLibraryUI();
         }
 
@@ -2876,146 +2915,137 @@
         }
 
         function toggleFavoriteSong(song) {
-            const idx = userFavorites.findIndex(s => s.origId === song.origId);
+            const safeSong = normalizeSongPayload(song);
+            if (!safeSong) return;
+            const idx = userFavorites.findIndex(s => s.origId === safeSong.origId);
             if (idx >= 0) {
                 userFavorites.splice(idx, 1);
             } else {
-                userFavorites.unshift({
-                    title: song.title,
-                    artist: song.artist,
-                    origId: song.origId,
-                    instId: song.instId,
-                    displayTitle: song.displayTitle
-                });
+                userFavorites.unshift(safeSong);
             }
             saveUserLibrary();
         }
 
         function recordSongToHistory(song) {
-            userHistory = userHistory.filter(s => s.origId !== song.origId);
-            userHistory.unshift({
-                title: song.title,
-                artist: song.artist,
-                origId: song.origId,
-                instId: song.instId,
-                displayTitle: song.displayTitle
-            });
+            const safeSong = normalizeSongPayload(song);
+            if (!safeSong) return;
+            userHistory = userHistory.filter(s => s.origId !== safeSong.origId);
+            userHistory.unshift(safeSong);
             if (userHistory.length > 30) userHistory.pop();
             saveUserLibrary();
         }
 
+        function createLibraryActionButton(label, className, handler, extraStyle = '') {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = className || 'btn';
+            button.textContent = label;
+            button.style.cssText = `padding:4px 7px;font-size:11px;${extraStyle}`;
+            button.addEventListener('click', handler);
+            return button;
+        }
+
         function renderLibraryUI() {
-            document.getElementById('fav-count').innerText = userFavorites.length;
-            document.getElementById('history-count').innerText = userHistory.length;
+            const favCount = document.getElementById('fav-count');
+            const historyCount = document.getElementById('history-count');
+            if (favCount) favCount.textContent = userFavorites.length;
+            if (historyCount) historyCount.textContent = userHistory.length;
 
-            const filteredFavs = userFavorites.filter(s => 
-                !librarySearchQuery || 
-                (s.displayTitle && s.displayTitle.toLowerCase().includes(librarySearchQuery)) ||
-                (s.title && s.title.toLowerCase().includes(librarySearchQuery)) ||
-                (s.artist && s.artist.toLowerCase().includes(librarySearchQuery))
-            );
+            const matches = song => !librarySearchQuery ||
+                (song.displayTitle || '').toLowerCase().includes(librarySearchQuery) ||
+                (song.title || '').toLowerCase().includes(librarySearchQuery) ||
+                (song.artist || '').toLowerCase().includes(librarySearchQuery);
+            const filteredFavs = userFavorites.filter(matches);
+            const filteredHistory = userHistory.filter(matches);
 
-            const filteredHistory = userHistory.filter(s => 
-                !librarySearchQuery || 
-                (s.displayTitle && s.displayTitle.toLowerCase().includes(librarySearchQuery)) ||
-                (s.title && s.title.toLowerCase().includes(librarySearchQuery)) ||
-                (s.artist && s.artist.toLowerCase().includes(librarySearchQuery))
-            );
+            const renderEmpty = (box, message) => {
+                box.replaceChildren();
+                const empty = document.createElement('div');
+                empty.textContent = message;
+                empty.style.cssText = 'font-size:12px;color:var(--theme-text-sub);text-align:center;padding:15px;';
+                box.appendChild(empty);
+            };
+            const buildRow = (song, index, mode) => {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:var(--theme-card-bg);border:1px solid var(--theme-border);padding:7px 10px;border-radius:var(--theme-radius);font-size:12px;gap:8px;';
+                const left = document.createElement('div');
+                left.style.cssText = 'flex:1;min-width:0;overflow:hidden;margin-right:6px;';
+                const number = document.createElement('span');
+                number.textContent = mode === 'fav' ? '❤️' : `${index + 1}.`;
+                number.style.cssText = `font-weight:bold;color:${mode === 'fav' ? '#ff3377' : 'var(--theme-accent)'};`;
+                const title = document.createElement('span');
+                title.textContent = sanitizePlainText(song.displayTitle || song.title, 120);
+                title.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:4px;';
+                left.append(number, title);
+                if (mode === 'car') {
+                    const requester = document.createElement('span');
+                    requester.textContent = ` (${sanitizePlainText(song.requestedBy || '車載', 40)})`;
+                    requester.style.cssText = 'font-size:10px;color:var(--theme-text-sub);';
+                    left.appendChild(requester);
+                }
+                const actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;gap:4px;align-items:center;flex-shrink:0;';
+                if (mode !== 'fav') {
+                    const isFav = userFavorites.some(item => item.origId === song.origId);
+                    actions.appendChild(createLibraryActionButton(isFav ? '❤️' : '🤍', '', () => toggleFavoriteSong(song), 'background:none;border:none;cursor:pointer;font-size:13px;'));
+                }
+                actions.appendChild(createLibraryActionButton('＋點', 'btn btn-accent', () => requeueSong(song, false)));
+                actions.appendChild(createLibraryActionButton('⚡插', 'btn btn-primary', () => requeueSong(song, true)));
+                if (mode === 'fav') {
+                    actions.appendChild(createLibraryActionButton('🗑️', '', () => removeFavoriteSong(song.origId), 'background:none;border:1px solid rgba(255,68,68,.4);color:#ff5555;border-radius:4px;cursor:pointer;'));
+                } else if (mode === 'history') {
+                    actions.appendChild(createLibraryActionButton('🗑️', '', () => removeHistorySong(song.origId), 'background:none;border:1px solid rgba(255,68,68,.4);color:#ff5555;border-radius:4px;cursor:pointer;'));
+                }
+                row.append(left, actions);
+                return row;
+            };
 
-            // 1. 喜愛清單 (含 🗑️ 單曲刪除)
             const favBox = document.getElementById('library-fav-panel');
-            favBox.innerHTML = '';
-            if (filteredFavs.length === 0) {
-                favBox.innerHTML = librarySearchQuery 
-                    ? '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 15px;">查無符合的喜愛歌曲</div>'
-                    : '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 15px;">尚無收藏歌曲，點歌時按 ❤️ 即可珍藏</div>';
-            } else {
-                filteredFavs.forEach((song) => {
-                    const row = document.createElement('div');
-                    row.style = "display: flex; align-items: center; justify-content: space-between; background: var(--theme-card-bg); border: 1px solid var(--theme-border); padding: 7px 10px; border-radius: var(--theme-radius); font-size: 12px;";
-                    row.innerHTML = `
-                        <div style="flex: 1; overflow: hidden; margin-right: 6px;">
-                            <span style="color: #ff3377;">❤️</span>
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle}</span>
-                        </div>
-                        <div style="display: flex; gap: 4px; align-items: center;">
-                            <button class="btn btn-accent" style="padding: 4px 7px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, false)'>＋點</button>
-                            <button class="btn btn-primary" style="padding: 4px 7px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, true)'>⚡插</button>
-                            <button style="background: none; border: 1px solid rgba(255, 68, 68, 0.4); color: #ff5555; border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer;" title="從喜愛移除" onclick='removeFavoriteSong("${song.origId}")'>🗑️</button>
-                        </div>
-                    `;
-                    favBox.appendChild(row);
-                });
-            }
-
-            // 2. 個人歷史紀錄 (含 🗑️ 單曲刪除)
             const histBox = document.getElementById('library-history-panel');
-            histBox.innerHTML = '';
-            if (filteredHistory.length === 0) {
-                histBox.innerHTML = librarySearchQuery
-                    ? '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 15px;">查無符合的歷史紀錄</div>'
-                    : '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 15px;">尚無個人點播紀錄</div>';
-            } else {
-                filteredHistory.forEach((song, idx) => {
-                    const isFav = userFavorites.some(s => s.origId === song.origId);
-                    const row = document.createElement('div');
-                    row.style = "display: flex; align-items: center; justify-content: space-between; background: var(--theme-card-bg); border: 1px solid var(--theme-border); padding: 7px 10px; border-radius: var(--theme-radius); font-size: 12px;";
-                    row.innerHTML = `
-                        <div style="flex: 1; overflow: hidden; margin-right: 6px;">
-                            <span style="color: var(--theme-accent); font-weight: bold;">${idx + 1}.</span>
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle}</span>
-                        </div>
-                        <div style="display: flex; gap: 4px; align-items: center;">
-                            <button style="background: none; border: none; cursor: pointer; font-size: 13px;" onclick='toggleFavoriteSong(${JSON.stringify(song)})'>${isFav ? '❤️' : '🤍'}</button>
-                            <button class="btn btn-accent" style="padding: 4px 7px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, false)'>＋點</button>
-                            <button class="btn btn-primary" style="padding: 4px 7px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, true)'>⚡插</button>
-                            <button style="background: none; border: 1px solid rgba(255, 68, 68, 0.4); color: #ff5555; border-radius: 4px; padding: 3px 6px; font-size: 11px; cursor: pointer;" title="從歷史刪除" onclick='removeHistorySong("${song.origId}")'>🗑️</button>
-                        </div>
-                    `;
-                    histBox.appendChild(row);
-                });
+            if (favBox) {
+                favBox.replaceChildren();
+                if (!filteredFavs.length) renderEmpty(favBox, librarySearchQuery ? '查無符合的喜愛歌曲' : '尚無收藏歌曲，點歌時按 ❤️ 即可珍藏');
+                else filteredFavs.forEach((song, index) => favBox.appendChild(buildRow(song, index, 'fav')));
             }
+            if (histBox) {
+                histBox.replaceChildren();
+                if (!filteredHistory.length) renderEmpty(histBox, librarySearchQuery ? '查無符合的歷史紀錄' : '尚無個人點播紀錄');
+                else filteredHistory.forEach((song, index) => histBox.appendChild(buildRow(song, index, 'history')));
+            }
+            if (currentActiveLibraryTab === 'car') renderCarHistoryUI(carHistory);
         }
 
         function renderCarHistoryUI(carHist) {
-            carHistory = carHist || [];
+            carHistory = Array.isArray(carHist) ? carHist.slice(0, 30).map(song => normalizeSongPayload(song)).filter(Boolean) : [];
             const countEl = document.getElementById('car-history-count');
-            if (countEl) countEl.innerText = carHistory.length;
-
+            if (countEl) countEl.textContent = carHistory.length;
             const carBox = document.getElementById('library-car-history-panel');
             if (!carBox) return;
-
-            const filteredCarHistory = carHistory.filter(s => 
-                !librarySearchQuery || 
-                (s.displayTitle && s.displayTitle.toLowerCase().includes(librarySearchQuery)) ||
-                (s.title && s.title.toLowerCase().includes(librarySearchQuery)) ||
-                (s.artist && s.artist.toLowerCase().includes(librarySearchQuery))
-            );
-
-            carBox.innerHTML = '';
-            if (filteredCarHistory.length === 0) {
-                carBox.innerHTML = librarySearchQuery
-                    ? '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 15px;">查無符合的車載歷史</div>'
-                    : '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 15px;">車載終端尚無已播歷史</div>';
+            const filtered = carHistory.filter(song => !librarySearchQuery ||
+                (song.displayTitle || '').toLowerCase().includes(librarySearchQuery) ||
+                (song.title || '').toLowerCase().includes(librarySearchQuery) ||
+                (song.artist || '').toLowerCase().includes(librarySearchQuery));
+            carBox.replaceChildren();
+            if (!filtered.length) {
+                const empty = document.createElement('div');
+                empty.textContent = librarySearchQuery ? '查無符合的車載歷史' : '車載終端尚無已播歷史';
+                empty.style.cssText = 'font-size:12px;color:var(--theme-text-sub);text-align:center;padding:15px;';
+                carBox.appendChild(empty);
                 return;
             }
-
-            filteredCarHistory.forEach((song, idx) => {
-                const isFav = userFavorites.some(s => s.origId === song.origId);
+            filtered.forEach((song, index) => {
                 const row = document.createElement('div');
-                row.style = "display: flex; align-items: center; justify-content: space-between; background: var(--theme-card-bg); border: 1px solid var(--theme-border); padding: 7px 10px; border-radius: var(--theme-radius); font-size: 12px;";
-                row.innerHTML = `
-                    <div style="flex: 1; overflow: hidden; margin-right: 6px;">
-                        <span style="color: var(--theme-highlight); font-weight: bold;">${idx + 1}.</span>
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-left: 4px;">${song.displayTitle || song.title}</span>
-                        <span style="font-size: 10px; color: var(--theme-text-sub); margin-left: 4px;">(${song.requestedBy || '車載'})</span>
-                    </div>
-                    <div style="display: flex; gap: 4px; align-items: center;">
-                        <button style="background: none; border: none; cursor: pointer; font-size: 13px;" onclick='toggleFavoriteSong(${JSON.stringify(song)})'>${isFav ? '❤️' : '🤍'}</button>
-                        <button class="btn btn-accent" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, false)'>＋點</button>
-                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick='requeueSong(${JSON.stringify(song)}, true)'>⚡插</button>
-                    </div>
-                `;
+                row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:var(--theme-card-bg);border:1px solid var(--theme-border);padding:7px 10px;border-radius:var(--theme-radius);font-size:12px;gap:8px;';
+                const title = document.createElement('span');
+                title.textContent = `${index + 1}. ${sanitizePlainText(song.displayTitle || song.title, 120)} (${sanitizePlainText(song.requestedBy || '車載', 40)})`;
+                title.style.cssText = 'flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+                const actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;gap:4px;align-items:center;flex-shrink:0;';
+                const isFav = userFavorites.some(item => item.origId === song.origId);
+                actions.appendChild(createLibraryActionButton(isFav ? '❤️' : '🤍', '', () => toggleFavoriteSong(song), 'background:none;border:none;cursor:pointer;font-size:13px;'));
+                actions.appendChild(createLibraryActionButton('＋點', 'btn btn-accent', () => requeueSong(song, false), 'padding:4px 8px;font-size:11px;'));
+                actions.appendChild(createLibraryActionButton('⚡插', 'btn btn-primary', () => requeueSong(song, true), 'padding:4px 8px;font-size:11px;'));
+                row.append(title, actions);
                 carBox.appendChild(row);
             });
         }
@@ -3034,41 +3064,53 @@
             queueSong(songData, isInsertNext);
         }
 
-        // ================= 17. 手機端動態歌詞渲染 =================
+        // ================= 15. 手機端動態歌詞渲染 =================
         function renderMobileLyricsUI(lyrics) {
-            remoteLyricsList = lyrics || [];
+            remoteLyricsList = Array.isArray(lyrics) ? lyrics.slice(0, 500).map(line => ({
+                time: Math.max(0, Number(line.time) || 0),
+                text: sanitizePlainText(line.text || '', 300),
+                role: ['male', 'female', 'duet', 'default'].includes(line.role) ? line.role : 'default',
+                tag: sanitizePlainText(line.tag || '', 12)
+            })) : [];
             const container = document.getElementById('mobile-lyrics-scroll-box');
             if (!container) return;
+            container.replaceChildren();
 
-            container.innerHTML = '';
-
-            if (!remoteLyricsList || remoteLyricsList.length === 0) {
-                container.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 20px;">此歌曲尚無動態時間軸歌詞</div>';
+            if (remoteLyricsList.length === 0) {
+                const empty = document.createElement('div');
+                empty.textContent = '此歌曲尚無動態時間軸歌詞';
+                empty.style.cssText = 'font-size:12px;color:var(--theme-text-sub);text-align:center;padding:20px;';
+                container.appendChild(empty);
                 return;
             }
 
             remoteLyricsList.forEach((line, index) => {
                 const min = Math.floor(line.time / 60).toString().padStart(2, '0');
                 const sec = Math.floor(line.time % 60).toString().padStart(2, '0');
-                const timeTag = `${min}:${sec}`;
-
                 const item = document.createElement('div');
                 item.className = 'mobile-lyric-item';
                 item.id = `mobile-lyric-${index}`;
-                item.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden;">
-                        <span class="mobile-lyric-time">${timeTag}</span>
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${line.text}</span>
-                    </div>
-                    <div style="display: flex; gap: 4px;">
-                        <button style="background: rgba(0,0,0,0.05); border: 1px solid var(--theme-accent); color: var(--theme-accent); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="seekToLyricTime(${line.time})">
-                            ⏩ 跳至
-                        </button>
-                        <button style="background: var(--theme-primary); color: #fff; border: 1px solid var(--theme-primary); border-radius: 4px; font-size: 10px; padding: 2px 6px; cursor: pointer;" onclick="alignSelectedLyric(${line.time})">
-                            🎯 對齊
-                        </button>
-                    </div>
-                `;
+                const left = document.createElement('div');
+                left.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;overflow:hidden;';
+                const time = document.createElement('span');
+                time.className = 'mobile-lyric-time';
+                time.textContent = `${min}:${sec}`;
+                const lyric = document.createElement('span');
+                lyric.textContent = line.text;
+                lyric.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                left.append(time, lyric);
+                const actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;gap:4px;';
+                const seek = document.createElement('button');
+                seek.type = 'button'; seek.textContent = '⏩ 跳至';
+                seek.style.cssText = 'background:rgba(0,0,0,0.05);border:1px solid var(--theme-accent);color:var(--theme-accent);border-radius:4px;font-size:10px;padding:2px 6px;cursor:pointer;';
+                seek.addEventListener('click', () => seekToLyricTime(line.time));
+                const align = document.createElement('button');
+                align.type = 'button'; align.textContent = '🎯 對齊';
+                align.style.cssText = 'background:var(--theme-primary);color:#fff;border:1px solid var(--theme-primary);border-radius:4px;font-size:10px;padding:2px 6px;cursor:pointer;';
+                align.addEventListener('click', () => alignSelectedLyric(line.time));
+                actions.append(seek, align);
+                item.append(left, actions);
                 container.appendChild(item);
             });
         }
@@ -3096,7 +3138,7 @@
             sendCmd({ action: 'ALIGN_LINE_TO_NOW', targetTime: targetTime });
         }
 
-        // ================= 18. 旅行手帳與 Google Drive 雲端同步 =================
+        // ================= 16. 旅行手帳與 Google Drive 雲端同步 =================
         function fetchCurrentGPSLocation() {
             const locDisplay = document.getElementById('diary-current-location');
             if (!navigator.geolocation) {
@@ -3289,39 +3331,52 @@
 
         function renderDiaryList() {
             const listEl = document.getElementById('diary-entries-list');
-            listEl.innerHTML = '';
+            if (!listEl) return;
+            listEl.replaceChildren();
 
-            if (travelDiaries.length === 0) {
-                listEl.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; padding: 12px;">尚無旅行紀錄，打卡後將自動上傳至 Google 雲端</div>';
+            if (!Array.isArray(travelDiaries) || travelDiaries.length === 0) {
+                const empty = document.createElement('div');
+                empty.textContent = '尚無旅行紀錄，打卡後將自動上傳至 Google 雲端';
+                empty.style.cssText = 'font-size:12px;color:var(--theme-text-sub);text-align:center;padding:12px;';
+                listEl.appendChild(empty);
                 return;
             }
 
-            travelDiaries.forEach((entry) => {
+            travelDiaries.slice(0, 300).forEach((entry) => {
                 const item = document.createElement('div');
-                item.style = "background: var(--theme-card-bg); border: 1px solid var(--theme-border); border-radius: var(--theme-radius); padding: 10px; font-size: 12px;";
-                item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="color: var(--theme-accent); font-weight: bold;">${entry.dateStr}</span>
-                        <div style="display: flex; gap: 6px; align-items: center;">
-                            <button class="btn" style="padding: 2px 7px; font-size: 11px; border: 1px solid var(--theme-accent); color: var(--theme-accent);" onclick='renderPolaroidCard(${JSON.stringify(entry)})'>
-                                📸 拍立得
-                            </button>
-                            <span style="font-size: 11px; background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px;">
-                                ${entry.singer}
-                            </span>
-                        </div>
-                    </div>
-                    <div style="color: var(--theme-text-sub); margin-bottom: 4px;">📍 ${entry.location.address || entry.location}</div>
-                    <div style="color: var(--theme-highlight); margin-bottom: 6px;">🎵 ${entry.song}</div>
-                    <div style="background: rgba(0,0,0,0.04); padding: 6px 8px; border-radius: 4px; line-height: 1.4;">
-                        ${entry.note}
-                    </div>
-                `;
+                item.style.cssText = 'background:var(--theme-card-bg);border:1px solid var(--theme-border);border-radius:var(--theme-radius);padding:10px;font-size:12px;';
+                const header = document.createElement('div');
+                header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;';
+                const date = document.createElement('span');
+                date.textContent = sanitizePlainText(entry.dateStr || '', 40);
+                date.style.cssText = 'color:var(--theme-accent);font-weight:bold;';
+                const actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;gap:6px;align-items:center;';
+                const polaroid = document.createElement('button');
+                polaroid.type = 'button'; polaroid.className = 'btn'; polaroid.textContent = '📸 拍立得';
+                polaroid.style.cssText = 'padding:2px 7px;font-size:11px;border:1px solid var(--theme-accent);color:var(--theme-accent);';
+                polaroid.addEventListener('click', () => renderPolaroidCard(entry));
+                const singer = document.createElement('span');
+                singer.textContent = sanitizePlainText(entry.singer || '', 60);
+                singer.style.cssText = 'font-size:11px;background:rgba(0,0,0,.06);padding:1px 6px;border-radius:4px;';
+                actions.append(polaroid, singer);
+                header.append(date, actions);
+                const location = document.createElement('div');
+                const address = entry.location && typeof entry.location === 'object' ? entry.location.address : entry.location;
+                location.textContent = `📍 ${sanitizePlainText(address || '未定位', 160)}`;
+                location.style.cssText = 'color:var(--theme-text-sub);margin-bottom:4px;';
+                const song = document.createElement('div');
+                song.textContent = `🎵 ${sanitizePlainText(entry.song || '', 120)}`;
+                song.style.cssText = 'color:var(--theme-highlight);margin-bottom:6px;';
+                const note = document.createElement('div');
+                note.textContent = sanitizePlainText(entry.note || '', 2000);
+                note.style.cssText = 'background:rgba(0,0,0,.04);padding:6px 8px;border-radius:4px;line-height:1.4;white-space:pre-wrap;';
+                item.append(header, location, song, note);
                 listEl.appendChild(item);
             });
         }
 
-        // ================= 19. 拍立得多風格與實拍照片 Canvas 繪圖引擎 =================
+        // ================= 17. 拍立得多風格與實拍照片 Canvas 繪圖引擎 =================
         function createCurrentPolaroid() {
             const noteText = document.getElementById('diary-note-input').value.trim() || "沿著公路迎風奔馳，車內就是專屬移動歌廳！";
             const playingTitle = currentSong ? (currentSong.displayTitle || currentSong.title) : "包廂自由巡航中";
@@ -3668,7 +3723,7 @@
             document.getElementById('polaroid-modal').classList.add('hidden');
         }
 
-        // ================= 20. 車機大螢幕端邏輯 =================
+        // ================= 18. 車機大螢幕端邏輯 =================
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
@@ -3703,7 +3758,11 @@
                 try {
                     ytPlayer.unMute();
                     ytPlayer.setVolume(80);
-                    ytPlayer.playVideo();
+                    if (!currentSong && songQueue.length > 0) {
+                        playNextSong();
+                    } else {
+                        ytPlayer.playVideo();
+                    }
                 } catch (e) {
                     console.warn("啟動播放例外：", e);
                 }
@@ -3722,31 +3781,42 @@
 
         function renderMembersModalUI() {
             const container = document.getElementById('modal-members-list');
-            container.innerHTML = '';
+            if (!container) return;
+            container.replaceChildren();
 
             const memberKeys = Object.keys(roomMembers);
             if (memberKeys.length === 0) {
-                container.innerHTML = '<div style="color: var(--theme-text-sub); text-align: center; padding: 30px;">目前尚無成員連線進入包廂<br>請乘客掃描主機 QR Code 登入</div>';
+                const empty = document.createElement('div');
+                empty.textContent = '目前尚無成員連線進入包廂\n請乘客掃描主機 QR Code 登入';
+                empty.style.cssText = 'color:var(--theme-text-sub);text-align:center;padding:30px;white-space:pre-line;';
+                container.appendChild(empty);
                 return;
             }
 
             memberKeys.forEach((key, idx) => {
-                const member = roomMembers[key];
+                const member = roomMembers[key] || {};
                 const card = document.createElement('div');
                 card.className = 'member-card-row';
-                card.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 13px; color: var(--theme-accent); font-weight: bold;">#${idx + 1}</span>
-                        ${getAvatarHTML(member.avatar, 34)}
-                        <div>
-                            <div style="font-size: 15px; font-weight: bold; color: var(--theme-text);">${member.nickname}</div>
-                            <div style="font-size: 11px; color: var(--theme-text-sub); margin-top: 2px;">身分：${member.type === 'google' ? 'Google 雲端帳戶' : '本機訪客'} ｜ 登入時間：${member.joinedAt}</div>
-                        </div>
-                    </div>
-                    <span style="font-size: 11px; border: 1px solid var(--theme-accent); color: var(--theme-accent); padding: 3px 8px; border-radius: 4px; font-weight: bold;">
-                        ${member.seat}
-                    </span>
-                `;
+                const left = document.createElement('div');
+                left.style.cssText = 'display:flex;align-items:center;gap:12px;min-width:0;';
+                const number = document.createElement('span');
+                number.textContent = `#${idx + 1}`;
+                number.style.cssText = 'font-size:13px;color:var(--theme-accent);font-weight:bold;';
+                const avatar = document.createElement('span');
+                appendAvatarElement(avatar, member.avatar, 34);
+                const details = document.createElement('div');
+                const name = document.createElement('div');
+                name.textContent = sanitizePlainText(member.nickname || '乘客', 24);
+                name.style.cssText = 'font-size:15px;font-weight:bold;color:var(--theme-text);';
+                const meta = document.createElement('div');
+                meta.textContent = `身分：${member.type === 'google' ? 'Google 帳戶' : '本機訪客'} ｜ 登入時間：${sanitizePlainText(member.joinedAt || '', 12)}`;
+                meta.style.cssText = 'font-size:11px;color:var(--theme-text-sub);margin-top:2px;';
+                details.append(name, meta);
+                left.append(number, avatar, details);
+                const seat = document.createElement('span');
+                seat.textContent = sanitizePlainText(member.seat || '車內', 12);
+                seat.style.cssText = 'font-size:11px;border:1px solid var(--theme-accent);color:var(--theme-accent);padding:3px 8px;border-radius:4px;font-weight:bold;';
+                card.append(left, seat);
                 container.appendChild(card);
             });
         }
@@ -3761,7 +3831,7 @@
         }
 
         function playKtvSfx(type) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try { ensureAudioContext(); } catch (err) { console.warn('音效引擎不可用：', err); return; }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const now = audioCtx.currentTime;
 
@@ -3862,7 +3932,73 @@
             noise.start(time);
         }
 
+        function persistScreenState() {
+            try {
+                const snapshot = {
+                    version: 1,
+                    currentSong: currentSong,
+                    songQueue: songQueue.slice(0, 100),
+                    carHistory: carHistory.slice(0, 30),
+                    lyricOffset,
+                    savedAt: Date.now()
+                };
+                localStorage.setItem(SAVED_SCREEN_STATE_KEY, JSON.stringify(snapshot));
+            } catch (err) {
+                console.warn('保存車機播放狀態失敗：', err);
+            }
+        }
+
+        function restoreScreenState() {
+            try {
+                const raw = localStorage.getItem(SAVED_SCREEN_STATE_KEY);
+                if (!raw) return;
+                const saved = JSON.parse(raw);
+                if (!saved || saved.version !== 1) return;
+                currentSong = normalizeSongPayload(saved.currentSong);
+                songQueue = Array.isArray(saved.songQueue)
+                    ? saved.songQueue.slice(0, 100).map(song => normalizeSongPayload(song)).filter(Boolean)
+                    : [];
+                carHistory = Array.isArray(saved.carHistory)
+                    ? saved.carHistory.slice(0, 30).map(song => normalizeSongPayload(song)).filter(Boolean)
+                    : [];
+                lyricOffset = Number.isFinite(Number(saved.lyricOffset)) ? Math.max(-10, Math.min(10, Number(saved.lyricOffset))) : 0;
+                if (currentSong) {
+                    currentOriginalId = currentSong.origId;
+                    currentInstId = currentSong.instId || currentSong.origId;
+                    isInstrumental = false;
+                }
+            } catch (err) {
+                console.warn('讀取車機播放狀態失敗，將使用空歌單：', err);
+                currentSong = null;
+                songQueue = [];
+                carHistory = [];
+            }
+        }
+
+        function sendRoomSnapshot(client) {
+            if (!client || !client.open) return;
+            client.send({
+                action: 'SYNC_QUEUE',
+                currentSong,
+                queue: songQueue,
+                carHistory,
+                offset: lyricOffset,
+                fontSize: activeFontSize,
+                isPracticeMode,
+                screenTheme: currentScreenTheme
+            });
+            if (parsedLyrics && parsedLyrics.length > 0) {
+                client.send({ action: 'SYNC_LYRICS', lyrics: parsedLyrics });
+            }
+        }
+
         function initScreenMode(forcedId = null) {
+            if (peer && !peer.destroyed) { try { peer.destroy(); } catch (_) {} }
+            remoteClients = [];
+            roomMembers = {};
+            authenticatedPeers.clear();
+            updateConnectedCountUI();
+            restoreScreenState();
             const savedCustomId = localStorage.getItem(SAVED_SCREEN_ROOM_KEY);
             const roomId = forcedId || savedCustomId || Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -3876,60 +4012,41 @@
 
             peer.on('connection', (c) => {
                 c.on('open', () => {
-                    remoteClients.push(c);
+                    if (!remoteClients.includes(c)) remoteClients.push(c);
                     updateConnectedCountUI();
-                    
-                    c.send({
-                        action: 'SYNC_QUEUE',
-                        currentSong: currentSong,
-                        queue: songQueue,
-                        carHistory: carHistory,
-                        offset: lyricOffset,
-                        fontSize: activeFontSize,
-                        isPracticeMode: isPracticeMode,
-                        screenTheme: currentScreenTheme
-                    });
-
-                    if (parsedLyrics && parsedLyrics.length > 0) {
-                        c.send({
-                            action: 'SYNC_LYRICS',
-                            lyrics: parsedLyrics
-                        });
-                    }
                 });
 
-                c.on('data', (data) => {
-                    handleRemoteCommand(data, c);
-                });
+                c.on('data', (data) => handleRemoteCommand(data, c));
 
                 c.on('close', () => {
+                    authenticatedConnections.delete(c);
+                    if (c.peer) {
+                        authenticatedPeers.delete(c.peer);
+                        delete roomMembers[c.peer];
+                    }
                     remoteClients = remoteClients.filter(client => client !== c);
-                    delete roomMembers[c.peer];
                     updateConnectedCountUI();
                 });
 
                 c.on('error', () => {
+                    authenticatedConnections.delete(c);
+                    if (c.peer) {
+                        authenticatedPeers.delete(c.peer);
+                        delete roomMembers[c.peer];
+                    }
                     remoteClients = remoteClients.filter(client => client !== c);
-                    delete roomMembers[c.peer];
                     updateConnectedCountUI();
                 });
             });
 
-            // 🌟 關鍵修復：接聽通話時加入 playoutDelayHint = 0，強制清除 WebRTC Jitter Buffer
-            peer.on('call', (call) => {
-                call.answer();
-
-                if (call.peerConnection) {
-                    call.peerConnection.addEventListener('track', (e) => {
-                        if (e.receiver && 'playoutDelayHint' in e.receiver) {
-                            e.receiver.playoutDelayHint = 0; // 0 秒延遲，立即解碼輸出
-                        }
-                    });
+            peer.on('disconnected', () => {
+                const status = document.getElementById('remote-status');
+                if (status) status.innerText = '訊號中斷，正在恢復連線…';
+                if (peer && !peer.destroyed) {
+                    window.setTimeout(() => {
+                        try { if (peer && peer.disconnected) peer.reconnect(); } catch (err) { console.warn('PeerJS 重連失敗：', err); }
+                    }, 1200);
                 }
-
-                call.on('stream', (remoteMicStream) => {
-                    connectRemoteMicToCarMixer(remoteMicStream);
-                });
             });
 
             peer.on('error', (err) => {
@@ -3941,9 +4058,16 @@
                 }
             });
 
-            fetchSyncedLyrics("十年", "陳奕迅");
-            setInterval(syncLyricsScroll, 80);
+            if (currentSong) fetchSyncedLyrics(currentSong.title, currentSong.artist);
+            else fetchSyncedLyrics("十年", "陳奕迅");
+            clearInterval(lyricSyncTimer);
+            lyricSyncTimer = setInterval(syncLyricsScroll, 80);
             renderScreenQueueUI();
+            clearInterval(screenSyncTimer);
+            screenSyncTimer = setInterval(() => {
+                // Periodic lightweight state persistence protects the queue if the screen reloads.
+                persistScreenState();
+            }, 15000);
         }
 
         function renderScreenQueueUI() {
@@ -3952,40 +4076,53 @@
             const hudNext = document.getElementById('hud-next-song');
             if (!listEl) return;
 
-            countEl.innerText = `${songQueue.length} 首`;
-
-            if (songQueue.length > 0) {
-                const nextItem = songQueue[0];
-                hudNext.innerHTML = `${getAvatarHTML(nextItem.userAvatar, 16)} ${nextItem.displayTitle || nextItem.title} (${nextItem.requestedBy || '乘客'})`;
-            } else {
-                hudNext.innerText = '(隊列等待中)';
+            if (countEl) countEl.innerText = `${songQueue.length} 首`;
+            if (hudNext) {
+                hudNext.replaceChildren();
+                if (songQueue.length > 0) {
+                    const nextItem = songQueue[0];
+                    appendAvatarElement(hudNext, nextItem.userAvatar, 16);
+                    const label = document.createElement('span');
+                    label.textContent = ` ${sanitizePlainText(nextItem.displayTitle || nextItem.title, 100)} (${sanitizePlainText(nextItem.requestedBy || '乘客', 50)})`;
+                    hudNext.appendChild(label);
+                } else {
+                    hudNext.textContent = '(隊列等待中)';
+                }
             }
 
-            listEl.innerHTML = '';
+            listEl.replaceChildren();
             if (songQueue.length === 0) {
-                listEl.innerHTML = '<div style="font-size: 12px; color: var(--theme-text-sub); text-align: center; margin-top: 25px;">尚無待播歌曲<br>請使用手機掃碼點歌</div>';
+                const empty = document.createElement('div');
+                empty.textContent = '尚無待播歌曲\n請使用手機掃碼點歌';
+                empty.style.cssText = 'font-size:12px;color:var(--theme-text-sub);text-align:center;margin-top:25px;white-space:pre-line;';
+                listEl.appendChild(empty);
                 return;
             }
 
             songQueue.forEach((item, idx) => {
                 const row = document.createElement('div');
-                row.style = "display: flex; align-items: center; justify-content: space-between; background: var(--theme-card-bg); border: 1px solid var(--theme-border); padding: 7px 10px; border-radius: var(--theme-radius); font-size: 12px;";
-                row.innerHTML = `
-                    <div style="flex: 1; overflow: hidden; margin-right: 6px; display: flex; align-items: center; gap: 6px;">
-                        <span style="color: var(--theme-accent); font-weight: bold;">#${idx + 1}</span>
-                        ${getAvatarHTML(item.userAvatar, 16)}
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayTitle || item.title}</span>
-                    </div>
-                    <span style="font-size: 10px; border: 1px solid var(--theme-border); padding: 1px 5px; border-radius: 4px; white-space: nowrap;">
-                        ${item.requestedBy || '乘客'}
-                    </span>
-                `;
+                row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:var(--theme-card-bg);border:1px solid var(--theme-border);padding:7px 10px;border-radius:var(--theme-radius);font-size:12px;gap:6px;';
+                const left = document.createElement('div');
+                left.style.cssText = 'flex:1;min-width:0;overflow:hidden;margin-right:6px;display:flex;align-items:center;gap:6px;';
+                const number = document.createElement('span');
+                number.textContent = `#${idx + 1}`;
+                number.style.cssText = 'color:var(--theme-accent);font-weight:bold;';
+                const avatar = document.createElement('span');
+                appendAvatarElement(avatar, item.userAvatar, 16);
+                const title = document.createElement('span');
+                title.textContent = sanitizePlainText(item.displayTitle || item.title, 100);
+                title.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                left.append(number, avatar, title);
+                const requester = document.createElement('span');
+                requester.textContent = sanitizePlainText(item.requestedBy || '乘客', 30);
+                requester.style.cssText = 'font-size:10px;border:1px solid var(--theme-border);padding:1px 5px;border-radius:4px;white-space:nowrap;';
+                row.append(left, requester);
                 listEl.appendChild(row);
             });
         }
 
         function broadcastToAllRemotes(payload) {
-            remoteClients = remoteClients.filter(client => client && client.open);
+            remoteClients = remoteClients.filter(client => client && client.open && authenticatedConnections.has(client));
             remoteClients.forEach(client => {
                 try {
                     client.send(payload);
@@ -3995,6 +4132,7 @@
         }
 
         function broadcastQueueToRemote() {
+            persistScreenState();
             renderScreenQueueUI();
             broadcastToAllRemotes({
                 action: 'SYNC_QUEUE',
@@ -4049,6 +4187,11 @@
         }
 
         function playNextSong() {
+            if (isAdvancingSong) return;
+            isAdvancingSong = true;
+            window.setTimeout(() => { isAdvancingSong = false; }, 900);
+            clearTimeout(playbackErrorTimer);
+            fallbackAttemptedForCurrentSong = false;
             lyricOffset = 0.0;
             updateOffsetUI();
 
@@ -4092,181 +4235,202 @@
                 }
             }
             broadcastQueueToRemote();
+            persistScreenState();
         }
 
         function handleRemoteCommand(cmd, clientConn) {
-            if (!cmd) return;
+            if (!cmd || typeof cmd !== 'object' || !clientConn || !clientConn.peer) return;
 
+            const peerId = clientConn.peer;
             if (cmd.action === 'REGISTER_PROFILE') {
-                if (cmd.pin !== screenPin) {
-                    if (clientConn && clientConn.open) {
-                        clientConn.send({
-                            action: 'AUTH_FAILED',
-                            message: '❌ 包廂密碼錯誤！請向車主索取 4 位數通關密碼。'
-                        });
-                        setTimeout(() => {
-                            try { clientConn.close(); } catch(e) {}
-                        }, 500);
+                if (authenticatedConnections.has(clientConn)) return;
+                const authNow = Date.now();
+                if (authNow - authAttemptWindowStart > 60000) {
+                    authAttemptWindowStart = authNow;
+                    authAttemptCount = 0;
+                }
+                if (authAttemptCount >= 8) {
+                    if (clientConn.open) clientConn.send({ action: 'AUTH_FAILED', message: '登入嘗試過於頻繁，請稍後再試。' });
+                    window.setTimeout(() => { try { clientConn.close(); } catch (_) {} }, 400);
+                    return;
+                }
+                if (String(cmd.pin || '') !== screenPin) {
+                    authAttemptCount++;
+                    if (clientConn.open) {
+                        clientConn.send({ action: 'AUTH_FAILED', message: '❌ 包廂密碼錯誤！請重新輸入車主提供的密碼。' });
+                        window.setTimeout(() => { try { clientConn.close(); } catch (_) {} }, 400);
                     }
                     return;
                 }
 
-                if (clientConn && clientConn.peer) {
-                    clientConn.send({ action: 'AUTH_SUCCESS' });
-                    roomMembers[clientConn.peer] = {
-                        id: cmd.profile.id || 'guest_local',
-                        type: cmd.profile.type || 'guest',
-                        nickname: cmd.profile.nickname || '乘客',
-                        avatar: cmd.profile.avatar || '👽',
-                        seat: cmd.profile.seat || '車內',
-                        joinedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    };
-                    updateConnectedCountUI();
+                const incoming = cmd.profile && typeof cmd.profile === 'object' ? cmd.profile : {};
+                const seatOptions = new Set(['副駕', '後座左', '後座中', '後座右']);
+                const safeProfile = {
+                    id: sanitizePlainText(incoming.id || 'guest_local', 100),
+                    type: incoming.type === 'google' ? 'google' : 'guest',
+                    nickname: sanitizePlainText(incoming.nickname || '乘客', 24) || '乘客',
+                    avatar: sanitizeAvatarValue(incoming.avatar || '👽'),
+                    seat: seatOptions.has(incoming.seat) ? incoming.seat : '車內',
+                    joinedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+                authAttemptCount = 0;
+                authenticatedConnections.add(clientConn);
+                authenticatedPeers.add(peerId);
+                roomMembers[peerId] = safeProfile;
+                if (clientConn.open) clientConn.send({ action: 'AUTH_SUCCESS' });
+                updateConnectedCountUI();
+                sendRoomSnapshot(clientConn);
+                return;
+            }
+
+            // Every command after registration must come from a connection that passed the room PIN.
+            if (!authenticatedConnections.has(clientConn)) return;
+
+            // Basic per-connection flood control: max 80 commands per rolling 5-second window.
+            const now = Date.now();
+            const rate = commandRateWindows.get(peerId) || { start: now, count: 0 };
+            if (now - rate.start > 5000) { rate.start = now; rate.count = 0; }
+            rate.count++;
+            commandRateWindows.set(peerId, rate);
+            if (rate.count > 80) return;
+
+            switch (cmd.action) {
+                case 'CHANGE_THEME': {
+                    const allowedThemes = new Set(['cyberpunk', 'muji', 'y3k', 'cute']);
+                    if (allowedThemes.has(cmd.theme)) switchTheme(cmd.theme, true);
+                    return;
                 }
-                return;
-            }
-
-            if (cmd.action === 'CHANGE_THEME') {
-                switchTheme(cmd.theme, true);
-                return;
-            }
-
-            if (cmd.action === 'SET_EQ') {
-                initAudioEQNodes();
-                if (audioCtx && eqLowNode && eqMidNode && eqHighNode) {
-                    const now = audioCtx.currentTime;
-                    eqLowNode.gain.setTargetAtTime(cmd.low, now, 0.05);
-                    eqMidNode.gain.setTargetAtTime(cmd.mid, now, 0.05);
-                    eqHighNode.gain.setTargetAtTime(cmd.high, now, 0.05);
+                case 'SET_EQ': {
+                    initAudioEQNodes();
+                    if (audioCtx && eqLowNode && eqMidNode && eqHighNode) {
+                        const nowAudio = audioCtx.currentTime;
+                        const low = Math.max(-12, Math.min(12, Number(cmd.low) || 0));
+                        const mid = Math.max(-12, Math.min(12, Number(cmd.mid) || 0));
+                        const high = Math.max(-12, Math.min(12, Number(cmd.high) || 0));
+                        eqLowNode.gain.setTargetAtTime(low, nowAudio, 0.05);
+                        eqMidNode.gain.setTargetAtTime(mid, nowAudio, 0.05);
+                        eqHighNode.gain.setTargetAtTime(high, nowAudio, 0.05);
+                    }
+                    return;
                 }
-                return;
-            }
-
-            if (cmd.action === 'SET_REMOTE_MIC_GAIN') {
-                if (remoteMicGainNode && audioCtx) {
-                    remoteMicGainNode.gain.setTargetAtTime(cmd.gain, audioCtx.currentTime, 0.05);
+                case 'SEND_DANMAKU': {
+                    const message = sanitizePlainText(cmd.text, 100);
+                    if (!message) return;
+                    renderDanmakuOnScreen({
+                        text: message,
+                        nickname: roomMembers[peerId]?.nickname || '乘客',
+                        avatar: roomMembers[peerId]?.avatar || '🎤',
+                        color: DANMAKU_COLOR_ALLOWLIST.has(cmd.color) ? cmd.color : '#00f0ff',
+                        isMega: cmd.isMega === true
+                    });
+                    return;
                 }
-                return;
-            }
-
-            if (cmd.action === 'SEND_DANMAKU') {
-                renderDanmakuOnScreen(cmd);
-                return;
-            }
-
-            if (cmd.action === 'TOGGLE_PRACTICE_MODE') {
-                updatePracticeModeUI(cmd.isPracticeMode);
-                broadcastToAllRemotes({ action: 'SYNC_PRACTICE_MODE', isPracticeMode: isPracticeMode });
-                return;
-            }
-
-            if (cmd.action === 'TRIGGER_SFX') {
-                playKtvSfx(cmd.sfxType);
-                return;
-            }
-
-            if (cmd.action === 'SET_EXACT_OFFSET') {
-                lyricOffset = Math.round(parseFloat(cmd.value) * 10) / 10;
-                updateOffsetUI();
-                return;
-            }
-
-            if (cmd.action === 'SEEK_TO') {
-                if (ytPlayer && isPlayerReady) {
-                    ytPlayer.seekTo(cmd.seconds, true);
+                case 'TOGGLE_PRACTICE_MODE':
+                    updatePracticeModeUI(cmd.isPracticeMode === true);
+                    broadcastToAllRemotes({ action: 'SYNC_PRACTICE_MODE', isPracticeMode });
+                    return;
+                case 'TRIGGER_SFX': {
+                    const allowedSfx = new Set(['applause', 'cheer', 'airhorn', 'rimshot']);
+                    if (allowedSfx.has(cmd.sfxType)) playKtvSfx(cmd.sfxType);
+                    return;
                 }
-                return;
-            }
-
-            if (cmd.action === 'ALIGN_LINE_TO_NOW') {
-                if (ytPlayer && isPlayerReady) {
-                    const currentSec = ytPlayer.getCurrentTime();
-                    lyricOffset = Math.round((currentSec - cmd.targetTime) * 10) / 10;
-                    updateOffsetUI();
+                case 'SET_EXACT_OFFSET': {
+                    const value = Number(cmd.value);
+                    if (Number.isFinite(value)) { lyricOffset = Math.max(-10, Math.min(10, Math.round(value * 10) / 10)); updateOffsetUI(); }
+                    return;
                 }
-                return;
+                case 'SEEK_TO': {
+                    const seconds = Number(cmd.seconds);
+                    if (ytPlayer && isPlayerReady && Number.isFinite(seconds)) ytPlayer.seekTo(Math.max(0, seconds), true);
+                    return;
+                }
+                case 'ALIGN_LINE_TO_NOW': {
+                    const targetTime = Number(cmd.targetTime);
+                    if (ytPlayer && isPlayerReady && Number.isFinite(targetTime)) {
+                        lyricOffset = Math.max(-10, Math.min(10, Math.round((ytPlayer.getCurrentTime() - targetTime) * 10) / 10));
+                        updateOffsetUI();
+                    }
+                    return;
+                }
             }
 
             if (!ytPlayer || !isPlayerReady) return;
-
             switch (cmd.action) {
-                case 'PLAY_PAUSE':
+                case 'PLAY_PAUSE': {
                     const state = ytPlayer.getPlayerState();
                     state === YT.PlayerState.PLAYING ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
                     break;
-
-                case 'SWITCH_TRACK':
+                }
+                case 'SWITCH_TRACK': {
                     const currentSec = ytPlayer.getCurrentTime();
-                    isInstrumental = cmd.isInstrumental;
+                    isInstrumental = cmd.isInstrumental === true;
                     const targetId = isInstrumental ? currentInstId : currentOriginalId;
-                    
-                    ytPlayer.loadVideoById({
-                        videoId: targetId,
-                        startSeconds: currentSec
-                    });
-                    document.getElementById('hud-mode').innerText = isInstrumental ? "伴奏模式" : "原唱模式";
-                    break;
-
-                case 'SET_VOLUME':
-                    ytPlayer.setVolume(cmd.value);
-                    document.getElementById('hud-vol').innerText = `${cmd.value}%`;
-                    break;
-
-                case 'SET_ECHO':
-                    if (micFeedbackGain && audioCtx) {
-                        micFeedbackGain.gain.setValueAtTime(cmd.value, audioCtx.currentTime);
+                    if (/^[A-Za-z0-9_-]{11}$/.test(targetId)) {
+                        ytPlayer.loadVideoById({ videoId: targetId, startSeconds: Math.max(0, currentSec) });
+                        document.getElementById('hud-mode').innerText = isInstrumental ? '伴奏模式' : '原唱模式';
                     }
-                    document.getElementById('hud-echo').innerText = cmd.value;
                     break;
-
+                }
+                case 'SET_VOLUME': {
+                    const value = Math.max(0, Math.min(100, Number(cmd.value)));
+                    if (Number.isFinite(value)) {
+                        ytPlayer.setVolume(value);
+                        document.getElementById('hud-vol').innerText = `${value}%`;
+                    }
+                    break;
+                }
+                case 'SET_ECHO': {
+                    const value = Math.max(0, Math.min(0.7, Number(cmd.value)));
+                    if (Number.isFinite(value)) setEchoAmount(value);
+                    break;
+                }
                 case 'ADJUST_OFFSET':
-                    if (cmd.reset) {
-                        lyricOffset = 0.0;
-                    } else {
-                        lyricOffset = Math.round((lyricOffset + cmd.delta) * 10) / 10;
-                    }
+                    lyricOffset = cmd.reset === true ? 0 : Math.max(-10, Math.min(10, Math.round((lyricOffset + (Number(cmd.delta) || 0)) * 10) / 10));
                     updateOffsetUI();
                     break;
-
                 case 'ADJUST_FONT_SIZE':
-                    if (cmd.reset) {
-                        activeFontSize = 46;
-                    } else {
-                        activeFontSize = Math.min(68, Math.max(30, activeFontSize + cmd.delta));
-                    }
+                    activeFontSize = cmd.reset === true ? 46 : Math.min(68, Math.max(30, activeFontSize + (Number(cmd.delta) || 0)));
                     updateFontSizeUI();
                     break;
-
                 case 'ADD_TO_QUEUE':
-                    songQueue.push(cmd.song);
+                case 'INSERT_NEXT': {
+                    if (songQueue.length >= 100) return;
+                    const song = normalizeSongPayload(cmd.song, roomMembers[peerId]);
+                    if (!song) return;
+                    if (cmd.action === 'INSERT_NEXT') songQueue.unshift(song);
+                    else songQueue.push(song);
                     if (!currentSong && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-                        playNextSong();
+                        if (isAdvancingSong) {
+                            broadcastQueueToRemote();
+                            window.setTimeout(() => {
+                                if (!currentSong && songQueue.length > 0) {
+                                    isAdvancingSong = false;
+                                    playNextSong();
+                                }
+                            }, 550);
+                        } else {
+                            playNextSong();
+                        }
                     } else {
                         broadcastQueueToRemote();
                     }
                     break;
-
-                case 'INSERT_NEXT':
-                    songQueue.unshift(cmd.song);
-                    if (!currentSong && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-                        playNextSong();
-                    } else {
-                        broadcastQueueToRemote();
-                    }
-                    break;
-
+                }
                 case 'SKIP_SONG':
                     playNextSong();
                     break;
-
-                case 'REMOVE_FROM_QUEUE':
-                    songQueue.splice(cmd.index, 1);
-                    broadcastQueueToRemote();
+                case 'REMOVE_FROM_QUEUE': {
+                    const index = Number(cmd.index);
+                    if (Number.isInteger(index) && index >= 0 && index < songQueue.length) {
+                        songQueue.splice(index, 1);
+                        broadcastQueueToRemote();
+                    }
                     break;
+                }
             }
         }
 
-        // ================= 21. 男女合唱動態時間軸解析 =================
+        // ================= 19. 男女合唱動態時間軸解析 =================
         function detectSingerRole(rawText) {
             const maleRegex = /^(?:\(|（|\[)?(?:男|M|Boy|Male)(?:\)|）|\]|：|:)\s*/i;
             const femaleRegex = /^(?:\(|（|\[)?(?:女|F|Girl|Female)(?:\)|）|\]|：|:)\s*/i;
@@ -4402,134 +4566,131 @@
             el.className = `ktv-line role-${lineData.role} ${isActive ? 'active' : ''}`;
         }
 
-        // ================= 22. 手機遙控端通訊與重連機制 =================
-        function initRemoteMode(roomId) {
+        // ================= 20. 手機遙控端通訊與重連機制 =================
+        function scheduleRemoteReconnect(roomId) {
+            if (remoteAuthFailed || !roomId || remoteReconnectTimer) return;
+            remoteReconnectAttempts = Math.min(remoteReconnectAttempts + 1, 6);
+            const delay = Math.min(2000 * (2 ** (remoteReconnectAttempts - 1)), 30000);
+            const statusEl = document.getElementById('mobile-status-text');
+            if (statusEl) statusEl.textContent = `連線中斷，${Math.round(delay / 1000)} 秒後自動重連…`;
+            remoteReconnectTimer = window.setTimeout(() => {
+                remoteReconnectTimer = null;
+                initRemoteMode(roomId, true);
+            }, delay);
+        }
+
+        function initRemoteMode(roomId, isRetry = false) {
             if (!roomId) {
                 const statusEl = document.getElementById('mobile-status-text');
-                if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#ff0055;">未設定房號</span> <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:var(--theme-accent);text-decoration:underline;">[點此輸入]</a>`;
-                }
+                createStatusAction(statusEl, '尚未設定包廂房號。', '輸入房號', openChangeRoomModal);
                 return;
             }
 
             const statusEl = document.getElementById('mobile-status-text');
-            if (statusEl) statusEl.innerText = `正在連線 ${roomId}...`;
-
-            if (connToScreen) {
-                try { connToScreen.close(); } catch(e) {}
-            }
-            if (peer) {
-                try { peer.destroy(); } catch(e) {}
-            }
-
-            peer = new Peer(PEER_CONFIG);
-
+            if (statusEl) statusEl.textContent = `正在連線 ${sanitizePlainText(roomId, 40)}…`;
             clearTimeout(connectTimeoutTimer);
-            connectTimeoutTimer = setTimeout(() => {
-                if (!connToScreen || !connToScreen.open) {
-                    if (statusEl) {
-                        statusEl.innerHTML = `⚠️ 連線超時 <a href="javascript:void(0)" onclick="initRemoteMode('${roomId}')" style="color:var(--theme-accent);text-decoration:underline;">[重連]</a> 或 <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:var(--theme-highlight);text-decoration:underline;">[改房號]</a>`;
-                    }
-                }
-            }, 6000);
+            clearTimeout(remoteReconnectTimer);
+            remoteReconnectTimer = null;
 
-            peer.on('open', () => {
-                connToScreen = peer.connect(roomId, { reliable: true });
+            suppressRemoteCloseReconnect = true;
+            if (connToScreen) { try { connToScreen.close(); } catch (_) {} }
+            if (peer) { try { peer.destroy(); } catch (_) {} }
+            window.setTimeout(() => { suppressRemoteCloseReconnect = false; }, 500);
+            connToScreen = null;
+            peer = new Peer(PEER_CONFIG);
+            const remotePeerInstance = peer;
 
-                connToScreen.on('open', () => {
+            connectTimeoutTimer = window.setTimeout(() => {
+                if (!connToScreen || !connToScreen.open) scheduleRemoteReconnect(roomId);
+            }, 9000);
+
+            remotePeerInstance.on('open', () => {
+                if (peer !== remotePeerInstance) return;
+                const remoteConnection = remotePeerInstance.connect(roomId, { reliable: true });
+                connToScreen = remoteConnection;
+                remoteConnection.on('open', () => {
+                    if (peer !== remotePeerInstance || connToScreen !== remoteConnection) return;
                     clearTimeout(connectTimeoutTimer);
-                    if (statusEl) statusEl.innerText = `驗證通關密碼中...`;
-                    
-                    sendCmd({ 
-                        action: 'REGISTER_PROFILE', 
-                        profile: userProfile,
-                        pin: targetPin 
-                    });
+                    if (statusEl) statusEl.textContent = '已連線，正在驗證包廂密碼…';
+                    sendCmd({ action: 'REGISTER_PROFILE', profile: userProfile, pin: targetPin });
                 });
 
-                connToScreen.on('data', (data) => {
+                remoteConnection.on('data', (data) => {
+                    if (connToScreen !== remoteConnection || !data || typeof data !== 'object') return;
                     if (data.action === 'AUTH_FAILED') {
-                        alert(data.message);
-                        if (statusEl) {
-                            statusEl.innerHTML = `<span style="color:#ff0055;">密碼錯誤</span> <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:var(--theme-accent);text-decoration:underline;">[重新輸入密碼]</a>`;
-                        }
+                        remoteAuthFailed = true;
+                        clearTimeout(remoteReconnectTimer);
+                        remoteReconnectTimer = null;
+                        if (statusEl) createStatusAction(statusEl, '包廂密碼錯誤。', '重新輸入密碼', openChangeRoomModal);
+                        alert(data.message || '包廂密碼錯誤，請重新輸入。');
                         return;
                     }
-
                     if (data.action === 'AUTH_SUCCESS') {
-                        if (statusEl) statusEl.innerText = `已連線：${roomId} ✅`;
+                        remoteAuthFailed = false;
+                        remoteReconnectAttempts = 0;
+                        if (statusEl) statusEl.textContent = `已連線：${sanitizePlainText(roomId, 40)} ✅`;
                         return;
                     }
-
                     if (data.action === 'SYNC_QUEUE') {
                         renderQueueUI(data.currentSong, data.queue);
-                        if (data.carHistory) {
-                            renderCarHistoryUI(data.carHistory);
-                        }
-                        if (data.isPracticeMode !== undefined) {
-                            updatePracticeModeUI(data.isPracticeMode);
-                        }
-                        if (data.offset !== undefined) updateRemoteOffsetDisplay(data.offset);
-                        if (data.fontSize !== undefined) updateRemoteFontDisplay(data.fontSize);
-                        
+                        if (Array.isArray(data.carHistory)) renderCarHistoryUI(data.carHistory);
+                        if (typeof data.isPracticeMode === 'boolean') updatePracticeModeUI(data.isPracticeMode);
+                        if (Number.isFinite(Number(data.offset))) updateRemoteOffsetDisplay(Number(data.offset));
+                        if (Number.isFinite(Number(data.fontSize))) updateRemoteFontDisplay(Number(data.fontSize));
                         const diarySongEl = document.getElementById('diary-current-song');
-                        if (diarySongEl) {
-                            diarySongEl.innerText = data.currentSong 
-                                ? `${data.currentSong.displayTitle || data.currentSong.title}` 
-                                : '包廂待播隊列中';
-                        }
-                    }
-
-                    if (data.action === 'SYNC_PRACTICE_MODE') {
-                        updatePracticeModeUI(data.isPracticeMode);
-                    }
-
-                    if (data.action === 'SHOW_SCORE_RESULT') {
-                        alert(`🎯 AI 練歌結算！\n歌曲：《${data.result.songTitle}》\n得分：${data.result.score} 分\n\nAI 點評：\n${data.result.feedback}`);
-                    }
-
-                    if (data.action === 'SYNC_OFFSET') {
-                        updateRemoteOffsetDisplay(data.offset);
-                    }
-
-                    if (data.action === 'SYNC_FONT_SIZE') {
-                        updateRemoteFontDisplay(data.fontSize);
-                    }
-
-                    if (data.action === 'SYNC_LYRICS') {
+                        if (diarySongEl) diarySongEl.textContent = data.currentSong
+                            ? sanitizePlainText(data.currentSong.displayTitle || data.currentSong.title, 120)
+                            : '包廂待播隊列中';
+                    } else if (data.action === 'SYNC_PRACTICE_MODE') {
+                        updatePracticeModeUI(data.isPracticeMode === true);
+                    } else if (data.action === 'SHOW_SCORE_RESULT') {
+                        const result = data.result || {};
+                        alert(`🎯 練歌結算！\n歌曲：《${sanitizePlainText(result.songTitle, 100)}》\n得分：${Math.max(0, Math.min(100, Number(result.score) || 0))} 分\n\n點評：\n${sanitizePlainText(result.feedback, 300)}`);
+                    } else if (data.action === 'SYNC_OFFSET') {
+                        if (Number.isFinite(Number(data.offset))) updateRemoteOffsetDisplay(Number(data.offset));
+                    } else if (data.action === 'SYNC_FONT_SIZE') {
+                        if (Number.isFinite(Number(data.fontSize))) updateRemoteFontDisplay(Number(data.fontSize));
+                    } else if (data.action === 'SYNC_LYRICS') {
                         renderMobileLyricsUI(data.lyrics);
                         updateMobileTwoLineLyrics(-1);
-                    }
-
-                    if (data.action === 'SYNC_ACTIVE_LYRIC_INDEX') {
-                        highlightMobileActiveLyric(data.index);
-                        updateMobileTwoLineLyrics(data.index);
-                    }
-
-                    if (data.action === 'SCREEN_THEME_CHANGED') {
-                        console.log("車機端風格已切換為：", data.theme);
+                    } else if (data.action === 'SYNC_ACTIVE_LYRIC_INDEX') {
+                        const index = Number(data.index);
+                        if (Number.isInteger(index)) {
+                            highlightMobileActiveLyric(index);
+                            updateMobileTwoLineLyrics(index);
+                        }
+                    } else if (data.action === 'SCREEN_THEME_CHANGED') {
+                        console.log('車機端風格已切換為：', data.theme);
                     }
                 });
 
-                connToScreen.on('close', () => {
-                    if (statusEl) {
-                        statusEl.innerHTML = `⚠️ 斷開連線 <a href="javascript:void(0)" onclick="initRemoteMode('${roomId}')" style="color:var(--theme-accent);text-decoration:underline;">[重新連線]</a>`;
-                    }
+                remoteConnection.on('close', () => {
+                    if (connToScreen === remoteConnection && !remoteAuthFailed && !suppressRemoteCloseReconnect) scheduleRemoteReconnect(roomId);
+                });
+                remoteConnection.on('error', (err) => {
+                    console.warn('手機端資料通道錯誤：', err);
+                    if (connToScreen === remoteConnection && !remoteAuthFailed && !suppressRemoteCloseReconnect) scheduleRemoteReconnect(roomId);
                 });
             });
 
-            peer.on('error', (err) => {
-                console.error("PeerJS 錯誤：", err);
-                clearTimeout(connectTimeoutTimer);
-                if (statusEl) {
-                    statusEl.innerHTML = `⚠️ 找不到包廂 <a href="javascript:void(0)" onclick="openChangeRoomModal()" style="color:var(--theme-highlight);text-decoration:underline;">[重輸房號/車牌]</a>`;
+            remotePeerInstance.on('disconnected', () => {
+                if (peer === remotePeerInstance && !remoteAuthFailed && !remotePeerInstance.destroyed) {
+                    try { remotePeerInstance.reconnect(); } catch (err) { scheduleRemoteReconnect(roomId); }
                 }
+            });
+            remotePeerInstance.on('error', (err) => {
+                if (peer !== remotePeerInstance) return;
+                console.error('PeerJS 錯誤：', err);
+                clearTimeout(connectTimeoutTimer);
+                if (!remoteAuthFailed) scheduleRemoteReconnect(roomId);
+                if (statusEl && !remoteAuthFailed) statusEl.textContent = '找不到包廂或網路不穩，正在嘗試重新連線…';
             });
         }
 
         function sendCmd(obj) {
             if (connToScreen && connToScreen.open) {
-                connToScreen.send(obj);
+                try { connToScreen.send(obj); }
+                catch (err) { console.warn('遠端指令傳送失敗：', err); }
             }
         }
 
@@ -4551,8 +4712,9 @@
         }
 
         function updateEcho(val) {
-            document.getElementById('lbl-echo').innerText = val;
-            sendCmd({ action: 'SET_ECHO', value: parseFloat(val) });
+            const amount = Math.max(0, Math.min(0.7, parseFloat(val) || 0));
+            document.getElementById('lbl-echo').innerText = amount.toFixed(2);
+            sendCmd({ action: 'SET_ECHO', value: amount });
         }
 
         function adjustLyricOffset(delta, isReset = false) {
@@ -4603,18 +4765,20 @@
 
             if (!origId) return alert("請填入原唱的 YouTube 網址或 11 碼 Video ID！");
 
-            const songTitle = rawTitle || '自訂點播曲目';
-            const displayTitle = rawTitle ? (rawArtist ? `${rawTitle} - ${rawArtist}` : rawTitle) : `自訂影片 (${origId})`;
+            const songTitle = sanitizePlainText(rawTitle || '自訂點播曲目', 100);
+            const artist = sanitizePlainText(rawArtist, 80);
+            const displayTitle = sanitizePlainText(rawTitle ? (artist ? `${songTitle} - ${artist}` : songTitle) : `自訂影片 (${origId})`, 140);
 
-            const songData = {
+            const songData = normalizeSongPayload({
                 title: songTitle,
-                artist: rawArtist,
-                origId: origId,
-                instId: instId,
-                displayTitle: displayTitle,
-                requestedBy: `${userProfile.nickname} (${userProfile.seat})`,
+                artist,
+                origId,
+                instId,
+                displayTitle,
+                requestedBy: `${sanitizePlainText(userProfile.nickname, 24)} (${sanitizePlainText(userProfile.seat, 12)})`,
                 userAvatar: userProfile.avatar
-            };
+            });
+            if (!songData) return alert('歌曲資訊格式不正確，請檢查 YouTube 影片網址或 ID。');
 
             recordSongToHistory(songData);
             queueSong(songData, isInsertNext);
@@ -4636,40 +4800,62 @@
         }
 
         function renderQueueUI(current, queue) {
-            document.getElementById('now-playing-title').innerText = current ? `${current.displayTitle || current.title}` : '無';
-            document.getElementById('queue-count').innerText = `${queue.length} 首`;
-
+            const nowPlaying = document.getElementById('now-playing-title');
+            const countEl = document.getElementById('queue-count');
             const listBox = document.getElementById('queue-list-box');
-            listBox.innerHTML = '';
+            if (nowPlaying) nowPlaying.textContent = current ? sanitizePlainText(current.displayTitle || current.title, 120) : '無';
+            if (!listBox) return;
+            const safeQueue = Array.isArray(queue) ? queue.slice(0, 100).map(item => normalizeSongPayload(item)).filter(Boolean) : [];
+            if (countEl) countEl.textContent = `${safeQueue.length} 首`;
+            listBox.replaceChildren();
 
-            if (queue.length === 0) {
-                listBox.innerHTML = '<div style="font-size: 13px; color: var(--theme-text-sub); text-align: center; padding: 10px;">目前尚無排隊歌曲</div>';
+            if (safeQueue.length === 0) {
+                const empty = document.createElement('div');
+                empty.textContent = '目前尚無排隊歌曲';
+                empty.style.cssText = 'font-size:13px;color:var(--theme-text-sub);text-align:center;padding:10px;';
+                listBox.appendChild(empty);
                 return;
             }
 
-            queue.forEach((item, idx) => {
-                const isFav = userFavorites.some(s => s.origId === item.origId);
+            safeQueue.forEach((item, idx) => {
                 const row = document.createElement('div');
-                row.style = "display: flex; align-items: center; justify-content: space-between; background: var(--theme-card-bg); border: 1px solid var(--theme-border); padding: 8px 12px; border-radius: var(--theme-radius); font-size: 13px;";
-                row.innerHTML = `
-                    <div style="flex: 1; overflow: hidden; margin-right: 8px; display: flex; align-items: center; gap: 6px;">
-                        <span style="color: var(--theme-accent); font-weight: bold;">#${idx + 1}</span>
-                        ${getAvatarHTML(item.userAvatar, 16)}
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.displayTitle || item.title}</span>
-                        <span style="display: inline-block; font-size: 10px; border: 1px solid var(--theme-border); padding: 1px 6px; border-radius: 4px; margin-left: 4px; white-space: nowrap;">
-                            ${item.requestedBy || '乘客'}
-                        </span>
-                    </div>
-                    <div style="display: flex; gap: 6px; align-items: center;">
-                        <button style="background: none; border: none; cursor: pointer; font-size: 14px;" onclick='toggleFavoriteSong(${JSON.stringify(item)})'>${isFav ? '❤️' : '🤍'}</button>
-                        <button style="background: none; border: 1px solid #ff4444; color: #ff4444; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer;" onclick="sendCmd({ action: 'REMOVE_FROM_QUEUE', index: ${idx} })">刪除</button>
-                    </div>
-                `;
+                row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:var(--theme-card-bg);border:1px solid var(--theme-border);padding:8px 12px;border-radius:var(--theme-radius);font-size:13px;gap:8px;';
+                const left = document.createElement('div');
+                left.style.cssText = 'flex:1;min-width:0;overflow:hidden;margin-right:8px;display:flex;align-items:center;gap:6px;';
+                const number = document.createElement('span');
+                number.textContent = `#${idx + 1}`;
+                number.style.cssText = 'color:var(--theme-accent);font-weight:bold;';
+                const avatar = document.createElement('span');
+                appendAvatarElement(avatar, item.userAvatar, 16);
+                const title = document.createElement('span');
+                title.textContent = sanitizePlainText(item.displayTitle || item.title, 120);
+                title.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                const requester = document.createElement('span');
+                requester.textContent = sanitizePlainText(item.requestedBy || '乘客', 45);
+                requester.style.cssText = 'font-size:10px;color:var(--theme-text-sub);white-space:nowrap;';
+                left.append(number, avatar, title, requester);
+
+                const actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;gap:6px;align-items:center;';
+                const favorite = document.createElement('button');
+                const isFav = userFavorites.some(song => song.origId === item.origId);
+                favorite.type = 'button';
+                favorite.textContent = isFav ? '❤️' : '🤍';
+                favorite.title = '加入或移除喜愛歌曲';
+                favorite.style.cssText = 'background:none;border:none;cursor:pointer;font-size:14px;';
+                favorite.addEventListener('click', () => toggleFavoriteSong(item));
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.textContent = '刪除';
+                remove.style.cssText = 'background:none;border:1px solid #ff4444;color:#ff4444;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;';
+                remove.addEventListener('click', () => sendCmd({ action: 'REMOVE_FROM_QUEUE', index: idx }));
+                actions.append(favorite, remove);
+                row.append(left, actions);
                 listBox.appendChild(row);
             });
         }
 
-        // ================= 23. YouTube Player 實例化 =================
+        // ================= 21. YouTube Player 實例化 =================
         function onYouTubeIframeAPIReady() {
             if (isRemote) return;
             
@@ -4690,11 +4876,14 @@
                     'onReady': (e) => {
                         isPlayerReady = true;
                         e.target.setVolume(80);
+                        if (currentSong && currentSong.origId) e.target.cueVideoById(currentSong.origId);
                     },
                     'onStateChange': (e) => {
-                        if (e.data === YT.PlayerState.ENDED) {
-                            playNextSong();
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            clearTimeout(playbackErrorTimer);
+                            isAdvancingSong = false;
                         }
+                        if (e.data === YT.PlayerState.ENDED) playNextSong();
                     },
                     'onError': onPlayerError
                 }
@@ -4702,83 +4891,108 @@
         }
 
         function onPlayerError(e) {
-            let errorText = "未知播放異常";
-            let canFallback = false;
+            const errorMessages = {
+                2: '無效的影片 ID',
+                5: 'HTML5 播放器錯誤',
+                100: '影片已被設為私人或已刪除',
+                101: '影片禁止外部嵌入播放',
+                150: '影片禁止外部嵌入播放',
+                153: '播放器缺少必要的來源資訊'
+            };
+            const errorText = errorMessages[e.data] || '未知播放異常';
+            const lyricEl = document.getElementById('lyric-top');
 
-            switch (e.data) {
-                case 2: errorText = "無效的影片 ID，請檢查網址"; break;
-                case 5: errorText = "HTML5 播放器錯誤，請重新整理"; break;
-                case 100: errorText = "影片已被設為私人或已刪除"; break;
-                case 101:
-                case 150:
-                case 153:
-                    errorText = "版權限制：唱片公司禁止外部網頁嵌入播放";
-                    canFallback = true;
-                    break;
+            clearTimeout(playbackErrorTimer);
+            if (!fallbackAttemptedForCurrentSong && !isInstrumental && currentSong && currentInstId && currentInstId !== currentOriginalId) {
+                fallbackAttemptedForCurrentSong = true;
+                isInstrumental = true;
+                const modeEl = document.getElementById('hud-mode');
+                if (modeEl) modeEl.innerText = '備用伴奏模式';
+                if (lyricEl) {
+                    lyricEl.textContent = `⚠️ ${errorText}，正在嘗試備用伴奏…`;
+                    lyricEl.className = 'ktv-line active';
+                }
+                try {
+                    ytPlayer.loadVideoById(currentInstId);
+                    playbackErrorTimer = window.setTimeout(() => {
+                        if (ytPlayer && isPlayerReady && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                            if (lyricEl) lyricEl.textContent = '⚠️ 備用伴奏無法播放，正在跳至下一首…';
+                            isAdvancingSong = false;
+                            playNextSong();
+                        }
+                    }, 8000);
+                    return;
+                } catch (err) {
+                    console.warn('載入備用伴奏失敗：', err);
+                }
             }
 
-            if (canFallback && currentInstId && currentInstId !== currentOriginalId) {
-                alert(`【版權提醒】原唱 MV 禁止外部嵌入播放，系統將自動為您切換至伴奏/備用版本！`);
-                currentOriginalId = currentInstId;
-                isInstrumental = true;
-                document.getElementById('hud-mode').innerText = "伴奏模式";
-                ytPlayer.loadVideoById(currentInstId);
+            if (lyricEl) {
+                lyricEl.textContent = `⚠️ 播放失敗：${errorText}（錯誤碼：${e.data}），準備跳至下一首…`;
+                lyricEl.className = 'ktv-line active';
+            }
+            playbackErrorTimer = window.setTimeout(() => {
+                isAdvancingSong = false;
+                playNextSong();
+            }, 1800);
+        }
+
+        // ================= 22. Web Audio API 車載麥克風迴音混音 =================
+        async function enableAudioMixer() {
+            if (micEnabled) {
+                disableAudioMixer();
+                return;
+            }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('目前瀏覽器不支援麥克風存取，請使用 HTTPS 的最新版 Chrome / Safari。');
                 return;
             }
 
-            const elTop = document.getElementById('lyric-top');
-            if (elTop) {
-                elTop.innerText = `⚠️ 播放失敗：${errorText} (錯誤碼: ${e.data})`;
-                elTop.className = 'ktv-line active';
-            }
-        }
-
-        // ================= 24. Web Audio API 車載麥克風迴音混音 =================
-        async function enableAudioMixer() {
             try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-                    latencyHint: 'interactive',
-                    sampleRate: 48000
-                });
-                if (audioCtx.state === 'suspended') {
-                    await audioCtx.resume();
-                }
-
+                ensureAudioContext();
+                if (audioCtx.state === 'suspended') await audioCtx.resume();
                 initAudioEQNodes();
 
-                const micStream = await navigator.mediaDevices.getUserMedia({
-                    audio: { 
-                        echoCancellation: false, 
-                        noiseSuppression: false, 
+                micStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
                         autoGainControl: false,
-                        channelCount: 1,
-                        sampleRate: 48000,
-                        latency: 0.01
+                        channelCount: { ideal: 1 }
                     }
                 });
 
-                const micSource = audioCtx.createMediaStreamSource(micStream);
-                micDelayNode = audioCtx.createDelay();
-                micDelayNode.delayTime.value = 0.18;
-
-                micFeedbackGain = audioCtx.createGain();
-                micFeedbackGain.gain.value = 0.3;
-
+                micSource = audioCtx.createMediaStreamSource(micStream);
                 micAnalyser = audioCtx.createAnalyser();
-                micAnalyser.fftSize = 512;
+                micAnalyser.fftSize = 1024;
                 micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
-
                 micSource.connect(micAnalyser);
                 micSource.connect(eqLowNode);
-                micDelayNode.connect(micFeedbackGain);
-                micFeedbackGain.connect(micDelayNode);
-                micDelayNode.connect(audioCtx.destination);
-
-                alert("車載麥克風混音與 EQ 等化器已成功啟動！");
+                micEnabled = true;
+                setEchoAmount(0.3);
+                updateMixerButtonUI(true);
+                alert('車載麥克風已啟動！可從手機調整 EQ 與 Echo；若出現嘯叫，請立即降低喇叭音量或停止麥克風。');
             } catch (err) {
-                alert("麥克風存取失敗：請確認已接上麥克風設備，且連線為 HTTPS。");
+                console.error('啟用麥克風失敗：', err);
+                disableAudioMixer();
+                const detail = err && err.name === 'NotAllowedError'
+                    ? '麥克風權限遭拒，請在瀏覽器網站設定中允許麥克風。'
+                    : err && err.name === 'NotFoundError'
+                        ? '找不到麥克風設備，請確認 USB／無線麥克風已連接。'
+                        : '請確認使用 HTTPS、安全的瀏覽器環境，且麥克風設備可正常使用。';
+                alert(`麥克風啟動失敗：${detail}`);
             }
         }
+
+        window.addEventListener('pagehide', () => {
+            clearTimeout(playbackErrorTimer);
+            clearTimeout(remoteReconnectTimer);
+            clearInterval(screenSyncTimer);
+            clearInterval(lyricSyncTimer);
+            disableAudioMixer();
+            if (connToScreen) { try { connToScreen.close(); } catch (_) {} }
+            if (peer) { try { peer.destroy(); } catch (_) {} }
+        });
     </script>
 </body>
 </html>
