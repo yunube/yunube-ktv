@@ -937,6 +937,86 @@
             .mobile-ktv-line { font-size: 18px; }
             .mobile-ktv-line.active { font-size: 24px; }
         }
+
+        /* ================= UX refresh: mobile controls and car mic monitor ================= */
+        .screen-mic-monitor .phase2-device-value {
+            display:block;
+            max-width:190px;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            color:var(--theme-text);
+            font-size:12px;
+            font-weight:750;
+            text-align:right;
+        }
+        .screen-mic-monitor .phase2-device-value.warn { color:#d97706; }
+        .mobile-performance-card { padding:14px; }
+        .practice-mode-btn {
+            width:100%;
+            min-height:56px;
+            padding:13px 14px;
+            border:1px solid var(--theme-highlight);
+            border-radius:var(--theme-radius);
+            background:linear-gradient(135deg, color-mix(in srgb, var(--theme-highlight) 18%, var(--theme-card-bg)), var(--theme-card-bg));
+            color:var(--theme-highlight);
+            font-size:16px;
+            font-weight:900;
+            letter-spacing:.35px;
+            box-shadow:0 4px 14px rgba(0,0,0,.12);
+        }
+        .practice-mode-btn:active { transform:scale(.985); }
+        .mobile-performance-grid .btn { min-height:46px; }
+        .mobile-wide-control { min-height:43px; }
+        .phase2-main-accordion { border-radius:var(--theme-radius); }
+        .phase2-main-accordion > summary { min-height:48px; }
+        .phase2-summary-hint { margin-left:auto; margin-right:7px; color:var(--theme-text-sub); font-size:10px; font-weight:500; letter-spacing:0; }
+        .phase2-accordion-body { gap:10px; }
+        .phase2-subaccordion {
+            padding:10px 11px;
+            border:1px solid var(--theme-border);
+            border-radius:calc(var(--theme-radius) - 2px);
+            background:var(--theme-card-bg);
+            box-shadow:none;
+        }
+        .phase2-subaccordion::before { display:none; }
+        .phase2-subaccordion > summary { min-height:30px; font-size:12px; }
+        .phase2-subaccordion .accordion-body { margin-top:10px; gap:9px; }
+        .phase2-subaccordion .phase2-card { padding:11px; box-shadow:none; }
+        .phase2-eq-presets { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin-bottom:11px; }
+        .phase2-eq-presets .btn { min-width:0; padding:8px 3px; font-size:10px; }
+        .phase2-quick-messages { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-top:9px; }
+        .phase2-quick-messages .btn { min-width:0; padding:8px 4px; font-size:10px; }
+        #accordion-danmaku-sfx .accordion-body > .phase2-card + .phase2-card { margin-top:0; }
+        @media (max-width:380px) {
+            .phase2-summary-hint { display:none; }
+            .practice-mode-btn { font-size:14px; min-height:52px; }
+            .phase2-preset-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
+
+        /* ================= Phase 2: concise audio / lyrics / backup UI ================= */
+        .phase2-card { background:var(--theme-panel); border:1px solid var(--theme-border); border-radius:var(--theme-radius); padding:14px; box-shadow:var(--theme-shadow); }
+        .phase2-card-title { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; font-size:13px; font-weight:800; color:var(--theme-accent); }
+        .phase2-muted { color:var(--theme-text-sub); font-size:11px; line-height:1.45; }
+        .phase2-preset-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+        .phase2-preset { min-height:54px; padding:8px 5px; border:1px solid var(--theme-border); border-radius:var(--theme-radius); background:var(--theme-card-bg); color:var(--theme-text); font-size:11px; font-weight:750; cursor:pointer; }
+        .phase2-preset.active { border-color:var(--theme-accent); background:var(--theme-accent); color:#fff; box-shadow:0 0 12px color-mix(in srgb, var(--theme-accent) 25%, transparent); }
+        .phase2-inline-actions { display:flex; gap:7px; align-items:center; }
+        .phase2-inline-actions > * { flex:1; min-width:0; }
+        .phase2-file-input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+        .phase2-status { display:flex; align-items:center; gap:6px; min-height:18px; color:var(--theme-text-sub); font-size:11px; }
+        .phase2-status::before { content:''; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:var(--theme-text-sub); }
+        .phase2-status.ok::before { background:#16a34a; }
+        .phase2-status.warn::before { background:#f59e0b; }
+        .phase2-meter { height:9px; overflow:hidden; border-radius:99px; background:var(--theme-input-bg); border:1px solid var(--theme-border); }
+        .phase2-meter-fill { width:0%; height:100%; border-radius:99px; background:linear-gradient(90deg,#16a34a,#a3e635,#f59e0b); transition:width .08s linear; }
+        .phase2-device-select { width:100%; padding:9px 10px; border:1px solid var(--theme-border); border-radius:var(--theme-radius); background:var(--theme-input-bg); color:var(--theme-text); font:inherit; font-size:12px; }
+        .phase2-setting-row { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:12px; color:var(--theme-text-sub); }
+        .phase2-setting-row strong { color:var(--theme-text); }
+        .phase2-library-tools { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0 12px; }
+        .phase2-helper { padding:9px 10px; border-radius:var(--theme-radius); background:var(--theme-card-bg); color:var(--theme-text-sub); font-size:10px; line-height:1.45; }
+        @media (max-width:360px) { .phase2-preset-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .phase2-library-tools { grid-template-columns:1fr; } }
+
     </style>
 </head>
 <body data-theme="cyberpunk">
@@ -1023,6 +1103,23 @@
                 <button class="btn btn-accent" id="mic-mixer-btn" style="width: 100%; padding: 11px; font-size: 13px;" onclick="enableAudioMixer()">
                     🎤 啟用車載麥克風混音
                 </button>
+                <div class="phase2-card screen-mic-monitor" style="padding:10px 12px; margin-top:2px;">
+                    <div class="phase2-card-title" style="margin-bottom:9px;">
+                        <span>🎚️ 麥克風監控</span>
+                        <span class="phase2-muted">車機端</span>
+                    </div>
+                    <div class="phase2-setting-row">
+                        <span>目前設備</span>
+                        <strong id="mic-device-status" class="phase2-device-value">尚未啟用</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 5px;">
+                        <span class="phase2-muted">即時收音音量</span>
+                        <strong id="mic-level-label" class="phase2-device-value">0%</strong>
+                    </div>
+                    <div class="phase2-meter"><div id="mic-level-meter" class="phase2-meter-fill"></div></div>
+                    <div class="phase2-setting-row" style="margin-top:10px;"><span>目前演唱者</span><strong id="mic-current-singer">尚未指定</strong></div>
+                    <div class="phase2-setting-row" style="margin-top:5px;"><span>套用音效</span><strong id="mic-current-preset">車主預設</strong></div>
+                </div>
             </div>
         </div>
 
@@ -1241,132 +1338,172 @@
                 </div>
             </div>
 
-            <!-- 2. 下拉選單：控台、車載音效、車載麥克風EQ、跑馬燈彈幕、罐頭音效 -->
-            <details class="cyber-accordion" id="accordion-controls-audio">
+            <!-- 2. 獨立演唱操控區：常用播放控制與醒目的 AI 練唱開關 -->
+            <section class="phase2-card mobile-performance-card" id="card-performance-controls">
+                <div class="phase2-card-title">
+                    <span>🎙️ 演唱操控與模式</span>
+                    <span class="phase2-muted">快速控制</span>
+                </div>
+                <button id="btn-toggle-practice" class="btn practice-mode-btn" type="button" onclick="togglePracticeMode()">
+                    🎯 AI 練唱評分：關閉
+                </button>
+                <div class="btn-grid mobile-performance-grid" style="margin-top:10px;">
+                    <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
+                    <button class="btn btn-accent" id="btn-toggle-vocal" onclick="toggleVocalTrack()">🎙 切換伴奏</button>
+                </div>
+                <button class="btn mobile-wide-control" style="width:100%;margin-top:8px;" onclick="sendCmd({ action: 'SKIP_SONG' })">⏭️ 切歌（跳至下一首）</button>
+                <button class="btn btn-accent mobile-wide-control" style="width:100%;margin-top:8px;" onclick="openMobileKaraokeModal()">📱 開啟後座沉浸跟唱視窗</button>
+            </section>
+
+            <!-- 3. 聲音設定：個人音效、麥克風 EQ、音樂音量與 Echo 集中管理 -->
+            <details class="cyber-accordion phase2-main-accordion" id="accordion-audio-settings">
                 <summary>
-                    <span>🎛️ 控台與音效 (操控 / 車載EQ / 彈幕 / 罐頭音效)</span>
+                    <span>🎚️ 聲音設定</span>
+                    <span class="phase2-summary-hint">個人音效・EQ・音量</span>
                     <span class="accordion-icon">▼</span>
                 </summary>
-                <div class="accordion-body">
-                    <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 11px; color: var(--theme-text-sub); font-weight: bold;">演唱操控與模式</span>
-                            <button id="btn-toggle-practice" class="btn" style="padding: 4px 10px; font-size: 11px; border: 1px solid var(--theme-highlight); color: var(--theme-highlight);" onclick="togglePracticeMode()">
-                                🎯 AI 練歌評分模式：關閉
-                            </button>
+                <div class="accordion-body phase2-accordion-body">
+                    <!-- 我的聲音設定 -->
+                    <details class="cyber-accordion phase2-subaccordion" open>
+                        <summary>
+                            <span>🎤 我的聲音設定</span>
+                            <span class="accordion-icon">▼</span>
+                        </summary>
+                        <div class="accordion-body">
+                            <div class="phase2-card" id="personal-audio-card">
+                                <div class="phase2-card-title">
+                                    <span>個人演唱音效</span>
+                                    <span id="personal-audio-status" class="phase2-status">尚未套用</span>
+                                </div>
+                                <div class="phase2-muted" style="margin-bottom:9px;">選擇你的演唱風格；實體麥克風仍由車機／筆電統一收音。</div>
+                                <div class="phase2-preset-grid" id="personal-audio-presets">
+                                    <button type="button" class="phase2-preset active" data-audio-preset="clear" onclick="selectPersonalAudioPreset('clear')">✨ 清澈人聲</button>
+                                    <button type="button" class="phase2-preset" data-audio-preset="concert" onclick="selectPersonalAudioPreset('concert')">🏟️ 演唱會</button>
+                                    <button type="button" class="phase2-preset" data-audio-preset="pop" onclick="selectPersonalAudioPreset('pop')">🎵 流行 KTV</button>
+                                    <button type="button" class="phase2-preset" data-audio-preset="rock" onclick="selectPersonalAudioPreset('rock')">🎸 搖滾厚聲</button>
+                                    <button type="button" class="phase2-preset" data-audio-preset="dry" onclick="selectPersonalAudioPreset('dry')">🎧 原音</button>
+                                    <button type="button" class="phase2-preset" data-audio-preset="custom" onclick="selectPersonalAudioPreset('custom')">🎚️ 自訂</button>
+                                </div>
+                                <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                    <div>
+                                        <div class="control-label"><span>Echo 迴音</span><strong id="personal-echo-label">16%</strong></div>
+                                        <input type="range" id="personal-echo-slider" min="0" max="55" step="1" value="16" oninput="updatePersonalAudioSetting('echo',this.value)">
+                                    </div>
+                                    <div>
+                                        <div class="control-label"><span>麥克風增益</span><strong id="personal-mic-gain-label">85%</strong></div>
+                                        <input type="range" id="personal-mic-gain-slider" min="45" max="115" step="1" value="85" oninput="updatePersonalAudioSetting('micGain',this.value)">
+                                    </div>
+                                </div>
+                                <div class="phase2-muted" style="margin-top:7px;">EQ 可在下方「麥克風音質等化器」微調；換人演唱時，請由該乘客套用自己的音效。</div>
+                                <div class="phase2-setting-row" style="margin-top:10px;">
+                                    <span>目前設定</span><strong id="personal-audio-summary">低音 -1 / 人聲 +2 / 高音 +1 · Echo 0.16</strong>
+                                </div>
+                                <div class="phase2-inline-actions" style="margin-top:10px;">
+                                    <button type="button" class="btn btn-accent" style="padding:10px 6px;font-size:12px;" onclick="applyPersonalAudioNow()">🎤 套用我的音效</button>
+                                    <button type="button" class="btn" style="padding:10px 6px;font-size:12px;" onclick="savePersonalAudioSettings()">💾 儲存偏好</button>
+                                </div>
+                            </div>
                         </div>
+                    </details>
+
+                    <!-- 麥克風音質等化器 -->
+                    <details class="cyber-accordion phase2-subaccordion">
+                        <summary>
+                            <span>🎚️ 麥克風音質等化器</span>
+                            <span class="accordion-icon">▼</span>
+                        </summary>
+                        <div class="accordion-body">
+                            <div class="phase2-card">
+                                <div class="phase2-card-title" style="margin-bottom:8px;">
+                                    <span>3-Band EQ 微調</span>
+                                    <span id="current-eq-preset-name" class="phase2-muted">原廠標準</span>
+                                </div>
+                                <div class="phase2-eq-presets">
+                                    <button type="button" class="btn" onclick="applyEqPreset('flat')">🎧 標準</button>
+                                    <button type="button" class="btn" onclick="applyEqPreset('bass')">🔊 重擊</button>
+                                    <button type="button" class="btn" onclick="applyEqPreset('vocal')">🎤 清脆</button>
+                                    <button type="button" class="btn" onclick="applyEqPreset('air')">✨ 穿透</button>
+                                </div>
+                                <div class="control-group">
+                                    <div class="control-label"><span>低音重擊（150Hz）</span><span id="lbl-eq-low">0 dB</span></div>
+                                    <input type="range" id="slider-eq-low" min="-9" max="9" step="1" value="0" oninput="onEqSliderChange()">
+                                </div>
+                                <div class="control-group">
+                                    <div class="control-label"><span>人聲清晰（1.8kHz）</span><span id="lbl-eq-mid">0 dB</span></div>
+                                    <input type="range" id="slider-eq-mid" min="-9" max="9" step="1" value="0" oninput="onEqSliderChange()">
+                                </div>
+                                <div class="control-group">
+                                    <div class="control-label"><span>高音穿透（7kHz）</span><span id="lbl-eq-high">0 dB</span></div>
+                                    <input type="range" id="slider-eq-high" min="-9" max="9" step="1" value="0" oninput="onEqSliderChange()">
+                                </div>
+                                <div class="phase2-muted" style="margin-top:7px;">調整後可回到「我的聲音設定」儲存個人偏好；實際音色會依麥克風與車載音響而不同。</div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- 車載音樂與迴音微調 -->
+                    <details class="cyber-accordion phase2-subaccordion">
+                        <summary>
+                            <span>🎵 車載音樂與迴音微調</span>
+                            <span class="accordion-icon">▼</span>
+                        </summary>
+                        <div class="accordion-body">
+                            <div class="phase2-card">
+                                <div class="control-group" style="margin-top:0;">
+                                    <div class="control-label"><span>音樂音量</span><strong id="lbl-vol">80%</strong></div>
+                                    <input type="range" min="0" max="100" value="80" oninput="updateVol(this.value)">
+                                </div>
+                                <div class="control-group" style="margin-top:12px;">
+                                    <div class="control-label"><span>麥克風迴音強度</span><strong id="lbl-echo">0.16</strong></div>
+                                    <input type="range" min="0" max="0.55" step="0.01" value="0.16" oninput="updateEcho(this.value)">
+                                </div>
+                                <div class="phase2-muted" style="margin-top:8px;">若出現嘯叫或回授，請立即降低迴音與音量，必要時停止麥克風。</div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </details>
+
+            <!-- 4. 跑馬燈彈幕與罐頭音效集中在同一個下拉選單 -->
+            <details class="cyber-accordion phase2-main-accordion" id="accordion-danmaku-sfx">
+                <summary>
+                    <span>💬 跑馬燈彈幕與罐頭音效</span>
+                    <span class="phase2-summary-hint">訊息・氣氛效果</span>
+                    <span class="accordion-icon">▼</span>
+                </summary>
+                <div class="accordion-body phase2-accordion-body">
+                    <div class="phase2-card">
+                        <div class="phase2-card-title" style="margin-bottom:8px;">
+                            <span>💬 車機即時跑馬燈彈幕</span>
+                            <button id="btn-mega-horn" type="button" class="btn" style="padding:5px 9px;font-size:10px;border:1px solid var(--theme-primary);color:var(--theme-text);" onclick="toggleMegaHorn()">📢 巨大廣播：關</button>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;" id="danmaku-color-selector">
+                            <span class="phase2-muted">彈幕色彩</span>
+                            <div class="danmaku-color-dot selected" style="--c:#00f0ff;" onclick="selectDanmakuColor(this,'#00f0ff')" title="電光青"></div>
+                            <div class="danmaku-color-dot" style="--c:#ff007f;" onclick="selectDanmakuColor(this,'#ff007f')" title="霓虹粉"></div>
+                            <div class="danmaku-color-dot" style="--c:#fcee0a;" onclick="selectDanmakuColor(this,'#fcee0a')" title="賽博金"></div>
+                            <div class="danmaku-color-dot" style="--c:#00ff66;" onclick="selectDanmakuColor(this,'#00ff66')" title="矩陣綠"></div>
+                            <div class="danmaku-color-dot" style="--c:#b026ff;" onclick="selectDanmakuColor(this,'#b026ff')" title="炫光紫"></div>
+                            <span id="selected-color-name" style="font-size:11px;color:var(--theme-accent);margin-left:2px;font-weight:bold;">電光青</span>
+                        </div>
+                        <div class="phase2-inline-actions">
+                            <input type="text" id="danmaku-input" placeholder="輸入彈幕文字…" style="margin-bottom:0;padding:10px 11px;font-size:12px;">
+                            <button class="btn btn-primary" style="padding:9px 12px;font-size:12px;white-space:nowrap;" onclick="submitDanmaku()">🚀 發送</button>
+                        </div>
+                        <div class="phase2-quick-messages">
+                            <button class="btn" onclick="quickDanmaku('🔥 歌神下凡起雞皮疙瘩！')">🔥 歌神下凡</button>
+                            <button class="btn" onclick="quickDanmaku('👏 全車大合唱太嗨了！')">👏 全車合唱</button>
+                            <button class="btn" onclick="quickDanmaku('😭 催淚神曲太好哭了')">😭 催淚神曲</button>
+                            <button class="btn" onclick="quickDanmaku('🚗 國道巡航最對味！')">🚗 國道巡航</button>
+                        </div>
+                    </div>
+                    <div class="phase2-card">
+                        <div class="phase2-card-title"><span>🎉 氣氛罐頭音效</span><span class="phase2-muted">車載音響播放</span></div>
                         <div class="btn-grid">
-                            <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
-                            <button class="btn btn-accent" id="btn-toggle-vocal" onclick="toggleVocalTrack()">🎙 切換伴奏</button>
-                        </div>
-                        <button class="btn" style="width: 100%; margin-top: 8px;" onclick="sendCmd({ action: 'SKIP_SONG' })">
-                            ⏭️ 切歌（跳至下一首）
-                        </button>
-                        <button class="btn btn-accent" style="width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="openMobileKaraokeModal()">
-                            <span>📱 開啟後座沉浸跟唱視窗</span>
-                        </button>
-                    </div>
-
-                    <!-- 車載麥克風三段式 EQ 等化器 (3-Band EQ) -->
-                    <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 11px; color: var(--theme-accent); font-weight: bold;">🎚️ 車載麥克風音質等化器 (3-Band EQ)</span>
-                            <span id="current-eq-preset-name" style="font-size: 10px; color: var(--theme-highlight); font-weight: bold;">原廠標準</span>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin-bottom: 10px;">
-                            <button type="button" class="btn" style="padding: 5px 2px; font-size: 10px;" onclick="applyEqPreset('flat')">🎧 標準</button>
-                            <button type="button" class="btn" style="padding: 5px 2px; font-size: 10px;" onclick="applyEqPreset('bass')">🔊 重擊</button>
-                            <button type="button" class="btn" style="padding: 5px 2px; font-size: 10px;" onclick="applyEqPreset('vocal')">🎤 清脆</button>
-                            <button type="button" class="btn" style="padding: 5px 2px; font-size: 10px;" onclick="applyEqPreset('air')">✨ 穿透</button>
-                        </div>
-
-                        <div class="control-group" style="margin-top: 4px;">
-                            <div class="control-label" style="font-size: 11px;">
-                                <span>低音重擊 (Bass 150Hz)</span>
-                                <span id="lbl-eq-low" style="color: var(--theme-accent);">0 dB</span>
-                            </div>
-                            <input type="range" id="slider-eq-low" min="-12" max="12" step="1" value="0" oninput="onEqSliderChange()">
-                        </div>
-
-                        <div class="control-group" style="margin-top: 6px;">
-                            <div class="control-label" style="font-size: 11px;">
-                                <span>人聲清脆 (Vocal 1.8kHz)</span>
-                                <span id="lbl-eq-mid" style="color: var(--theme-accent);">0 dB</span>
-                            </div>
-                            <input type="range" id="slider-eq-mid" min="-12" max="12" step="1" value="0" oninput="onEqSliderChange()">
-                        </div>
-
-                        <div class="control-group" style="margin-top: 6px;">
-                            <div class="control-label" style="font-size: 11px;">
-                                <span>高音穿透 (Treble 7.0kHz)</span>
-                                <span id="lbl-eq-high" style="color: var(--theme-accent);">0 dB</span>
-                            </div>
-                            <input type="range" id="slider-eq-high" min="-12" max="12" step="1" value="0" oninput="onEqSliderChange()">
-                        </div>
-                    </div>
-
-                    <!-- 車載音樂與迴音設定 -->
-                    <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
-                        <div style="font-size: 11px; color: var(--theme-text-sub); font-weight: bold; margin-bottom: 6px;">車載音樂與迴音微調</div>
-                        <div class="control-group">
-                            <div class="control-label">
-                                <span>音樂音量</span>
-                                <span id="lbl-vol">80%</span>
-                            </div>
-                            <input type="range" min="0" max="100" value="80" oninput="updateVol(this.value)">
-                        </div>
-                        <div class="control-group" style="margin-top: 10px;">
-                            <div class="control-label">
-                                <span>麥克風迴音強度 (Echo Feedback)</span>
-                                <span id="lbl-echo">0.3</span>
-                            </div>
-                            <input type="range" min="0" max="0.7" step="0.05" value="0.3" oninput="updateEcho(this.value)">
-                        </div>
-                    </div>
-
-                    <!-- 跑馬燈即時發送列 -->
-                    <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-size: 11px; color: var(--theme-primary); font-weight: bold;">💬 車機即時跑馬燈彈幕</span>
-                            <button id="btn-mega-horn" type="button" class="btn" style="padding: 3px 10px; font-size: 10px; border: 1px solid var(--theme-primary); color: var(--theme-text);" onclick="toggleMegaHorn()">
-                                📢 巨大廣播：關
-                            </button>
-                        </div>
-
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;" id="danmaku-color-selector">
-                            <span style="font-size: 11px; color: var(--theme-text-sub);">彈幕色彩：</span>
-                            <div class="danmaku-color-dot selected" style="--c: #00f0ff;" onclick="selectDanmakuColor(this, '#00f0ff')" title="電光青"></div>
-                            <div class="danmaku-color-dot" style="--c: #ff007f;" onclick="selectDanmakuColor(this, '#ff007f')" title="霓虹粉"></div>
-                            <div class="danmaku-color-dot" style="--c: #fcee0a;" onclick="selectDanmakuColor(this, '#fcee0a')" title="賽博金"></div>
-                            <div class="danmaku-color-dot" style="--c: #00ff66;" onclick="selectDanmakuColor(this, '#00ff66')" title="矩陣綠"></div>
-                            <div class="danmaku-color-dot" style="--c: #b026ff;" onclick="selectDanmakuColor(this, '#b026ff')" title="炫光紫"></div>
-                            <span id="selected-color-name" style="font-size: 11px; color: var(--theme-accent); margin-left: 4px; font-weight: bold;">電光青</span>
-                        </div>
-
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" id="danmaku-input" placeholder="輸入彈幕文字 (例: 歌神下凡太好聽了！)" style="margin-bottom: 0; padding: 8px 10px; font-size: 12px;">
-                            <button class="btn btn-primary" style="padding: 8px 14px; font-size: 12px; white-space: nowrap;" onclick="submitDanmaku()">
-                                🚀 發送
-                            </button>
-                        </div>
-
-                        <div style="display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 2px;">
-                            <button class="btn" style="padding: 3px 8px; font-size: 10px; white-space: nowrap;" onclick="quickDanmaku('🔥 歌神下凡起雞皮疙瘩！')">🔥 歌神下凡</button>
-                            <button class="btn" style="padding: 3px 8px; font-size: 10px; white-space: nowrap;" onclick="quickDanmaku('👏 全車大合唱太嗨了！')">👏 全車合唱</button>
-                            <button class="btn" style="padding: 3px 8px; font-size: 10px; white-space: nowrap;" onclick="quickDanmaku('😭 催淚神曲太好哭了')">😭 催淚神曲</button>
-                            <button class="btn" style="padding: 3px 8px; font-size: 10px; white-space: nowrap;" onclick="quickDanmaku('🚗 國道巡航最對味！')">🚗 國道巡航</button>
-                        </div>
-                    </div>
-
-                    <!-- 氣氛罐頭音效 -->
-                    <div style="border-top: 1px dashed var(--theme-border); padding-top: 10px;">
-                        <div style="font-size: 11px; color: var(--theme-text-sub); font-weight: bold; margin-bottom: 8px;">🎉 氣氛罐頭音效 (車載音響放送)</div>
-                        <div class="btn-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
-                            <button class="btn" style="padding: 10px;" onclick="triggerSfx('applause')">👏 熱烈鼓掌</button>
-                            <button class="btn" style="padding: 10px;" onclick="triggerSfx('cheer')">🎉 尖叫歡呼</button>
-                            <button class="btn" style="padding: 10px;" onclick="triggerSfx('airhorn')">🎺 派對氣笛</button>
-                            <button class="btn" style="padding: 10px;" onclick="triggerSfx('rimshot')">🥁 綜藝吐槽</button>
+                            <button class="btn" onclick="triggerSfx('applause')">👏 熱烈鼓掌</button>
+                            <button class="btn" onclick="triggerSfx('cheer')">🎉 尖叫歡呼</button>
+                            <button class="btn" onclick="triggerSfx('airhorn')">🎺 派對氣笛</button>
+                            <button class="btn" onclick="triggerSfx('rimshot')">🥁 綜藝吐槽</button>
                         </div>
                     </div>
                 </div>
@@ -1418,6 +1555,15 @@
                     <div id="mobile-lyrics-scroll-box" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; padding-right: 4px;">
                     </div>
                 </div>
+                <div style="border-top:1px dashed var(--theme-border);padding-top:10px;margin-top:10px;">
+                    <input class="phase2-file-input" type="file" id="lyric-file-input" accept=".lrc,.txt,text/plain" onchange="importLyricsFile(event)">
+                    <div class="phase2-inline-actions">
+                        <button type="button" class="btn" style="padding:9px 6px;font-size:11px;" onclick="document.getElementById('lyric-file-input').click()">📄 匯入 LRC 歌詞</button>
+                        <button type="button" class="btn btn-accent" style="padding:9px 6px;font-size:11px;" onclick="saveCurrentLyricOffset()">💾 保存本曲校準</button>
+                    </div>
+                    <div id="lyrics-source-status" class="phase2-status" style="margin-top:7px;">歌詞來源：自動搜尋</div>
+                    <div class="phase2-muted">支援 .lrc／純文字 LRC。匯入後會同步至車機，並優先套用於這首歌曲。</div>
+                </div>
             </div>
         </div>
 
@@ -1453,22 +1599,22 @@
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-primary); padding: 10px 12px; border-radius: 4px;">
                         <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 零延遲車載演唱體驗 🎤</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">建議將專用車載無線麥克風接收機插在筆電/車機 AUX 或 USB 孔，由車載喇叭零延遲直接擴音，手機則專注於點歌、彈幕與調音。</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">請將有線麥克風接至執行 yunube 大歌廳的筆電／車機麥克風輸入，或相容的 USB 音訊介面；手機遙控器只負責點歌、彈幕及音效設定。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-highlight); padding: 10px 12px; border-radius: 4px;">
                         <div style="font-weight: bold; color: var(--theme-highlight); margin-bottom: 2px;">3. 3-Band EQ 音質等化器 🎚️</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">演唱時隨時切換「標準、重擊、清脆、穿透」風格，或手動滑動低音/人聲/高音滑桿即時調節車載混音。</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">手機開啟「聲音設定」下拉選單，即可管理我的聲音設定、麥克風 EQ，以及車載音樂音量與迴音；車機面板則顯示目前設備、收音音量、演唱者及套用音效。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-magenta); padding: 10px 12px; border-radius: 4px;">
                         <div style="font-weight: bold; color: var(--cyber-magenta); margin-bottom: 2px;">4. 跑馬燈彈幕與巨大廣播 💬</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">選取 5 款霓虹發光色送出橫移彈幕；開啟「巨大廣播」文字放大 2 倍置中懸浮 3 秒（防洗版 15 秒冷卻）。</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">在「跑馬燈彈幕與罐頭音效」下拉選單中，可選擇彈幕色彩、發送快捷訊息、開啟巨大廣播，或播放鼓掌、歡呼及派對音效。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-green); padding: 10px 12px; border-radius: 4px;">
                         <div style="font-weight: bold; color: var(--cyber-green); margin-bottom: 2px;">5. AI 評分與專屬歌庫 🎯</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">開啟「AI 練歌評分」結算音準/節奏/情感客觀點評；點擊右側「🎼」隨時搜尋、單曲刪除 🗑️ 或清空 🧹 歌單。</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">「演唱操控與模式」提供播放、切換伴奏、切歌及醒目的 AI 練唱評分開關；點擊右側「🎼」可管理收藏與歷史歌單。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-accent); padding: 10px 12px; border-radius: 4px;">
@@ -1492,6 +1638,13 @@
                         <div style="font-size: 10px; color: var(--theme-text-sub); margin-top: 2px;">PERSONAL PLAYLIST // CLOUD SYNC</div>
                     </div>
                     <button style="background: none; border: 1px solid var(--theme-border); color: var(--theme-text); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeLibraryModal()">✕ 關閉</button>
+                </div>
+
+                <div class="phase2-helper">備份包含收藏、個人歷史、個人音效偏好、已匯入歌詞與本機保存的歌詞校準。此檔案不包含房間密碼或 Google 授權 Token。</div>
+                <div class="phase2-library-tools">
+                    <button type="button" class="btn btn-accent" style="padding:10px 7px;font-size:12px;" onclick="exportUserBackup()">⬇️ 匯出完整備份</button>
+                    <button type="button" class="btn" style="padding:10px 7px;font-size:12px;" onclick="document.getElementById('library-backup-input').click()">⬆️ 匯入備份</button>
+                    <input class="phase2-file-input" type="file" id="library-backup-input" accept=".json,application/json" onchange="importUserBackup(event)">
                 </div>
 
                 <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
@@ -1808,6 +1961,26 @@
         let travelDiaries = [];
         const DIARY_FILE_NAME = "yunube_travel_diary.json";
         let driveTokenClient = null;
+
+        // Phase 2 data stores. These are local to each device; room secrets/tokens are never exported.
+        const PERSONAL_AUDIO_KEY_PREFIX = 'yunube_personal_audio_v1_';
+        const GUEST_DEVICE_ID_KEY = 'yunube_guest_device_id_v1';
+        const CUSTOM_LYRICS_KEY = 'yunube_custom_lyrics_v1';
+        const LYRIC_OFFSETS_KEY = 'yunube_lyric_offsets_v1';
+        const LYRIC_STORE_KEY = 'yunube_screen_lyrics_v1';
+        const SCREEN_LYRIC_OFFSETS_KEY = 'yunube_screen_lyric_offsets_v1';
+        let personalAudioSettings = null;
+        let remoteCurrentSong = null;
+        let remoteCustomLyrics = {};
+        let remoteLyricOffsets = {};
+        let lyricFetchVersion = 0;
+        let lyricFetchController = null;
+        let currentLyricSource = 'none';
+        let micMeterFrame = null;
+        let selectedMicDeviceId = localStorage.getItem('yunube_mic_device_id_v1') || '';
+        let micDeviceChangeBound = false;
+        let currentSingerName = '尚未指定';
+        let lastAutoSyncedLyricsKey = '';
 
         let remoteLyricsList = [];
 
@@ -2182,6 +2355,16 @@
             document.getElementById('btn-confirm-login').innerText = '👤 以訪客身分進入包廂';
         }
 
+        function ensureUniqueGuestProfileId() {
+            if (userProfile.type === 'google') return;
+            let deviceId = localStorage.getItem(GUEST_DEVICE_ID_KEY);
+            if (!deviceId) {
+                deviceId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `guest-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+                localStorage.setItem(GUEST_DEVICE_ID_KEY, deviceId);
+            }
+            if (!userProfile.id || userProfile.id === 'guest_local') userProfile.id = `guest_${deviceId}`;
+        }
+
         function initProfileSetupUI() {
             const cached = localStorage.getItem('yunube_ktv_user_profile');
             if (cached) {
@@ -2203,6 +2386,7 @@
                 } catch (e) {}
             }
 
+            ensureUniqueGuestProfileId();
             document.getElementById('setup-room-code').value = targetRoom;
             document.getElementById('setup-room-pin').value = targetPin;
             renderAvatarGrid();
@@ -2299,6 +2483,7 @@
 
             window.history.replaceState(null, '', `${window.location.pathname}?role=remote&room=${encodeURIComponent(targetRoom)}`);
 
+            ensureUniqueGuestProfileId();
             userProfile.avatar = selectedAvatar;
             userProfile.nickname = nick;
             userProfile.seat = selectedSeat;
@@ -2306,12 +2491,14 @@
             localStorage.setItem('yunube_ktv_user_profile', JSON.stringify(userProfile));
 
             loadUserLibrary();
+            loadPersonalAudioSettings();
 
             document.getElementById('profile-badge-avatar').innerHTML = getAvatarHTML(userProfile.avatar, 28);
             document.getElementById('profile-badge-name').innerText = `${userProfile.nickname} (${userProfile.seat})`;
             
             document.getElementById('profile-setup-screen').classList.add('hidden');
             document.getElementById('remote-dashboard').classList.remove('hidden');
+            if (!personalAudioSettings) loadPersonalAudioSettings();
 
             document.getElementById('diary-fab-btn').classList.remove('hidden');
             document.getElementById('library-fab-btn').classList.remove('hidden');
@@ -2492,52 +2679,188 @@
         }
 
         // ================= 9. 車載音響 3-Band EQ 控台 =================
-        const EQ_PRESETS = {
-            flat:  { name: '原廠標準', low: 0,  mid: 0,  high: 0 },
-            bass:  { name: '低音重擊', low: 8,  mid: 0,  high: -2 },
-            vocal: { name: '人聲清脆', low: -3, mid: 6,  high: 3 },
-            air:   { name: '高音穿透', low: -4, mid: 2,  high: 8 }
+        const AUDIO_PROFILE_PRESETS = {
+            clear:   { name: '清澈人聲', low: -1, mid: 2, high: 1, echo: 0.16, micGain: 0.85 },
+            concert: { name: '演唱會', low: 0, mid: 1, high: 2, echo: 0.34, micGain: 0.85 },
+            pop:     { name: '流行 KTV', low: -1, mid: 3, high: 1, echo: 0.23, micGain: 0.88 },
+            rock:    { name: '搖滾厚聲', low: 3, mid: 1, high: 0, echo: 0.16, micGain: 0.84 },
+            dry:     { name: '原音', low: 0, mid: 0, high: 0, echo: 0, micGain: 0.85 },
+            custom:  { name: '自訂', low: 0, mid: 0, high: 0, echo: 0.2, micGain: 0.85 }
         };
+        const DEFAULT_PERSONAL_AUDIO = { preset: 'clear', eq: { low: -1, mid: 2, high: 1 }, echo: 0.16, micGain: 0.85 };
+
+        function clampNumber(value, min, max, fallback) {
+            const n = Number(value);
+            return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+        }
+
+        function normalizePersonalAudioSettings(raw) {
+            const safe = raw && typeof raw === 'object' ? raw : {};
+            const eq = safe.eq && typeof safe.eq === 'object' ? safe.eq : {};
+            const preset = Object.prototype.hasOwnProperty.call(AUDIO_PROFILE_PRESETS, safe.preset) ? safe.preset : 'custom';
+            return {
+                preset,
+                eq: {
+                    low: clampNumber(eq.low, -9, 9, DEFAULT_PERSONAL_AUDIO.eq.low),
+                    mid: clampNumber(eq.mid, -9, 9, DEFAULT_PERSONAL_AUDIO.eq.mid),
+                    high: clampNumber(eq.high, -9, 9, DEFAULT_PERSONAL_AUDIO.eq.high)
+                },
+                echo: clampNumber(safe.echo, 0, 0.55, DEFAULT_PERSONAL_AUDIO.echo),
+                micGain: clampNumber(safe.micGain, 0.45, 1.15, DEFAULT_PERSONAL_AUDIO.micGain)
+            };
+        }
+
+        function personalAudioStorageKey() {
+            return `${PERSONAL_AUDIO_KEY_PREFIX}${sanitizePlainText(userProfile.id || 'guest', 120)}`;
+        }
+
+        function loadPersonalAudioSettings() {
+            try {
+                personalAudioSettings = normalizePersonalAudioSettings(JSON.parse(localStorage.getItem(personalAudioStorageKey()) || 'null'));
+            } catch (_) {
+                personalAudioSettings = normalizePersonalAudioSettings(DEFAULT_PERSONAL_AUDIO);
+            }
+            updatePersonalAudioUI();
+        }
+
+        function updatePersonalAudioUI() {
+            if (!personalAudioSettings) personalAudioSettings = normalizePersonalAudioSettings(DEFAULT_PERSONAL_AUDIO);
+            const low = personalAudioSettings.eq.low;
+            const mid = personalAudioSettings.eq.mid;
+            const high = personalAudioSettings.eq.high;
+            const summary = document.getElementById('personal-audio-summary');
+            if (summary) summary.textContent = `低音 ${low > 0 ? '+' : ''}${low} / 人聲 ${mid > 0 ? '+' : ''}${mid} / 高音 ${high > 0 ? '+' : ''}${high} · Echo ${personalAudioSettings.echo.toFixed(2)}`;
+            document.querySelectorAll('[data-audio-preset]').forEach(btn => btn.classList.toggle('active', btn.dataset.audioPreset === personalAudioSettings.preset));
+            const lowSlider = document.getElementById('slider-eq-low');
+            const midSlider = document.getElementById('slider-eq-mid');
+            const highSlider = document.getElementById('slider-eq-high');
+            if (lowSlider) lowSlider.value = low;
+            if (midSlider) midSlider.value = mid;
+            if (highSlider) highSlider.value = high;
+            if (document.getElementById('lbl-eq-low')) updateEqLabels(low, mid, high);
+            const echoSlider = document.getElementById('personal-echo-slider');
+            const gainSlider = document.getElementById('personal-mic-gain-slider');
+            if (echoSlider) echoSlider.value = Math.round(personalAudioSettings.echo * 100);
+            if (gainSlider) gainSlider.value = Math.round(personalAudioSettings.micGain * 100);
+            const echoLabel = document.getElementById('personal-echo-label');
+            const gainLabel = document.getElementById('personal-mic-gain-label');
+            if (echoLabel) echoLabel.textContent = `${Math.round(personalAudioSettings.echo * 100)}%`;
+            if (gainLabel) gainLabel.textContent = `${Math.round(personalAudioSettings.micGain * 100)}%`;
+            const oldEcho = document.getElementById('lbl-echo');
+            if (oldEcho) oldEcho.textContent = personalAudioSettings.echo.toFixed(2);
+        }
+
+        function selectPersonalAudioPreset(presetKey) {
+            if (presetKey === 'custom') {
+                if (!personalAudioSettings) loadPersonalAudioSettings();
+                personalAudioSettings.preset = 'custom';
+                updatePersonalAudioUI();
+                const status = document.getElementById('personal-audio-status');
+                if (status) { status.className = 'phase2-status'; status.textContent = '保留目前自訂參數'; }
+                return;
+            }
+            const preset = AUDIO_PROFILE_PRESETS[presetKey];
+            if (!preset) return;
+            personalAudioSettings = normalizePersonalAudioSettings({
+                preset: presetKey,
+                eq: { low: preset.low, mid: preset.mid, high: preset.high },
+                echo: preset.echo,
+                micGain: preset.micGain
+            });
+            updatePersonalAudioUI();
+            const status = document.getElementById('personal-audio-status');
+            if (status) { status.className = 'phase2-status'; status.textContent = '預設已選，尚未套用'; }
+        }
+
+        function savePersonalAudioSettings() {
+            if (!personalAudioSettings) personalAudioSettings = normalizePersonalAudioSettings(DEFAULT_PERSONAL_AUDIO);
+            try {
+                localStorage.setItem(personalAudioStorageKey(), JSON.stringify(normalizePersonalAudioSettings(personalAudioSettings)));
+                const status = document.getElementById('personal-audio-status');
+                if (status) { status.className = 'phase2-status ok'; status.textContent = '已儲存個人偏好'; }
+                updatePersonalAudioUI();
+                return true;
+            } catch (err) {
+                alert('無法儲存個人音效設定，請檢查瀏覽器儲存空間。');
+                return false;
+            }
+        }
+
+        function applyPersonalAudioNow() {
+            if (!personalAudioSettings) loadPersonalAudioSettings();
+            if (!connToScreen || !connToScreen.open) {
+                const status = document.getElementById('personal-audio-status');
+                if (status) { status.className = 'phase2-status warn'; status.textContent = '尚未連線車機'; }
+                alert('請先連線並通過包廂驗證，再套用個人音效。');
+                return;
+            }
+            const payload = normalizePersonalAudioSettings(personalAudioSettings);
+            sendCmd({ action: 'APPLY_AUDIO_PROFILE', settings: payload, singerName: `${userProfile.nickname || '乘客'} (${userProfile.seat || '車內'})` });
+            const status = document.getElementById('personal-audio-status');
+            if (status) { status.className = 'phase2-status'; status.textContent = '正在套用至車機…'; }
+            updatePersonalAudioUI();
+        }
+
+        function updatePersonalAudioSetting(field, value) {
+            if (!personalAudioSettings) loadPersonalAudioSettings();
+            if (field === 'echo') personalAudioSettings.echo = clampNumber(Number(value) / 100, 0, 0.55, 0.16);
+            if (field === 'micGain') personalAudioSettings.micGain = clampNumber(Number(value) / 100, 0.45, 1.15, 0.85);
+            personalAudioSettings.preset = 'custom';
+            updatePersonalAudioUI();
+            const status = document.getElementById('personal-audio-status');
+            if (status) { status.className = 'phase2-status'; status.textContent = '自訂調整 · 尚未儲存'; }
+        }
 
         function applyEqPreset(presetKey) {
-            const preset = EQ_PRESETS[presetKey];
-            if (!preset) return;
-
-            document.getElementById('slider-eq-low').value = preset.low;
-            document.getElementById('slider-eq-mid').value = preset.mid;
-            document.getElementById('slider-eq-high').value = preset.high;
-
-            document.getElementById('current-eq-preset-name').innerText = preset.name;
-            updateEqLabels(preset.low, preset.mid, preset.high);
-
-            sendCmd({
-                action: 'SET_EQ',
-                low: preset.low,
-                mid: preset.mid,
-                high: preset.high
-            });
+            const map = { flat: 'dry', bass: 'rock', vocal: 'clear', air: 'concert' };
+            selectPersonalAudioPreset(map[presetKey] || presetKey);
+            applyPersonalAudioNow();
         }
 
         function onEqSliderChange() {
-            const low = parseInt(document.getElementById('slider-eq-low').value);
-            const mid = parseInt(document.getElementById('slider-eq-mid').value);
-            const high = parseInt(document.getElementById('slider-eq-high').value);
-
-            document.getElementById('current-eq-preset-name').innerText = '自訂調整';
-            updateEqLabels(low, mid, high);
-
-            sendCmd({
-                action: 'SET_EQ',
-                low: low,
-                mid: mid,
-                high: high
-            });
+            if (!personalAudioSettings) loadPersonalAudioSettings();
+            const low = clampNumber(document.getElementById('slider-eq-low').value, -9, 9, 0);
+            const mid = clampNumber(document.getElementById('slider-eq-mid').value, -9, 9, 0);
+            const high = clampNumber(document.getElementById('slider-eq-high').value, -9, 9, 0);
+            personalAudioSettings.eq = { low, mid, high };
+            personalAudioSettings.preset = 'custom';
+            updatePersonalAudioUI();
+            const status = document.getElementById('personal-audio-status');
+            if (status) { status.className = 'phase2-status'; status.textContent = 'EQ 已調整 · 按「套用」生效'; }
         }
 
         function updateEqLabels(low, mid, high) {
-            document.getElementById('lbl-eq-low').innerText = `${low > 0 ? '+' : ''}${low} dB`;
-            document.getElementById('lbl-eq-mid').innerText = `${mid > 0 ? '+' : ''}${mid} dB`;
-            document.getElementById('lbl-eq-high').innerText = `${high > 0 ? '+' : ''}${high} dB`;
+            const lowEl = document.getElementById('lbl-eq-low');
+            const midEl = document.getElementById('lbl-eq-mid');
+            const highEl = document.getElementById('lbl-eq-high');
+            if (lowEl) lowEl.innerText = `${low > 0 ? '+' : ''}${low} dB`;
+            if (midEl) midEl.innerText = `${mid > 0 ? '+' : ''}${mid} dB`;
+            if (highEl) highEl.innerText = `${high > 0 ? '+' : ''}${high} dB`;
+        }
+
+        function applyHostDefaultAudioProfile() {
+            const defaults = normalizePersonalAudioSettings(DEFAULT_PERSONAL_AUDIO);
+            applyAudioProfileOnHost(defaults, '車主預設');
+        }
+
+        function applyAudioProfileOnHost(rawSettings, singerName) {
+            const settings = normalizePersonalAudioSettings(rawSettings);
+            initAudioEQNodes();
+            const now = audioCtx.currentTime;
+            eqLowNode.gain.setTargetAtTime(settings.eq.low, now, 0.05);
+            eqMidNode.gain.setTargetAtTime(settings.eq.mid, now, 0.05);
+            eqHighNode.gain.setTargetAtTime(settings.eq.high, now, 0.05);
+            if (micOutputGain) micOutputGain.gain.setTargetAtTime(settings.micGain, now, 0.05);
+            setEchoAmount(settings.echo);
+            currentSingerName = sanitizePlainText(singerName || '乘客', 50);
+            const singerEl = document.getElementById('mic-current-singer');
+            if (singerEl) singerEl.textContent = currentSingerName;
+            const presetEl = document.getElementById('mic-current-preset');
+            if (presetEl) presetEl.textContent = AUDIO_PROFILE_PRESETS[settings.preset]?.name || '自訂音效';
+            const low = document.getElementById('lbl-eq-low');
+            const mid = document.getElementById('lbl-eq-mid');
+            const high = document.getElementById('lbl-eq-high');
+            if (low && mid && high) updateEqLabels(settings.eq.low, settings.eq.mid, settings.eq.high);
         }
 
         function ensureAudioContext() {
@@ -2636,8 +2959,15 @@
             micAnalyser = null;
             micDataArray = null;
             micEnabled = false;
+            if (micMeterFrame) cancelAnimationFrame(micMeterFrame);
+            micMeterFrame = null;
+            const meter = document.getElementById('mic-level-meter');
+            const label = document.getElementById('mic-level-label');
+            if (meter) meter.style.width = '0%';
+            if (label) label.textContent = '0%';
             if (audioCtx && micEchoSendGain) micEchoSendGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
             updateMixerButtonUI(false);
+            setMicDeviceStatus('尚未啟用');
             const status = document.getElementById('remote-status');
             if (status && Object.keys(roomMembers).length === 0) status.innerText = '等待連線 ⏳';
         }
@@ -2655,7 +2985,7 @@
             const hudTag = document.getElementById('hud-practice-tag');
 
             if (btn) {
-                btn.innerText = isPracticeMode ? '🎯 AI 練歌評分模式：開啟' : '🎯 AI 練歌評分模式：關閉';
+                btn.innerText = isPracticeMode ? '🎯 AI 練唱評分：已開啟' : '🎯 AI 練唱評分：關閉';
                 btn.style.color = isPracticeMode ? 'var(--cyber-green)' : 'var(--theme-highlight)';
                 btn.style.borderColor = isPracticeMode ? 'var(--cyber-green)' : 'var(--theme-highlight)';
             }
@@ -2833,6 +3163,114 @@
             document.getElementById('library-modal').classList.add('hidden');
         }
 
+        function buildUserBackupObject() {
+            if (!personalAudioSettings) loadPersonalAudioSettings();
+            return {
+                format: 'yunube-ktv-backup',
+                schemaVersion: 1,
+                exportedAt: new Date().toISOString(),
+                data: {
+                    favorites: userFavorites.slice(0, 300),
+                    history: userHistory.slice(0, 300),
+                    personalAudio: normalizePersonalAudioSettings(personalAudioSettings),
+                    customLyrics: readJSONStore(CUSTOM_LYRICS_KEY, {}),
+                    lyricOffsets: readJSONStore(LYRIC_OFFSETS_KEY, {})
+                }
+            };
+        }
+
+        function exportUserBackup() {
+            try {
+                const content = JSON.stringify(buildUserBackupObject(), null, 2);
+                const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `yunube-ktv-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+            } catch (err) {
+                console.error('歌庫備份匯出失敗：', err);
+                alert('備份匯出失敗，請稍後再試。');
+            }
+        }
+
+        function mergeSongsByVideoId(existing, incoming) {
+            const map = new Map();
+            [...(Array.isArray(existing) ? existing : []), ...(Array.isArray(incoming) ? incoming : [])].forEach(song => {
+                const normalized = normalizeSongPayload(song);
+                if (normalized) map.set(normalized.origId, normalized);
+            });
+            return Array.from(map.values()).slice(-300).reverse();
+        }
+
+        async function importUserBackup(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) return alert('備份檔超過 5MB，請確認選擇的是 yunube JSON 備份。');
+            try {
+                const backup = JSON.parse(await file.text());
+                if (!backup || backup.format !== 'yunube-ktv-backup' || Number(backup.schemaVersion) !== 1 || !backup.data) {
+                    throw new Error('不支援的備份格式或版本。');
+                }
+                const incoming = backup.data;
+                const replace = confirm('匯入方式：\n\n按「確定」：以備份內容取代目前收藏與歷史。\n按「取消」：合併資料，保留既有歌曲。');
+                const favs = Array.isArray(incoming.favorites) ? incoming.favorites.map(normalizeSongPayload).filter(Boolean).slice(0, 300) : [];
+                const history = Array.isArray(incoming.history) ? incoming.history.map(normalizeSongPayload).filter(Boolean).slice(0, 300) : [];
+                userFavorites = replace ? mergeSongsByVideoId([], favs) : mergeSongsByVideoId(userFavorites, favs);
+                userHistory = replace ? mergeSongsByVideoId([], history) : mergeSongsByVideoId(userHistory, history);
+                saveUserLibrary();
+
+                if (incoming.personalAudio && typeof incoming.personalAudio === 'object' && (replace || !localStorage.getItem(personalAudioStorageKey()))) {
+                    personalAudioSettings = normalizePersonalAudioSettings(incoming.personalAudio);
+                    savePersonalAudioSettings();
+                }
+                const lyricIncoming = incoming.customLyrics && typeof incoming.customLyrics === 'object' ? incoming.customLyrics : {};
+                const lyricsBase = replace ? {} : readJSONStore(CUSTOM_LYRICS_KEY, {});
+                Object.keys(lyricIncoming).slice(0, 300).forEach(key => {
+                    const entry = lyricIncoming[key];
+                    const lines = normalizeLyricsList(entry && entry.lines);
+                    const safeKey = sanitizePlainText(key, 80);
+                    if (lines.length && /^yt_[A-Za-z0-9_-]{11}$/.test(safeKey)) lyricsBase[safeKey] = {
+                        title: sanitizePlainText(entry.title || '', 100),
+                        artist: sanitizePlainText(entry.artist || '', 80),
+                        lines,
+                        rawText: typeof entry.rawText === 'string' ? entry.rawText.slice(0, 250000) : '',
+                        updatedAt: sanitizePlainText(entry.updatedAt || '', 40)
+                    };
+                });
+                if (!writeJSONStore(CUSTOM_LYRICS_KEY, lyricsBase)) throw new Error('歌詞資料無法寫入儲存空間。');
+                remoteCustomLyrics = lyricsBase;
+
+                const offsetIncoming = incoming.lyricOffsets && typeof incoming.lyricOffsets === 'object' ? incoming.lyricOffsets : {};
+                const offsetBase = replace ? {} : readJSONStore(LYRIC_OFFSETS_KEY, {});
+                Object.keys(offsetIncoming).slice(0, 300).forEach(key => {
+                    const safeKey = sanitizePlainText(key, 80);
+                    const n = Number(offsetIncoming[key]);
+                    if (/^yt_[A-Za-z0-9_-]{11}$/.test(safeKey) && Number.isFinite(n)) offsetBase[safeKey] = clampNumber(n, -10, 10, 0);
+                });
+                if (!writeJSONStore(LYRIC_OFFSETS_KEY, offsetBase)) throw new Error('歌詞校準資料無法寫入儲存空間。');
+                remoteLyricOffsets = offsetBase;
+                renderLibraryUI();
+                alert(`備份匯入完成！\n收藏 ${userFavorites.length} 首、歷史 ${userHistory.length} 首、已保存 ${Object.keys(lyricsBase).length} 組自訂歌詞。`);
+                if (remoteCurrentSong) {
+                    syncLocalCustomLyricsToHost(remoteCurrentSong);
+                    const activeKey = getSongStorageKey(remoteCurrentSong);
+                    if (activeKey && Object.prototype.hasOwnProperty.call(offsetBase, activeKey)) {
+                        sendCmd({ action: 'SET_EXACT_OFFSET', value: offsetBase[activeKey] });
+                    } else if (activeKey && replace) {
+                        sendCmd({ action: 'SET_EXACT_OFFSET', value: 0 });
+                    }
+                }
+            } catch (err) {
+                console.error('歌庫備份匯入失敗：', err);
+                alert(`備份匯入失敗：${sanitizePlainText(err.message || '檔案格式錯誤', 180)}`);
+            }
+        }
+
         function openDiaryModal() {
             document.getElementById('diary-modal').classList.remove('hidden');
         }
@@ -2856,6 +3294,8 @@
             };
             userFavorites = readSongs(favKey);
             userHistory = readSongs(histKey);
+            remoteCustomLyrics = readJSONStore(CUSTOM_LYRICS_KEY, {});
+            remoteLyricOffsets = readJSONStore(LYRIC_OFFSETS_KEY, {});
             renderLibraryUI();
         }
 
@@ -3985,10 +4425,12 @@
                 offset: lyricOffset,
                 fontSize: activeFontSize,
                 isPracticeMode,
-                screenTheme: currentScreenTheme
+                screenTheme: currentScreenTheme,
+                currentSongKey: getSongStorageKey(currentSong),
+                lyricSource: currentLyricSource
             });
             if (parsedLyrics && parsedLyrics.length > 0) {
-                client.send({ action: 'SYNC_LYRICS', lyrics: parsedLyrics });
+                client.send({ action: 'SYNC_LYRICS', lyrics: parsedLyrics, source: currentLyricSource, songKey: getSongStorageKey(currentSong) });
             }
         }
 
@@ -3999,6 +4441,13 @@
             authenticatedPeers.clear();
             updateConnectedCountUI();
             restoreScreenState();
+            if (currentSong) {
+                const offsetMap = readJSONStore(SCREEN_LYRIC_OFFSETS_KEY, {});
+                const offsetKey = getSongStorageKey(currentSong);
+                if (offsetKey && Object.prototype.hasOwnProperty.call(offsetMap, offsetKey)) {
+                    lyricOffset = clampNumber(offsetMap[offsetKey], -10, 10, 0);
+                }
+            }
             const savedCustomId = localStorage.getItem(SAVED_SCREEN_ROOM_KEY);
             const roomId = forcedId || savedCustomId || Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -4141,7 +4590,9 @@
                 carHistory: carHistory,
                 offset: lyricOffset,
                 fontSize: activeFontSize,
-                isPracticeMode: isPracticeMode
+                isPracticeMode: isPracticeMode,
+                currentSongKey: getSongStorageKey(currentSong),
+                lyricSource: currentLyricSource
             });
         }
 
@@ -4169,9 +4620,11 @@
                 const sign = lyricOffset > 0 ? '+' : '';
                 el.innerText = `${sign}${lyricOffset.toFixed(1)}s`;
             }
+            if (currentSong) persistCurrentSongLyricOffset();
             broadcastToAllRemotes({
                 action: 'SYNC_OFFSET',
-                offset: lyricOffset
+                offset: lyricOffset,
+                songKey: getSongStorageKey(currentSong)
             });
         }
 
@@ -4192,8 +4645,6 @@
             window.setTimeout(() => { isAdvancingSong = false; }, 900);
             clearTimeout(playbackErrorTimer);
             fallbackAttemptedForCurrentSong = false;
-            lyricOffset = 0.0;
-            updateOffsetUI();
 
             if (isPracticeMode && currentSong) {
                 generateAiEvaluation(currentSong);
@@ -4210,7 +4661,10 @@
             }
 
             if (songQueue.length > 0) {
+                if (lyricFetchController) { try { lyricFetchController.abort(); } catch (_) {} }
                 currentSong = songQueue.shift();
+                lyricOffset = getStoredLyricOffset(currentSong);
+                updateOffsetUI();
                 currentOriginalId = currentSong.origId;
                 currentInstId = currentSong.instId || currentSong.origId;
                 isInstrumental = false;
@@ -4224,7 +4678,12 @@
                     fetchSyncedLyrics(currentSong.title, currentSong.artist);
                 }
             } else {
+                if (lyricFetchController) { try { lyricFetchController.abort(); } catch (_) {} }
                 currentSong = null;
+                lyricOffset = 0;
+                updateOffsetUI();
+                parsedLyrics = [];
+                currentLyricSource = 'none';
                 const elTop = document.getElementById('lyric-top');
                 const elBottom = document.getElementById('lyric-bottom');
                 if (elTop && elBottom) {
@@ -4352,6 +4811,44 @@
                     }
                     return;
                 }
+                case 'APPLY_AUDIO_PROFILE': {
+                    applyAudioProfileOnHost(cmd.settings, roomMembers[peerId]?.nickname ? `${roomMembers[peerId].nickname} (${roomMembers[peerId].seat || '車內'})` : cmd.singerName);
+                    if (clientConn.open) clientConn.send({ action: 'AUDIO_PROFILE_APPLIED', preset: sanitizePlainText(cmd.settings?.preset || 'custom', 20) });
+                    return;
+                }
+                case 'UPLOAD_LYRICS': {
+                    const expectedKey = getSongStorageKey(currentSong);
+                    const incomingKey = sanitizePlainText(cmd.songKey || '', 80);
+                    const lines = normalizeLyricsList(cmd.lines);
+                    if (!currentSong || !expectedKey || incomingKey !== expectedKey || !lines.length) {
+                        if (clientConn.open) clientConn.send({ action: 'LYRIC_UPLOAD_RESULT', ok: false, message: '目前歌曲已變更，或歌詞格式無效。請重新選擇目前歌曲後匯入。' });
+                        return;
+                    }
+                    const store = readJSONStore(LYRIC_STORE_KEY, {});
+                    store[expectedKey] = {
+                        title: sanitizePlainText(currentSong.title || '', 100),
+                        artist: sanitizePlainText(currentSong.artist || '', 80),
+                        lines,
+                        rawText: typeof cmd.rawText === 'string' ? cmd.rawText.slice(0, 250000) : '',
+                        updatedAt: new Date().toISOString()
+                    };
+                    if (!writeJSONStore(LYRIC_STORE_KEY, store)) {
+                        if (clientConn.open) clientConn.send({ action: 'LYRIC_UPLOAD_RESULT', ok: false, message: '車機儲存空間不足，歌詞未能保存。' });
+                        return;
+                    }
+                    applyLyricsToScreen(lines, '手機匯入 LRC');
+                    if (clientConn.open) clientConn.send({ action: 'LYRIC_UPLOAD_RESULT', ok: true, message: '歌詞已匯入並同步至車機。' });
+                    return;
+                }
+                case 'SAVE_LYRIC_OFFSET': {
+                    if (!currentSong) {
+                        if (clientConn.open) clientConn.send({ action: 'LYRIC_OFFSET_SAVED', ok: false, message: '目前沒有正在播放的歌曲。' });
+                        return;
+                    }
+                    persistCurrentSongLyricOffset();
+                    if (clientConn.open) clientConn.send({ action: 'LYRIC_OFFSET_SAVED', ok: true, message: '本曲歌詞校準已保存。' });
+                    return;
+                }
             }
 
             if (!ytPlayer || !isPlayerReady) return;
@@ -4442,72 +4939,240 @@
             return { role: 'default', text: rawText, tag: '' };
         }
 
-        async function fetchSyncedLyrics(title, artist) {
-            parsedLyrics = [];
-            activeLyricIndex = -1;
-            
+        function readJSONStore(key, fallback) {
+            try {
+                const value = JSON.parse(localStorage.getItem(key) || 'null');
+                return value && typeof value === 'object' ? value : fallback;
+            } catch (_) { return fallback; }
+        }
+
+        function writeJSONStore(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+            catch (err) { console.warn('儲存資料失敗：', key, err); return false; }
+        }
+
+        function getSongStorageKey(song = currentSong) {
+            if (!song || typeof song !== 'object') return '';
+            const videoId = String(song.origId || song.instId || '').trim();
+            if (/^[A-Za-z0-9_-]{11}$/.test(videoId)) return `yt_${videoId}`;
+            const slug = `${song.title || ''}_${song.artist || ''}`.toLowerCase().replace(/[^\w\u4e00-\u9fff]+/g, '_').slice(0, 50);
+            return slug ? `meta_${slug}` : '';
+        }
+
+        function normalizeLyricsList(lines) {
+            if (!Array.isArray(lines)) return [];
+            return lines.slice(0, 2000).map(line => {
+                if (!line || typeof line !== 'object') return null;
+                const time = Number(line.time);
+                const text = sanitizePlainText(line.text || '', 300);
+                if (!Number.isFinite(time) || time < 0 || !text) return null;
+                return {
+                    time: Math.round(time * 1000) / 1000,
+                    text,
+                    role: ['male', 'female', 'duet', 'default'].includes(line.role) ? line.role : 'default',
+                    tag: sanitizePlainText(line.tag || '', 12)
+                };
+            }).filter(Boolean).sort((a, b) => a.time - b.time);
+        }
+
+        function parseLRCContent(lrcContent) {
+            const output = [];
+            const text = String(lrcContent || '').replace(/^\uFEFF/, '').replace(/\r/g, '');
+            const timePattern = /\[(\d{1,3}):(\d{2})[.:](\d{2,3})\]/g;
+            for (const rawLine of text.split('\n')) {
+                const matches = [...rawLine.matchAll(timePattern)];
+                if (!matches.length) continue;
+                const lyricText = rawLine.replace(timePattern, '').replace(/\[[^\]]*\]/g, '').trim();
+                if (!lyricText) continue;
+                const parsed = detectSingerRole(lyricText);
+                matches.forEach(match => {
+                    const minutes = Number(match[1]);
+                    const seconds = Number(match[2]);
+                    const fraction = Number(match[3]) / Math.pow(10, match[3].length);
+                    const total = minutes * 60 + seconds + fraction;
+                    output.push({ time: total, text: parsed.text, role: parsed.role, tag: parsed.tag });
+                });
+            }
+            return normalizeLyricsList(output);
+        }
+
+        function parseLRC(lrcContent) {
+            parsedLyrics = parseLRCContent(lrcContent);
+            return parsedLyrics;
+        }
+
+        function setLyricsStatus(message, state = '') {
+            ['lyrics-source-status'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.textContent = message;
+                el.className = `phase2-status ${state}`.trim();
+            });
+        }
+
+        function renderScreenLyrics(lines) {
             const elTop = document.getElementById('lyric-top');
             const elBottom = document.getElementById('lyric-bottom');
-            if (elTop && elBottom) {
-                elTop.innerText = '🔍 正在檢索時間軸歌詞...';
+            if (!elTop || !elBottom) return;
+            if (!parsedLyrics.length) {
+                elTop.textContent = '🎵 此曲尚無同步歌詞，可從手機匯入 LRC';
                 elTop.className = 'ktv-line active';
-                elBottom.innerText = '';
+                elBottom.textContent = '';
                 elBottom.className = 'ktv-line';
+                return;
+            }
+            applyLineState(elTop, parsedLyrics[0], false);
+            applyLineState(elBottom, parsedLyrics[1] || null, false);
+        }
+
+        function applyLyricsToScreen(lines, source) {
+            parsedLyrics = normalizeLyricsList(lines);
+            activeLyricIndex = -1;
+            currentLyricSource = sanitizePlainText(source || '自訂歌詞', 30);
+            renderScreenLyrics(parsedLyrics);
+            setLyricsStatus(`歌詞來源：${currentLyricSource}（${parsedLyrics.length} 行）`, 'ok');
+            broadcastToAllRemotes({
+                action: 'SYNC_LYRICS',
+                lyrics: parsedLyrics,
+                source: currentLyricSource,
+                songKey: getSongStorageKey(currentSong)
+            });
+        }
+
+        function getStoredLyricOffset(song = currentSong) {
+            const key = getSongStorageKey(song);
+            if (!key) return 0;
+            const offsets = readJSONStore(SCREEN_LYRIC_OFFSETS_KEY, {});
+            return clampNumber(offsets[key], -10, 10, 0);
+        }
+
+        function persistCurrentSongLyricOffset() {
+            const key = getSongStorageKey(currentSong);
+            if (!key) return false;
+            const offsets = readJSONStore(SCREEN_LYRIC_OFFSETS_KEY, {});
+            offsets[key] = Math.round(clampNumber(lyricOffset, -10, 10, 0) * 10) / 10;
+            return writeJSONStore(SCREEN_LYRIC_OFFSETS_KEY, offsets);
+        }
+
+        async function fetchSyncedLyrics(title, artist) {
+            const songAtRequest = currentSong ? { ...currentSong } : { title, artist };
+            const songKey = getSongStorageKey(songAtRequest);
+            const requestVersion = ++lyricFetchVersion;
+            if (lyricFetchController) { try { lyricFetchController.abort(); } catch (_) {} }
+            lyricFetchController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            parsedLyrics = [];
+            activeLyricIndex = -1;
+            const elTop = document.getElementById('lyric-top');
+            const elBottom = document.getElementById('lyric-bottom');
+            if (elTop) { elTop.textContent = '🔍 正在尋找同步歌詞…'; elTop.className = 'ktv-line active'; }
+            if (elBottom) { elBottom.textContent = ''; elBottom.className = 'ktv-line'; }
+            setLyricsStatus('歌詞來源：正在搜尋…');
+
+            const customStore = readJSONStore(LYRIC_STORE_KEY, {});
+            const saved = songKey ? customStore[songKey] : null;
+            if (saved && Array.isArray(saved.lines) && saved.lines.length) {
+                if (requestVersion !== lyricFetchVersion || getSongStorageKey(currentSong) !== songKey) return;
+                applyLyricsToScreen(saved.lines, '本機匯入 LRC');
+                return;
             }
 
             try {
                 const query = encodeURIComponent(`${title} ${artist || ''}`);
-                const response = await fetch(`https://lrclib.net/api/search?q=${query}`);
+                const response = await fetch(`https://lrclib.net/api/search?q=${query}`, {
+                    signal: lyricFetchController ? lyricFetchController.signal : undefined,
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!response.ok) throw new Error(`歌詞服務回應 ${response.status}`);
                 const results = await response.json();
-
-                const matched = results.find(item => item.syncedLyrics);
-                if (matched && matched.syncedLyrics) {
-                    parseLRC(matched.syncedLyrics);
-                    applyLineState(elTop, parsedLyrics[0], false);
-                    applyLineState(elBottom, parsedLyrics[1], false);
-
-                    broadcastToAllRemotes({
-                        action: 'SYNC_LYRICS',
-                        lyrics: parsedLyrics
-                    });
+                if (requestVersion !== lyricFetchVersion || getSongStorageKey(currentSong) !== songKey) return;
+                const normalizedTitle = String(title || '').toLowerCase().replace(/\s+/g, ' ').trim();
+                const normalizedArtist = String(artist || '').toLowerCase().replace(/\s+/g, ' ').trim();
+                const candidates = Array.isArray(results) ? results.filter(item => item && item.syncedLyrics) : [];
+                candidates.sort((a, b) => {
+                    const score = item => {
+                        let value = 0;
+                        if (String(item.trackName || '').toLowerCase().trim() === normalizedTitle) value += 4;
+                        if (normalizedArtist && String(item.artistName || '').toLowerCase().trim() === normalizedArtist) value += 3;
+                        if (String(item.trackName || '').toLowerCase().includes(normalizedTitle) || normalizedTitle.includes(String(item.trackName || '').toLowerCase())) value += 1;
+                        return value;
+                    };
+                    return score(b) - score(a);
+                });
+                const matched = candidates[0];
+                const lines = matched ? parseLRCContent(matched.syncedLyrics) : [];
+                if (lines.length) {
+                    applyLyricsToScreen(lines, 'LRCLIB 自動搜尋');
                 } else {
-                    elTop.innerText = '🎵 此曲無同步動態歌詞，請欣賞畫面字幕';
-                    elTop.className = 'ktv-line active';
-                    elBottom.innerText = '';
-                    broadcastToAllRemotes({ action: 'SYNC_LYRICS', lyrics: [] });
+                    parsedLyrics = [];
+                    renderScreenLyrics(parsedLyrics);
+                    currentLyricSource = '無同步歌詞';
+                    setLyricsStatus('歌詞來源：查無同步歌詞，可匯入 LRC', 'warn');
+                    broadcastToAllRemotes({ action: 'SYNC_LYRICS', lyrics: [], source: currentLyricSource, songKey });
                 }
             } catch (err) {
-                elTop.innerText = '⚠️ 歌詞獲取失敗，請確認聯網狀態';
-                elBottom.innerText = '';
-                broadcastToAllRemotes({ action: 'SYNC_LYRICS', lyrics: [] });
+                if (err && err.name === 'AbortError') return;
+                if (requestVersion !== lyricFetchVersion || getSongStorageKey(currentSong) !== songKey) return;
+                console.warn('歌詞搜尋失敗：', err);
+                parsedLyrics = [];
+                renderScreenLyrics(parsedLyrics);
+                currentLyricSource = '搜尋失敗';
+                setLyricsStatus('歌詞來源：搜尋失敗，請匯入 LRC', 'warn');
+                broadcastToAllRemotes({ action: 'SYNC_LYRICS', lyrics: [], source: currentLyricSource, songKey });
             }
         }
 
-        function parseLRC(lrcContent) {
-            parsedLyrics = [];
-            const lines = lrcContent.split('\n');
-            const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
-
-            lines.forEach((line) => {
-                const match = line.match(timeReg);
-                if (match) {
-                    const min = parseInt(match[1]);
-                    const sec = parseInt(match[2]);
-                    const ms = parseFloat("0." + match[3]);
-                    const totalSec = min * 60 + sec + ms;
-                    const rawText = match[4].trim();
-
-                    if (rawText) {
-                        const parsed = detectSingerRole(rawText);
-                        parsedLyrics.push({ 
-                            time: totalSec, 
-                            text: parsed.text, 
-                            role: parsed.role,
-                            tag: parsed.tag 
-                        });
-                    }
+        function importLyricsFile(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = '';
+            if (!file) return;
+            if (file.size > 250000) return alert('LRC 檔案過大，請選擇 250KB 以下的歌詞檔。');
+            if (!/\.(lrc|txt)$/i.test(file.name)) return alert('請選擇 .lrc 或 .txt 歌詞檔。');
+            if (!remoteCurrentSong) return alert('請先連線包廂並等待車機同步目前播放歌曲。');
+            const reader = new FileReader();
+            reader.onload = () => {
+                const rawText = String(reader.result || '');
+                const lines = parseLRCContent(rawText);
+                if (!lines.length) return alert('沒有解析到有效的 LRC 時間軸，請確認格式如 [00:12.34] 歌詞。');
+                const songKey = getSongStorageKey(remoteCurrentSong);
+                if (!songKey) return alert('無法識別目前歌曲，請重新連線車機。');
+                remoteCustomLyrics[songKey] = {
+                    title: sanitizePlainText(remoteCurrentSong.title || '', 100),
+                    artist: sanitizePlainText(remoteCurrentSong.artist || '', 80),
+                    lines,
+                    rawText: rawText.slice(0, 250000),
+                    updatedAt: new Date().toISOString()
+                };
+                if (!writeJSONStore(CUSTOM_LYRICS_KEY, remoteCustomLyrics)) return alert('手機儲存空間不足，無法保存歌詞。');
+                renderMobileLyricsUI(lines);
+                if (!connToScreen || !connToScreen.open) {
+                    setLyricsStatus(`已保存於手機（${lines.length} 行），連線後會同步`, 'warn');
+                    return;
                 }
-            });
+                setLyricsStatus(`已讀取 ${lines.length} 行，正在同步車機…`);
+                lastAutoSyncedLyricsKey = '';
+                sendCmd({ action: 'UPLOAD_LYRICS', songKey, lines });
+            };
+            reader.onerror = () => alert('讀取歌詞檔失敗，請重新選擇。');
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function syncLocalCustomLyricsToHost(song) {
+            if (!song) return;
+            const key = getSongStorageKey(song);
+            if (!key || lastAutoSyncedLyricsKey === key || !remoteCustomLyrics[key]) return;
+            lastAutoSyncedLyricsKey = key;
+            const saved = remoteCustomLyrics[key];
+            sendCmd({ action: 'UPLOAD_LYRICS', songKey: key, lines: saved.lines });
+        }
+
+        function saveCurrentLyricOffset() {
+            if (!remoteCurrentSong) return alert('目前沒有正在播放的歌曲。');
+            if (!connToScreen || !connToScreen.open) {
+                setLyricsStatus('尚未連線車機，校準值會在重新連線後同步', 'warn');
+                return;
+            }
+            sendCmd({ action: 'SAVE_LYRIC_OFFSET' });
+            setLyricsStatus('正在保存本曲歌詞校準…');
         }
 
         function syncLyricsScroll() {
@@ -4628,11 +5293,14 @@
                     if (data.action === 'AUTH_SUCCESS') {
                         remoteAuthFailed = false;
                         remoteReconnectAttempts = 0;
+                        lastAutoSyncedLyricsKey = '';
                         if (statusEl) statusEl.textContent = `已連線：${sanitizePlainText(roomId, 40)} ✅`;
                         return;
                     }
                     if (data.action === 'SYNC_QUEUE') {
+                        remoteCurrentSong = data.currentSong || null;
                         renderQueueUI(data.currentSong, data.queue);
+                        if (remoteCurrentSong) syncLocalCustomLyricsToHost(remoteCurrentSong);
                         if (Array.isArray(data.carHistory)) renderCarHistoryUI(data.carHistory);
                         if (typeof data.isPracticeMode === 'boolean') updatePracticeModeUI(data.isPracticeMode);
                         if (Number.isFinite(Number(data.offset))) updateRemoteOffsetDisplay(Number(data.offset));
@@ -4647,12 +5315,44 @@
                         const result = data.result || {};
                         alert(`🎯 練歌結算！\n歌曲：《${sanitizePlainText(result.songTitle, 100)}》\n得分：${Math.max(0, Math.min(100, Number(result.score) || 0))} 分\n\n點評：\n${sanitizePlainText(result.feedback, 300)}`);
                     } else if (data.action === 'SYNC_OFFSET') {
-                        if (Number.isFinite(Number(data.offset))) updateRemoteOffsetDisplay(Number(data.offset));
+                        if (Number.isFinite(Number(data.offset))) {
+                            updateRemoteOffsetDisplay(Number(data.offset));
+                            const offsetKey = data.songKey || getSongStorageKey(remoteCurrentSong);
+                            if (offsetKey) {
+                                remoteLyricOffsets[offsetKey] = clampNumber(data.offset, -10, 10, 0);
+                                writeJSONStore(LYRIC_OFFSETS_KEY, remoteLyricOffsets);
+                            }
+                        }
+                    } else if (data.action === 'LYRICS_SOURCE') {
+                        setLyricsStatus(`歌詞來源：${sanitizePlainText(data.source || '未知', 30)}`, data.state || '');
+                    } else if (data.action === 'LYRIC_UPLOAD_RESULT') {
+                        setLyricsStatus(data.ok ? '自訂歌詞已同步至車機' : '歌詞同步失敗', data.ok ? 'ok' : 'warn');
+                        if (!data.ok && data.message) alert(sanitizePlainText(data.message, 200));
+                    } else if (data.action === 'LYRIC_OFFSET_SAVED') {
+                        setLyricsStatus(data.ok ? '本曲歌詞校準已保存' : '校準保存失敗', data.ok ? 'ok' : 'warn');
+                        if (!data.ok && data.message) alert(sanitizePlainText(data.message, 200));
+                    } else if (data.action === 'AUDIO_PROFILE_APPLIED') {
+                        const status = document.getElementById('personal-audio-status');
+                        if (status) { status.className = 'phase2-status ok'; status.textContent = '車機已套用'; }
                     } else if (data.action === 'SYNC_FONT_SIZE') {
                         if (Number.isFinite(Number(data.fontSize))) updateRemoteFontDisplay(Number(data.fontSize));
                     } else if (data.action === 'SYNC_LYRICS') {
                         renderMobileLyricsUI(data.lyrics);
                         updateMobileTwoLineLyrics(-1);
+                        if (data.source) setLyricsStatus(`歌詞來源：${sanitizePlainText(data.source, 30)}`, Array.isArray(data.lyrics) && data.lyrics.length ? 'ok' : 'warn');
+                        if (String(data.source || '').includes('匯入 LRC') && data.songKey && remoteCurrentSong && data.songKey === getSongStorageKey(remoteCurrentSong)) {
+                            const copiedLines = normalizeLyricsList(data.lyrics);
+                            if (copiedLines.length) {
+                                remoteCustomLyrics[data.songKey] = {
+                                    title: sanitizePlainText(remoteCurrentSong.title || '', 100),
+                                    artist: sanitizePlainText(remoteCurrentSong.artist || '', 80),
+                                    lines: copiedLines,
+                                    rawText: '',
+                                    updatedAt: new Date().toISOString()
+                                };
+                                writeJSONStore(CUSTOM_LYRICS_KEY, remoteCustomLyrics);
+                            }
+                        }
                     } else if (data.action === 'SYNC_ACTIVE_LYRIC_INDEX') {
                         const index = Number(data.index);
                         if (Number.isInteger(index)) {
@@ -4712,9 +5412,10 @@
         }
 
         function updateEcho(val) {
-            const amount = Math.max(0, Math.min(0.7, parseFloat(val) || 0));
-            document.getElementById('lbl-echo').innerText = amount.toFixed(2);
-            sendCmd({ action: 'SET_ECHO', value: amount });
+            if (!personalAudioSettings) loadPersonalAudioSettings();
+            personalAudioSettings.echo = clampNumber(val, 0, 0.55, 0.16);
+            personalAudioSettings.preset = 'custom';
+            updatePersonalAudioUI();
         }
 
         function adjustLyricOffset(delta, isReset = false) {
@@ -4726,6 +5427,11 @@
         }
 
         function updateRemoteOffsetDisplay(val) {
+            const offsetKey = getSongStorageKey(remoteCurrentSong);
+            if (offsetKey) {
+                remoteLyricOffsets[offsetKey] = clampNumber(val, -10, 10, 0);
+                writeJSONStore(LYRIC_OFFSETS_KEY, remoteLyricOffsets);
+            }
             const el = document.getElementById('remote-offset-display');
             const slider = document.getElementById('remote-offset-slider');
             if (el) {
@@ -4938,6 +5644,109 @@
         }
 
         // ================= 22. Web Audio API 車載麥克風迴音混音 =================
+        async function refreshMicInputDevices(preferredId = '') {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return [];
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const inputs = devices.filter(device => device.kind === 'audioinput');
+                const selectedId = preferredId || selectedMicDeviceId;
+                const selected = inputs.find(device => device.deviceId === selectedId) || null;
+                if (selected) {
+                    selectedMicDeviceId = selected.deviceId;
+                    try { localStorage.setItem('yunube_mic_device_id_v1', selectedMicDeviceId); } catch (_) {}
+                }
+                const activeTrack = micStream && micStream.getAudioTracks ? micStream.getAudioTracks()[0] : null;
+                const activeLabel = activeTrack && activeTrack.label ? activeTrack.label : (selected && selected.label);
+                if (micEnabled) {
+                    setMicDeviceStatus(activeLabel || (inputs.length ? '已連接的音訊輸入設備' : '已連接的麥克風'), 'ok');
+                } else if (!inputs.length) {
+                    setMicDeviceStatus('尚未啟用');
+                }
+                return inputs;
+            } catch (err) {
+                console.warn('讀取音訊輸入設備失敗：', err);
+                return [];
+            }
+        }
+
+        function setMicDeviceStatus(message, state = '') {
+            const el = document.getElementById('mic-device-status');
+            if (!el) return;
+            el.textContent = sanitizePlainText(message || '尚未啟用', 90);
+            el.dataset.state = state || '';
+            el.className = `phase2-device-value ${state}`.trim();
+            el.title = el.textContent;
+        }
+
+        function startMicLevelMeter() {
+            if (micMeterFrame) cancelAnimationFrame(micMeterFrame);
+            const meter = document.getElementById('mic-level-meter');
+            const label = document.getElementById('mic-level-label');
+            if (!micAnalyser || !micDataArray) return;
+            const tick = () => {
+                if (!micEnabled || !micAnalyser || !micDataArray) return;
+                micAnalyser.getByteTimeDomainData(micDataArray);
+                let sum = 0;
+                for (let i = 0; i < micDataArray.length; i++) {
+                    const sample = (micDataArray[i] - 128) / 128;
+                    sum += sample * sample;
+                }
+                const rms = Math.sqrt(sum / micDataArray.length);
+                const pct = Math.min(100, Math.round(rms * 250));
+                if (meter) meter.style.width = `${pct}%`;
+                if (label) label.textContent = `${pct}%`;
+                micMeterFrame = requestAnimationFrame(tick);
+            };
+            micMeterFrame = requestAnimationFrame(tick);
+        }
+
+        async function attachMicStream(stream) {
+            if (!stream || !audioCtx) throw new Error('麥克風串流不可用');
+            const oldSource = micSource;
+            const oldStream = micStream;
+            try { if (oldSource) oldSource.disconnect(); } catch (_) {}
+            micSource = audioCtx.createMediaStreamSource(stream);
+            micAnalyser = audioCtx.createAnalyser();
+            micAnalyser.fftSize = 1024;
+            micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
+            micSource.connect(micAnalyser);
+            micSource.connect(eqLowNode);
+            micStream = stream;
+            stream.getAudioTracks().forEach(track => {
+                track.addEventListener('ended', () => {
+                    if (micStream === stream) {
+                        disableAudioMixer();
+                        setMicDeviceStatus('麥克風已中斷', 'warn');
+                    }
+                }, { once: true });
+            });
+            if (oldStream && oldStream !== stream) oldStream.getTracks().forEach(track => track.stop());
+            micEnabled = true;
+            updateMixerButtonUI(true);
+            const trackLabel = stream.getAudioTracks()[0]?.label || '已連接的麥克風';
+            setMicDeviceStatus(trackLabel, 'ok');
+            startMicLevelMeter();
+        }
+
+        async function changeMicInputDevice(deviceId) {
+            selectedMicDeviceId = String(deviceId || '');
+            try { localStorage.setItem('yunube_mic_device_id_v1', selectedMicDeviceId); } catch (_) {}
+            if (!micEnabled) return;
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+            try {
+                const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 1 } };
+                if (selectedMicDeviceId) audio.deviceId = { exact: selectedMicDeviceId };
+                const stream = await navigator.mediaDevices.getUserMedia({ audio });
+                await attachMicStream(stream);
+                await refreshMicInputDevices(selectedMicDeviceId);
+                setMicDeviceStatus('已切換輸入設備', 'ok');
+            } catch (err) {
+                console.warn('切換麥克風設備失敗：', err);
+                setMicDeviceStatus('切換失敗，保留原設備', 'warn');
+                alert('無法切換至所選麥克風，系統會保留原本的輸入設備。請確認設備未被其他程式獨占。');
+            }
+        }
+
         async function enableAudioMixer() {
             if (micEnabled) {
                 disableAudioMixer();
@@ -4947,39 +5756,46 @@
                 alert('目前瀏覽器不支援麥克風存取，請使用 HTTPS 的最新版 Chrome / Safari。');
                 return;
             }
-
             try {
                 ensureAudioContext();
                 if (audioCtx.state === 'suspended') await audioCtx.resume();
                 initAudioEQNodes();
-
-                micStream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false,
-                        channelCount: { ideal: 1 }
-                    }
-                });
-
-                micSource = audioCtx.createMediaStreamSource(micStream);
-                micAnalyser = audioCtx.createAnalyser();
-                micAnalyser.fftSize = 1024;
-                micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
-                micSource.connect(micAnalyser);
-                micSource.connect(eqLowNode);
-                micEnabled = true;
-                setEchoAmount(0.3);
-                updateMixerButtonUI(true);
-                alert('車載麥克風已啟動！可從手機調整 EQ 與 Echo；若出現嘯叫，請立即降低喇叭音量或停止麥克風。');
+                const audio = {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false,
+                    channelCount: { ideal: 1 }
+                };
+                if (selectedMicDeviceId) audio.deviceId = { exact: selectedMicDeviceId };
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ audio });
+                } catch (deviceErr) {
+                    if (!selectedMicDeviceId) throw deviceErr;
+                    // The saved device may have changed/disconnected; fall back to the system default.
+                    selectedMicDeviceId = '';
+                    stream = await navigator.mediaDevices.getUserMedia({ audio: {
+                        echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 1 }
+                    } });
+                }
+                await attachMicStream(stream);
+                await refreshMicInputDevices(stream.getAudioTracks()[0]?.getSettings?.().deviceId || selectedMicDeviceId);
+                // Apply the last active profile, otherwise use a conservative host default.
+                applyAudioProfileOnHost(personalAudioSettings || DEFAULT_PERSONAL_AUDIO, currentSingerName === '尚未指定' ? '車主預設' : currentSingerName);
+                if (!micDeviceChangeBound && navigator.mediaDevices.addEventListener) {
+                    navigator.mediaDevices.addEventListener('devicechange', () => refreshMicInputDevices());
+                    micDeviceChangeBound = true;
+                }
+                alert('麥克風已啟動。請先用低音量測試；若出現嘯叫，立即降低車載音響音量或停止麥克風。');
             } catch (err) {
                 console.error('啟用麥克風失敗：', err);
                 disableAudioMixer();
                 const detail = err && err.name === 'NotAllowedError'
                     ? '麥克風權限遭拒，請在瀏覽器網站設定中允許麥克風。'
                     : err && err.name === 'NotFoundError'
-                        ? '找不到麥克風設備，請確認 USB／無線麥克風已連接。'
+                        ? '找不到麥克風設備，請確認 USB／有線麥克風已連接。'
                         : '請確認使用 HTTPS、安全的瀏覽器環境，且麥克風設備可正常使用。';
+                setMicDeviceStatus('啟動失敗', 'warn');
                 alert(`麥克風啟動失敗：${detail}`);
             }
         }
