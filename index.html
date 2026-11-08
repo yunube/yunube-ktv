@@ -1160,6 +1160,16 @@
                     <div class="phase2-meter"><div id="mic-level-meter" class="phase2-meter-fill"></div></div>
                     <div class="phase2-setting-row" style="margin-top:10px;"><span>目前演唱者</span><strong id="mic-current-singer">尚未指定</strong></div>
                     <div class="phase2-setting-row" style="margin-top:5px;"><span>套用音效</span><strong id="mic-current-preset">車主預設</strong></div>
+                    <div class="phase2-setting-row" style="margin-top:9px;">
+                        <span>🎧 低延遲直通模式</span>
+                        <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                            <input type="checkbox" id="mic-low-latency-toggle" checked onchange="setMicLowLatencyMode(this.checked)">
+                            <span>啟用（建議）</span>
+                        </label>
+                    </div>
+                    <div id="mic-latency-diagnostics" class="phase2-muted" style="margin-top:7px;font-size:11px;line-height:1.5;">
+                        啟用麥克風後顯示瀏覽器可回報的音訊延遲估值。
+                    </div>
                 </div>
             </div>
         </div>
@@ -1894,7 +1904,7 @@
 
     <script>
         // ================= 1. 環境參數與全域狀態 =================
-        const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
+        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
 
         const PEER_CONFIG = {
             config: {
@@ -1942,6 +1952,9 @@
         let micDelayNode = null, micFeedbackGain = null;
         let micStream = null, micSource = null, micEchoSendGain = null, micEchoWetGain = null;
         let micEchoFilter = null, micCompressorNode = null, micOutputGain = null;
+        let micDirectGain = null, micProcessedPathGain = null;
+        let micLowLatencyMode = true;
+        let activeHostAudioSettings = null;
         let micEnabled = false;
         let connectTimeoutTimer = null;
         let remoteReconnectTimer = null;
@@ -2928,13 +2941,14 @@
 
         function applyAudioProfileOnHost(rawSettings, singerName) {
             const settings = normalizePersonalAudioSettings(rawSettings);
+            activeHostAudioSettings = settings;
             initAudioEQNodes();
             const now = audioCtx.currentTime;
             eqLowNode.gain.setTargetAtTime(settings.eq.low, now, 0.05);
             eqMidNode.gain.setTargetAtTime(settings.eq.mid, now, 0.05);
             eqHighNode.gain.setTargetAtTime(settings.eq.high, now, 0.05);
             if (micOutputGain) micOutputGain.gain.setTargetAtTime(settings.micGain, now, 0.05);
-            setEchoAmount(settings.echo);
+            setMicLowLatencyMode(micLowLatencyMode);
             currentSingerName = sanitizePlainText(singerName || '乘客', 50);
             const singerEl = document.getElementById('mic-current-singer');
             if (singerEl) singerEl.textContent = currentSingerName;
@@ -2950,9 +2964,10 @@
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             if (!AudioContextClass) throw new Error('此瀏覽器不支援 Web Audio API');
             if (!audioCtx || audioCtx.state === 'closed') {
-                audioCtx = new AudioContextClass({ latencyHint: 'interactive' });
+                audioCtx = new AudioContextClass({ latencyHint: 0.01, sampleRate: 48000 });
                 eqLowNode = eqMidNode = eqHighNode = null;
                 micCompressorNode = micOutputGain = null;
+                micDirectGain = micProcessedPathGain = null;
                 micEchoSendGain = micEchoWetGain = micEchoFilter = micDelayNode = micFeedbackGain = null;
             }
             return audioCtx;
@@ -2989,9 +3004,19 @@
             micCompressorNode.ratio.value = 4;
             micCompressorNode.attack.value = 0.004;
             micCompressorNode.release.value = 0.25;
+
+            // Two mutually exclusive monitor paths. The default direct path bypasses EQ,
+            // compressor and echo processing to minimize monitoring latency.
+            micDirectGain = audioCtx.createGain();
+            micDirectGain.gain.value = 0.85;
+            micDirectGain.connect(audioCtx.destination);
+            micProcessedPathGain = audioCtx.createGain();
+            micProcessedPathGain.gain.value = 0;
+            micProcessedPathGain.connect(audioCtx.destination);
+
             eqHighNode.connect(micOutputGain);
             micOutputGain.connect(micCompressorNode);
-            micCompressorNode.connect(audioCtx.destination);
+            micCompressorNode.connect(micProcessedPathGain);
 
             // Wet echo path. Feedback is intentionally capped below unity to avoid runaway feedback.
             micEchoSendGain = audioCtx.createGain();
@@ -3023,6 +3048,66 @@
             if (micEchoWetGain) micEchoWetGain.gain.setTargetAtTime(amount > 0 ? 0.22 : 0, now, 0.04);
             const hudEcho = document.getElementById('hud-echo');
             if (hudEcho) hudEcho.innerText = amount.toFixed(2);
+        }
+
+        function setMicLowLatencyMode(enabled) {
+            micLowLatencyMode = !!enabled;
+            const now = audioCtx ? audioCtx.currentTime : 0;
+            const settings = activeHostAudioSettings || DEFAULT_PERSONAL_AUDIO;
+
+            // Physically disconnect the unused branch instead of merely muting it,
+            // so EQ/compressor/delay nodes are not part of the live monitor path.
+            if (micSource) {
+                try { micSource.disconnect(micDirectGain); } catch (_) {}
+                try { micSource.disconnect(eqLowNode); } catch (_) {}
+                try {
+                    if (micLowLatencyMode && micDirectGain) micSource.connect(micDirectGain);
+                    else if (!micLowLatencyMode && eqLowNode) micSource.connect(eqLowNode);
+                } catch (err) { console.warn('切換麥克風監聽路徑失敗：', err); }
+            }
+            if (micDirectGain) micDirectGain.gain.setTargetAtTime(micLowLatencyMode ? settings.micGain : 0, now, 0.015);
+            if (micProcessedPathGain) micProcessedPathGain.gain.setTargetAtTime(micLowLatencyMode ? 0 : 1, now, 0.015);
+            setEchoAmount(micLowLatencyMode ? 0 : settings.echo);
+
+            const toggle = document.getElementById('mic-low-latency-toggle');
+            if (toggle) toggle.checked = micLowLatencyMode;
+            const presetEl = document.getElementById('mic-current-preset');
+            if (presetEl) {
+                const presetName = AUDIO_PROFILE_PRESETS[settings.preset]?.name || '自訂音效';
+                presetEl.textContent = micLowLatencyMode ? `${presetName} · 低延遲直通` : `${presetName} · 完整音效`;
+            }
+            updateMicAudioDiagnostics(micStream);
+        }
+
+        function updateMicAudioDiagnostics(stream) {
+            const el = document.getElementById('mic-latency-diagnostics');
+            if (!el) return;
+            if (!micEnabled || !audioCtx) {
+                el.textContent = '啟用麥克風後顯示瀏覽器可回報的音訊延遲估值。';
+                return;
+            }
+            const track = stream?.getAudioTracks?.()[0];
+            let trackSettings = {};
+            try { trackSettings = track?.getSettings?.() || {}; } catch (_) {}
+            const details = [];
+            details.push(`模式：${micLowLatencyMode ? '低延遲直通（EQ／壓縮／Echo 已繞過）' : '完整音效處理'}`);
+            if (Number.isFinite(trackSettings.latency)) {
+                details.push(`輸入端回報：${(trackSettings.latency * 1000).toFixed(1)} ms`);
+            } else {
+                details.push('輸入端延遲：瀏覽器未提供可讀數值');
+            }
+            const base = Number.isFinite(audioCtx.baseLatency) ? audioCtx.baseLatency : null;
+            const output = Number.isFinite(audioCtx.outputLatency) ? audioCtx.outputLatency : null;
+            if (base !== null || output !== null) {
+                const parts = [];
+                if (base !== null) parts.push(`AudioContext ${ (base * 1000).toFixed(1) } ms`);
+                if (output !== null) parts.push(`輸出裝置 ${ (output * 1000).toFixed(1) } ms`);
+                details.push(`輸出估值：${parts.join(' + ')}`);
+            } else {
+                details.push('輸出端延遲：此瀏覽器未提供估值');
+            }
+            details.push(`取樣率：${audioCtx.sampleRate || '未知'} Hz`);
+            el.textContent = details.join('｜');
         }
 
         function updateMixerButtonUI(active) {
@@ -4268,7 +4353,7 @@
 
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)({
-                    latencyHint: 'interactive',
+                    latencyHint: 0.01,
                     sampleRate: 48000
                 });
             }
@@ -5988,7 +6073,6 @@
             micAnalyser.fftSize = 1024;
             micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
             micSource.connect(micAnalyser);
-            micSource.connect(eqLowNode);
             micStream = stream;
             stream.getAudioTracks().forEach(track => {
                 track.addEventListener('ended', () => {
@@ -6000,10 +6084,27 @@
             });
             if (oldStream && oldStream !== stream) oldStream.getTracks().forEach(track => track.stop());
             micEnabled = true;
+            setMicLowLatencyMode(micLowLatencyMode);
             updateMixerButtonUI(true);
             const trackLabel = stream.getAudioTracks()[0]?.label || '已連接的麥克風';
             setMicDeviceStatus(trackLabel, 'ok');
             startMicLevelMeter();
+            updateMicAudioDiagnostics(stream);
+        }
+
+        function buildLowLatencyMicConstraints(deviceId = '') {
+            const audio = {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+                channelCount: { ideal: 1 }
+            };
+            try {
+                const supported = navigator.mediaDevices?.getSupportedConstraints?.() || {};
+                if (supported.latency) audio.latency = { ideal: 0.01 };
+            } catch (_) {}
+            if (deviceId) audio.deviceId = { exact: deviceId };
+            return { audio };
         }
 
         async function changeMicInputDevice(deviceId) {
@@ -6012,9 +6113,7 @@
             if (!micEnabled) return;
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
             try {
-                const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 1 } };
-                if (selectedMicDeviceId) audio.deviceId = { exact: selectedMicDeviceId };
-                const stream = await navigator.mediaDevices.getUserMedia({ audio });
+                const stream = await navigator.mediaDevices.getUserMedia(buildLowLatencyMicConstraints(selectedMicDeviceId));
                 await attachMicStream(stream);
                 await refreshMicInputDevices(selectedMicDeviceId);
                 setMicDeviceStatus('已切換輸入設備', 'ok');
@@ -6038,23 +6137,14 @@
                 ensureAudioContext();
                 if (audioCtx.state === 'suspended') await audioCtx.resume();
                 initAudioEQNodes();
-                const audio = {
-                    echoCancellation: false,
-                    noiseSuppression: false,
-                    autoGainControl: false,
-                    channelCount: { ideal: 1 }
-                };
-                if (selectedMicDeviceId) audio.deviceId = { exact: selectedMicDeviceId };
                 let stream;
                 try {
-                    stream = await navigator.mediaDevices.getUserMedia({ audio });
+                    stream = await navigator.mediaDevices.getUserMedia(buildLowLatencyMicConstraints(selectedMicDeviceId));
                 } catch (deviceErr) {
                     if (!selectedMicDeviceId) throw deviceErr;
                     // The saved device may have changed/disconnected; fall back to the system default.
                     selectedMicDeviceId = '';
-                    stream = await navigator.mediaDevices.getUserMedia({ audio: {
-                        echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 1 }
-                    } });
+                    stream = await navigator.mediaDevices.getUserMedia(buildLowLatencyMicConstraints());
                 }
                 await attachMicStream(stream);
                 await refreshMicInputDevices(stream.getAudioTracks()[0]?.getSettings?.().deviceId || selectedMicDeviceId);
