@@ -422,15 +422,40 @@
         #screen-queue-list::-webkit-scrollbar { width: 4px; }
         #screen-queue-list::-webkit-scrollbar-thumb { background: var(--theme-border); border-radius: 2px; }
 
+        #app-toast {
+            position: fixed;
+            top: max(18px, env(safe-area-inset-top));
+            left: 50%;
+            transform: translate(-50%, -14px);
+            z-index: 2000;
+            max-width: min(88vw, 420px);
+            padding: 11px 18px;
+            border: 1px solid rgba(0, 240, 255, .55);
+            border-radius: 999px;
+            background: rgba(12, 18, 32, .96);
+            color: #fff;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .38);
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        #app-toast.is-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
         #members-modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
             background: rgba(4, 7, 14, 0.85);
             backdrop-filter: blur(14px);
-            z-index: 60;
+            z-index: 120;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -472,7 +497,7 @@
             justify-content: space-between;
         }
 
-        /* ================= 3. 手機遙控器端 UI (純點歌/互動控制台適配) ================= */
+        /* ================= 3. 手機遙控器端 UI（點歌、演唱與互動控制台） ================= */
         #remote-view { 
             padding: max(16px, env(safe-area-inset-top)) 14px max(190px, calc(170px + env(safe-area-inset-bottom))) 14px;
             max-width: 520px; 
@@ -752,7 +777,7 @@
             transform: none !important;
         }
 
-        /* 48px 精緻圓形懸浮按鈕 (三層垂直堆疊) */
+        /* 48px 圓形懸浮按鈕，依序垂直排列 */
         .fab-circle-btn {
             position: fixed;
             right: max(16px, env(safe-area-inset-right));
@@ -788,6 +813,19 @@
             background: var(--theme-card-bg);
             border-color: var(--theme-accent);
             color: var(--theme-accent);
+        }
+        #room-members-fab-btn {
+            bottom: calc(max(22px, env(safe-area-inset-bottom)) + 168px);
+            background: var(--theme-panel);
+            border-color: var(--theme-accent);
+            color: var(--theme-accent);
+        }
+        #close-room-fab-btn {
+            bottom: calc(max(22px, env(safe-area-inset-bottom)) + 224px);
+            background: linear-gradient(135deg, #b91c1c, #ef4444);
+            border-color: rgba(255, 90, 90, .85);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(185, 28, 28, .35);
         }
 
         #diary-modal, #change-room-modal, #library-modal, #guide-modal {
@@ -929,6 +967,8 @@
             .fab-circle-btn { width: 44px; height: 44px; font-size: 19px; right: 12px; }
             #library-fab-btn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 50px); }
             #guide-fab-btn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 100px); }
+            #room-members-fab-btn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 150px); }
+            #close-room-fab-btn { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 200px); }
             .avatar-grid { grid-template-columns: repeat(4, 1fr); }
         }
 
@@ -1020,6 +1060,7 @@
     </style>
 </head>
 <body data-theme="cyberpunk">
+    <div id="app-toast" role="status" aria-live="polite"></div>
 
     <!-- ================= 車機大螢幕介面 ================= -->
     <div id="screen-view">
@@ -1125,7 +1166,8 @@
 
         <div id="ai-score-modal" class="hidden">
             <div class="score-card-box">
-                <div style="font-size: 13px; color: var(--theme-accent); letter-spacing: 2px; font-weight: bold; margin-bottom: 4px;">// YUNUBE AI VOCAL EVALUATION //</div>
+                <div style="font-size: 13px; color: var(--theme-accent); letter-spacing: 2px; font-weight: bold; margin-bottom: 4px;">// YUNUBE VOCAL PRACTICE REVIEW //</div>
+                <div style="font-size: 11px; color: var(--theme-text-sub); line-height: 1.45; margin-bottom: 8px;">此版本為示範用模擬評分與預設文字回饋，尚未分析實際麥克風音訊。</div>
                 <h2 style="font-size: 24px; color: var(--theme-text); margin-bottom: 12px;" id="ai-score-song-title">十年 - 陳奕迅</h2>
                 
                 <div style="display: flex; justify-content: center; align-items: baseline; gap: 4px; margin: 12px 0;">
@@ -1135,21 +1177,21 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 18px 0; background: var(--theme-card-bg); padding: 14px; border-radius: var(--theme-radius); border: 1px solid var(--theme-border);">
                     <div>
-                        <div style="font-size: 11px; color: var(--theme-text-sub);">音準穩定度</div>
+                        <div style="font-size: 11px; color: var(--theme-text-sub);">模擬音準指標</div>
                         <div style="font-size: 18px; font-weight: bold; color: var(--theme-accent); margin-top: 4px;" id="ai-stat-pitch">94%</div>
                     </div>
                     <div>
-                        <div style="font-size: 11px; color: var(--theme-text-sub);">節奏咬合度</div>
+                        <div style="font-size: 11px; color: var(--theme-text-sub);">模擬節奏指標</div>
                         <div style="font-size: 18px; font-weight: bold; color: var(--cyber-green); margin-top: 4px;" id="ai-stat-rhythm">90%</div>
                     </div>
                     <div>
-                        <div style="font-size: 11px; color: var(--theme-text-sub);">情感爆發力</div>
+                        <div style="font-size: 11px; color: var(--theme-text-sub);">模擬情感指標</div>
                         <div style="font-size: 18px; font-weight: bold; color: var(--theme-primary); margin-top: 4px;" id="ai-stat-energy">93%</div>
                     </div>
                 </div>
 
                 <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-accent); border-radius: 6px; padding: 12px 14px; text-align: left; margin-bottom: 20px;">
-                    <div style="font-size: 12px; color: var(--theme-highlight); font-weight: bold; margin-bottom: 4px;">🤖 AI 客觀點評：</div>
+                    <div style="font-size: 12px; color: var(--theme-highlight); font-weight: bold; margin-bottom: 4px;">📝 模擬回饋：</div>
                     <div style="font-size: 14px; color: var(--theme-text); line-height: 1.5;" id="ai-score-feedback">
                         音準極致穩定，副歌情感爆發層次分明，氣息控制完美支撐高音，具備頂級 Live 現場感染力！
                     </div>
@@ -1161,19 +1203,20 @@
             </div>
         </div>
 
+    </div>
+
         <div id="members-modal" class="hidden">
             <div class="modal-box">
                 <div class="modal-header">
                     <div>
-                        <h3 style="font-size: 18px; color: var(--theme-accent); letter-spacing: 1px;">👥 包廂連線節點通訊錄</h3>
-                        <div style="font-size: 11px; color: var(--theme-text-sub); margin-top: 2px;">CURRENT CONNECTED PASSENGERS</div>
+                        <h3 style="font-size: 18px; color: var(--theme-accent); letter-spacing: 1px;">👥 包廂成員清單</h3>
+                        <div style="font-size: 11px; color: var(--theme-text-sub); margin-top: 2px;">CONNECTED ROOM MEMBERS</div>
                     </div>
                     <button style="background: none; border: 1px solid var(--theme-border); color: var(--theme-text); font-size: 16px; width: 30px; height: 30px; border-radius: 6px; cursor: pointer;" onclick="toggleMembersModal(false)">✕</button>
                 </div>
                 <div class="members-grid" id="modal-members-list"></div>
             </div>
         </div>
-    </div>
 
     <!-- ================= 手機遙控器端 UI ================= -->
     <div id="remote-view" class="hidden">
@@ -1183,14 +1226,14 @@
             <div class="cyber-header-sub">// REMOTE CONTROLLER TERMINAL //</div>
         </header>
 
-        <!-- 關卡 1：登入身分設定 -->
+        <!-- 步驟 1：登入身分設定 -->
         <div id="profile-setup-screen">
             <div class="card">
                 <div class="card-title">🆔 選擇包廂登入方式</div>
                 
                 <div id="google-auth-box" style="margin-bottom: 14px; padding: 14px; background: var(--theme-card-bg); border: 1px solid var(--theme-border); border-radius: var(--theme-radius); text-align: center;">
                     <div style="font-size: 13px; font-weight: bold; color: var(--theme-text); margin-bottom: 4px;">🌐 Google 帳號身分連結</div>
-                    <div style="font-size: 11px; color: var(--theme-text-sub); margin-bottom: 10px;">連結個人 Google 帳號，跨次自動載入專屬喜愛與歷史歌單</div>
+                    <div style="font-size: 11px; color: var(--theme-text-sub); margin-bottom: 10px;">連結個人 Google 帳號，於此裝置再次登入時自動載入專屬喜愛與歷史歌單</div>
                     
                     <div id="google-signin-btn" style="display: flex; justify-content: center; margin-bottom: 6px;"></div>
                     <button class="btn" id="btn-google-demo" style="font-size: 12px; padding: 8px 14px; background: rgba(66, 133, 244, 0.2); border: 1px solid #4285f4; color: #fff; width: 100%;" onclick="loginWithGoogleDemo()">
@@ -1219,10 +1262,10 @@
                     <span>🔑 4 位數包廂密碼 (Passcode)</span>
                     <span style="font-size: 10px; color: var(--theme-text-sub);">掃碼帶入房號，密碼請向車主索取</span>
                 </div>
-                <input type="password" maxlength="4" id="setup-room-pin" placeholder="例如: 8888" value="" style="margin-bottom: 12px; letter-spacing: 3px;">
+                <input type="password" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" id="setup-room-pin" placeholder="例如: 8888" value="" style="margin-bottom: 12px; letter-spacing: 3px;">
 
                 <div style="font-size: 12px; color: var(--theme-accent); margin-bottom: 6px; font-weight: bold;">
-                    1. 挑選大頭貼 (支援 Google 原圖 / 12 款更新 Emoji)
+                    1. 挑選大頭貼（支援 Google 原圖／12 款 Emoji 頭像）
                 </div>
                 <div class="avatar-grid" id="avatar-selector"></div>
 
@@ -1242,8 +1285,15 @@
                 </div>
                 <input type="text" id="setup-nickname" placeholder="例如: 麥霸阿豪" value="歡唱歌手">
 
+                <div style="font-size:12px;color:var(--theme-accent);margin:12px 0 6px;font-weight:bold;">3. 包廂身分</div>
+                <select id="setup-room-role" onchange="handleRoomRoleSelection(this)" style="width:100%;margin-bottom:6px;">
+                    <option value="singer">🎤 一般乘客／演唱者</option>
+                    <option value="host">👑 房主（每個包廂限一位）</option>
+                </select>
+                <div id="host-role-hint" style="font-size:10px;color:var(--theme-text-sub);margin-bottom:12px;">房主可關閉整個包廂；若已有房主，其他人將無法取得此身分。</div>
+
                 <div style="font-size: 12px; color: var(--theme-accent); margin-bottom: 6px; font-weight: bold;">
-                    3. 車載座位標籤 (Seat Tag)
+                    4. 車載座位標籤 (Seat Tag)
                 </div>
                 <div class="seat-tag-group" id="seat-selector">
                     <div class="seat-tag selected" onclick="selectSeatTag(this, '副駕')">副駕</div>
@@ -1253,7 +1303,7 @@
                 </div>
 
                 <div style="font-size: 12px; color: var(--theme-accent); margin-bottom: 6px; font-weight: bold;">
-                    4. 手機介面風格偏好 (可隨時切換)
+                    5. 手機介面風格偏好（可隨時切換）
                 </div>
                 <div class="theme-pill-group" style="margin-bottom: 14px;">
                     <div class="theme-pill active" onclick="switchTheme('cyberpunk', false)">⚡ 賽博龐克</div>
@@ -1268,7 +1318,7 @@
             </div>
         </div>
 
-        <!-- 關卡 2：點歌與遙控控制台 (純點歌與互動終端) -->
+        <!-- 步驟 2：點歌與遙控控制台 -->
         <div id="remote-dashboard" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
             
             <!-- 身分狀態列 -->
@@ -1338,14 +1388,14 @@
                 </div>
             </div>
 
-            <!-- 2. 獨立演唱操控區：常用播放控制與醒目的 AI 練唱開關 -->
+            <!-- 2. 獨立演唱操控區：常用播放控制與醒目的模擬練唱評分開關 -->
             <section class="phase2-card mobile-performance-card" id="card-performance-controls">
                 <div class="phase2-card-title">
                     <span>🎙️ 演唱操控與模式</span>
                     <span class="phase2-muted">快速控制</span>
                 </div>
                 <button id="btn-toggle-practice" class="btn practice-mode-btn" type="button" onclick="togglePracticeMode()">
-                    🎯 AI 練唱評分：關閉
+                    🎯 模擬練唱評分：關閉
                 </button>
                 <div class="btn-grid mobile-performance-grid" style="margin-top:10px;">
                     <button class="btn btn-primary" onclick="sendCmd({ action: 'PLAY_PAUSE' })">⏯ 播放 / 暫停</button>
@@ -1509,7 +1559,7 @@
                 </div>
             </details>
 
-            <!-- 3. 歌詞校準與字體大小調整區塊 -->
+            <!-- 5. 歌詞校準與字體大小調整區塊 -->
             <div class="card" id="card-lyrics-and-display">
                 <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
                     <span>⏱️ 歌詞校準與畫面顯示</span>
@@ -1562,12 +1612,12 @@
                         <button type="button" class="btn btn-accent" style="padding:9px 6px;font-size:11px;" onclick="saveCurrentLyricOffset()">💾 保存本曲校準</button>
                     </div>
                     <div id="lyrics-source-status" class="phase2-status" style="margin-top:7px;">歌詞來源：自動搜尋</div>
-                    <div class="phase2-muted">支援 .lrc／純文字 LRC。匯入後會同步至車機，並優先套用於這首歌曲。</div>
+                    <div class="phase2-muted">支援 .lrc 檔，或含有 LRC 時間標記（例如 [00:12.34]）的 .txt 檔。匯入後會同步至車機，並優先套用於目前播放歌曲。</div>
                 </div>
             </div>
         </div>
 
-        <!-- 5. 圓形懸浮按鈕組 (三層垂直堆疊) -->
+        <!-- 6. 圓形懸浮按鈕組（依身分與權限顯示） -->
         <button id="guide-fab-btn" class="fab-circle-btn hidden" onclick="openGuideModal()" title="操作指引">
             <span>❔</span>
         </button>
@@ -1579,6 +1629,8 @@
         <button id="diary-fab-btn" class="fab-circle-btn hidden" onclick="openDiaryModal()" title="旅行手帳">
             <span>🗺️</span>
         </button>
+        <button id="room-members-fab-btn" class="fab-circle-btn hidden" onclick="toggleMembersModal(true)" title="查看包廂成員" aria-label="查看包廂成員">👥</button>
+        <button id="close-room-fab-btn" class="fab-circle-btn hidden" onclick="requestCloseRoom()" title="關閉包廂" aria-label="關閉包廂">⏻</button>
 
         <!-- 操作指引彈窗 -->
         <div id="guide-modal" class="hidden">
@@ -1594,12 +1646,12 @@
                 <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; line-height: 1.5; color: var(--theme-text);">
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-accent); padding: 10px 12px; border-radius: 4px;">
                         <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 2px;">1. 快速點歌與插播 🔗</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">在上方「歌曲載入」輸入歌名（自動檢索歌詞）或貼上 YouTube 網址，點「＋點」排隊或「⚡插播」置頂播放。</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">在上方「歌曲載入」輸入歌名（可自動搜尋歌詞）或貼上 YouTube 網址，按「＋加入待播隊列」排隊，或按「⚡優先插播」將歌曲插入下一首。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-primary); padding: 10px 12px; border-radius: 4px;">
-                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 零延遲車載演唱體驗 🎤</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">請將有線麥克風接至執行 yunube 大歌廳的筆電／車機麥克風輸入，或相容的 USB 音訊介面；手機遙控器只負責點歌、彈幕及音效設定。</div>
+                        <div style="font-weight: bold; color: var(--theme-primary); margin-bottom: 2px;">2. 車載麥克風演唱 🎤</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">請將有線麥克風接至執行 yunube大歌廳的筆電／車機音訊輸入，或相容的 USB 音訊介面。手機遙控器負責點歌、演唱控制、彈幕及音效設定；實際延遲會受設備與連線狀況影響。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-highlight); padding: 10px 12px; border-radius: 4px;">
@@ -1613,13 +1665,23 @@
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-green); padding: 10px 12px; border-radius: 4px;">
-                        <div style="font-weight: bold; color: var(--cyber-green); margin-bottom: 2px;">5. AI 評分與專屬歌庫 🎯</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">「演唱操控與模式」提供播放、切換伴奏、切歌及醒目的 AI 練唱評分開關；點擊右側「🎼」可管理收藏與歷史歌單。</div>
+                        <div style="font-weight: bold; color: var(--cyber-green); margin-bottom: 2px;">5. 模擬練唱評分與專屬歌庫 🎯</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">「演唱操控與模式」提供播放、切換伴奏、切歌及模擬練唱評分開關。評分目前使用示範用模擬數值與預設文字回饋，尚未分析實際麥克風音訊；點擊右側「🎼」可管理收藏與歷史歌單。</div>
+                    </div>
+
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-highlight); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--theme-highlight); margin-bottom: 2px;">6. 歌詞匯入與同步校準 ⏱️</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">在「歌詞校準與畫面顯示」中可微調歌詞快慢、調整車機字幕大小，並匯入含 LRC 時間標記的 .lrc／.txt 歌詞檔；完成後可保存本曲校準。</div>
                     </div>
 
                     <div style="background: var(--theme-card-bg); border-left: 4px solid var(--theme-accent); padding: 10px 12px; border-radius: 4px;">
-                        <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 2px;">6. 實況拍照與拍立得手帳 🗺️</div>
-                        <div style="color: var(--theme-text-sub); font-size: 12px;">點擊右下角「🗺️」即時拍照打卡，自動套用賽博/無印/Y3K/可愛風排版，一鍵備份至 Google Drive。</div>
+                        <div style="font-weight: bold; color: var(--theme-accent); margin-bottom: 2px;">7. 實況拍照與拍立得手帳 🗺️</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">點擊右下角「🗺️」即可拍照打卡，套用賽博／無印／Y3K／可愛風排版，並可儲存及同步至 Google Drive。</div>
+                    </div>
+
+                    <div style="background: var(--theme-card-bg); border-left: 4px solid var(--cyber-green); padding: 10px 12px; border-radius: 4px;">
+                        <div style="font-weight: bold; color: var(--cyber-green); margin-bottom: 2px;">8. 包廂成員與房主管理 👥</div>
+                        <div style="color: var(--theme-text-sub); font-size: 12px;">點擊右下角「👥」可查看目前連線成員，房主暱稱後方會顯示「👑」。只有房主會看到「⏻」關閉包廂按鈕；關閉後所有手機都會中斷連線，車機也會停止播放並清空待播清單。</div>
                     </div>
                 </div>
 
@@ -1635,7 +1697,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--theme-border); padding-bottom: 10px; margin-bottom: 10px;">
                     <div>
                         <div style="font-size: 16px; font-weight: 800; color: var(--theme-accent); letter-spacing: 1px;">🎼 專屬歌庫與點播足跡</div>
-                        <div style="font-size: 10px; color: var(--theme-text-sub); margin-top: 2px;">PERSONAL PLAYLIST // CLOUD SYNC</div>
+                        <div style="font-size: 10px; color: var(--theme-text-sub); margin-top: 2px;">PERSONAL PLAYLIST // DEVICE STORAGE</div>
                     </div>
                     <button style="background: none; border: 1px solid var(--theme-border); color: var(--theme-text); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer;" onclick="closeLibraryModal()">✕ 關閉</button>
                 </div>
@@ -1689,7 +1751,7 @@
                 <div style="font-size: 12px; color: var(--theme-highlight); margin-bottom: 6px; font-weight: bold;">
                     2. 輸入 4 位數包廂密碼：
                 </div>
-                <input type="password" maxlength="4" id="manual-pin-input" placeholder="例如: 8888" style="margin-bottom: 14px; letter-spacing: 3px;">
+                <input type="password" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" id="manual-pin-input" placeholder="例如: 8888" style="margin-bottom: 14px; letter-spacing: 3px;">
 
                 <button class="btn btn-accent" style="width: 100%; padding: 12px;" onclick="submitManualRoomChange()">
                     ⚡ 驗證密碼並進入包廂
@@ -1747,7 +1809,7 @@
 
                 <div style="background: var(--theme-card-bg); border: 1px solid var(--theme-border); border-radius: var(--theme-radius); padding: 10px 12px; margin-bottom: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 11px; color: var(--theme-text-sub);">📍 當前歡唱定位：</span>
+                        <span style="font-size: 11px; color: var(--theme-text-sub);">📍 目前歡唱定位：</span>
                         <button class="btn" style="padding: 3px 8px; font-size: 10px; color: var(--theme-accent);" onclick="fetchCurrentGPSLocation()">
                             🔄 重新定位
                         </button>
@@ -1939,6 +2001,10 @@
         let librarySearchQuery = '';
 
         let roomMembers = {};
+        let roomHostPeerId = null;
+        let remoteHostOccupied = false;
+        let remoteHostName = '';
+        let appToastTimer = null;
 
         const AVATAR_LIST = ['👽', '🛸', '🎤', '🎧', '👾', '🐱', '🦊', '🦄', '🧸', '😎', '🪼', '🗿'];
         let selectedAvatar = '👽';
@@ -1950,7 +2016,8 @@
             googleAvatar: null,
             avatar: '👽',
             nickname: '歡唱歌手',
-            seat: '副駕'
+            seat: '副駕',
+            role: 'singer'
         };
 
         let userFavorites = [];
@@ -2188,6 +2255,15 @@
             return `<span style="font-size: ${size}px; vertical-align: middle; display: inline-block;">${escapeHtml(safeAvatar)}</span>`;
         }
 
+        function showAppToast(message) {
+            const toast = document.getElementById('app-toast');
+            if (!toast) return;
+            toast.textContent = sanitizePlainText(message, 100);
+            toast.classList.add('is-visible');
+            clearTimeout(appToastTimer);
+            appToastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
+        }
+
         function createStatusAction(container, message, actionLabel, actionHandler) {
             if (!container) return;
             container.replaceChildren();
@@ -2337,7 +2413,7 @@
 
             document.getElementById('google-auth-box').classList.add('hidden');
             document.getElementById('google-linked-banner').classList.remove('hidden');
-            document.getElementById('google-linked-name').innerText = `${googleData.name} (已連結 Google 歌庫)`;
+            document.getElementById('google-linked-name').innerText = `${googleData.name} (已連結 Google 帳號)`;
             document.getElementById('btn-confirm-login').innerText = '⚡ 以 Google 身分進入包廂';
         }
 
@@ -2374,6 +2450,9 @@
                     selectedAvatar = parsed.avatar || '👽';
                     selectedSeat = parsed.seat || '副駕';
                     document.getElementById('setup-nickname').value = parsed.nickname || '歡唱歌手';
+                    userProfile.role = parsed.role === 'host' ? 'host' : 'singer';
+                    const roleSelect = document.getElementById('setup-room-role');
+                    if (roleSelect) roleSelect.value = userProfile.role;
                     
                     if (parsed.type === 'google' && parsed.googleAvatar) {
                         onGoogleAuthSuccess({
@@ -2487,6 +2566,7 @@
             userProfile.avatar = selectedAvatar;
             userProfile.nickname = nick;
             userProfile.seat = selectedSeat;
+            userProfile.role = document.getElementById('setup-room-role')?.value === 'host' ? 'host' : 'singer';
 
             localStorage.setItem('yunube_ktv_user_profile', JSON.stringify(userProfile));
 
@@ -2503,6 +2583,7 @@
             document.getElementById('diary-fab-btn').classList.remove('hidden');
             document.getElementById('library-fab-btn').classList.remove('hidden');
             document.getElementById('guide-fab-btn').classList.remove('hidden');
+            document.getElementById('room-members-fab-btn')?.classList.remove('hidden');
 
             initRemoteMode(targetRoom);
         }
@@ -2512,6 +2593,8 @@
             document.getElementById('diary-fab-btn').classList.add('hidden');
             document.getElementById('library-fab-btn').classList.add('hidden');
             document.getElementById('guide-fab-btn').classList.add('hidden');
+            document.getElementById('room-members-fab-btn')?.classList.add('hidden');
+            document.getElementById('close-room-fab-btn')?.classList.add('hidden');
             document.getElementById('setup-room-code').value = targetRoom;
             document.getElementById('setup-room-pin').value = targetPin;
             document.getElementById('profile-setup-screen').classList.remove('hidden');
@@ -2972,7 +3055,7 @@
             if (status && Object.keys(roomMembers).length === 0) status.innerText = '等待連線 ⏳';
         }
 
-        // ================= 10. AI 練歌模式與正向客觀點評 =================
+        // ================= 10. 模擬練唱評分與練唱回饋 =================
         function togglePracticeMode() {
             isPracticeMode = !isPracticeMode;
             sendCmd({ action: 'TOGGLE_PRACTICE_MODE', isPracticeMode: isPracticeMode });
@@ -2985,7 +3068,7 @@
             const hudTag = document.getElementById('hud-practice-tag');
 
             if (btn) {
-                btn.innerText = isPracticeMode ? '🎯 AI 練唱評分：已開啟' : '🎯 AI 練唱評分：關閉';
+                btn.innerText = isPracticeMode ? '🎯 模擬練唱評分：已開啟' : '🎯 模擬練唱評分：關閉';
                 btn.style.color = isPracticeMode ? 'var(--cyber-green)' : 'var(--theme-highlight)';
                 btn.style.borderColor = isPracticeMode ? 'var(--cyber-green)' : 'var(--theme-highlight)';
             }
@@ -4246,7 +4329,7 @@
                 appendAvatarElement(avatar, member.avatar, 34);
                 const details = document.createElement('div');
                 const name = document.createElement('div');
-                name.textContent = sanitizePlainText(member.nickname || '乘客', 24);
+                name.textContent = `${sanitizePlainText(member.nickname || '乘客', 24)}${member.role === 'host' ? ' 👑' : ''}`;
                 name.style.cssText = 'font-size:15px;font-weight:bold;color:var(--theme-text);';
                 const meta = document.createElement('div');
                 meta.textContent = `身分：${member.type === 'google' ? 'Google 帳戶' : '本機訪客'} ｜ 登入時間：${sanitizePlainText(member.joinedAt || '', 12)}`;
@@ -4376,7 +4459,7 @@
             try {
                 const snapshot = {
                     version: 1,
-                    currentSong: currentSong,
+                    currentSong: null,
                     songQueue: songQueue.slice(0, 100),
                     carHistory: carHistory.slice(0, 30),
                     lyricOffset,
@@ -4394,19 +4477,19 @@
                 if (!raw) return;
                 const saved = JSON.parse(raw);
                 if (!saved || saved.version !== 1) return;
-                currentSong = normalizeSongPayload(saved.currentSong);
+                // 冷啟動只還原待播清單與歷史，不自動續播上次關閉網頁時的歌曲。
+                // 目前歌曲僅供同一個頁面生命週期內同步，不作為重啟後的播放來源。
+                currentSong = null;
+                currentOriginalId = 'd_43a4H70qU';
+                currentInstId = 'nE8v6e7qJ6A';
+                isInstrumental = false;
                 songQueue = Array.isArray(saved.songQueue)
                     ? saved.songQueue.slice(0, 100).map(song => normalizeSongPayload(song)).filter(Boolean)
                     : [];
                 carHistory = Array.isArray(saved.carHistory)
                     ? saved.carHistory.slice(0, 30).map(song => normalizeSongPayload(song)).filter(Boolean)
                     : [];
-                lyricOffset = Number.isFinite(Number(saved.lyricOffset)) ? Math.max(-10, Math.min(10, Number(saved.lyricOffset))) : 0;
-                if (currentSong) {
-                    currentOriginalId = currentSong.origId;
-                    currentInstId = currentSong.instId || currentSong.origId;
-                    isInstrumental = false;
-                }
+                lyricOffset = 0;
             } catch (err) {
                 console.warn('讀取車機播放狀態失敗，將使用空歌單：', err);
                 currentSong = null;
@@ -4427,7 +4510,10 @@
                 isPracticeMode,
                 screenTheme: currentScreenTheme,
                 currentSongKey: getSongStorageKey(currentSong),
-                lyricSource: currentLyricSource
+                lyricSource: currentLyricSource,
+                hostOccupied: !!roomHostPeerId,
+                hostName: roomHostPeerId ? (roomMembers[roomHostPeerId]?.nickname || '房主') : '',
+                members: buildRoomMembersPayload()
             });
             if (parsedLyrics && parsedLyrics.length > 0) {
                 client.send({ action: 'SYNC_LYRICS', lyrics: parsedLyrics, source: currentLyricSource, songKey: getSongStorageKey(currentSong) });
@@ -4439,6 +4525,7 @@
             remoteClients = [];
             roomMembers = {};
             authenticatedPeers.clear();
+            roomHostPeerId = null;
             updateConnectedCountUI();
             restoreScreenState();
             if (currentSong) {
@@ -4472,7 +4559,10 @@
                     if (c.peer) {
                         authenticatedPeers.delete(c.peer);
                         delete roomMembers[c.peer];
+                        if (roomHostPeerId === c.peer) roomHostPeerId = null;
                     }
+                    broadcastHostStatus();
+                    broadcastMembersList();
                     remoteClients = remoteClients.filter(client => client !== c);
                     updateConnectedCountUI();
                 });
@@ -4482,7 +4572,10 @@
                     if (c.peer) {
                         authenticatedPeers.delete(c.peer);
                         delete roomMembers[c.peer];
+                        if (roomHostPeerId === c.peer) roomHostPeerId = null;
                     }
+                    broadcastHostStatus();
+                    broadcastMembersList();
                     remoteClients = remoteClients.filter(client => client !== c);
                     updateConnectedCountUI();
                 });
@@ -4697,6 +4790,81 @@
             persistScreenState();
         }
 
+        function buildRoomMembersPayload() {
+            return Object.entries(roomMembers).map(([peerId, member]) => ({
+                peerId,
+                nickname: sanitizePlainText(member?.nickname || '乘客', 24) || '乘客',
+                avatar: sanitizeAvatarValue(member?.avatar || '🎤'),
+                seat: sanitizePlainText(member?.seat || '車內', 12),
+                type: member?.type === 'google' ? 'google' : 'guest',
+                role: member?.role === 'host' ? 'host' : 'singer',
+                joinedAt: sanitizePlainText(member?.joinedAt || '', 12)
+            }));
+        }
+
+        function broadcastMembersList() {
+            const payload = { action: 'SYNC_MEMBERS', members: buildRoomMembersPayload() };
+            remoteClients.forEach(client => {
+                if (client && client.open && authenticatedConnections.has(client)) {
+                    try { client.send(payload); } catch (_) {}
+                }
+            });
+            const modal = document.getElementById('members-modal');
+            if (modal && !modal.classList.contains('hidden')) renderMembersModalUI();
+        }
+
+        function broadcastHostStatus() {
+            const payload = { action: 'HOST_STATUS', hostOccupied: !!roomHostPeerId, hostName: roomHostPeerId ? (roomMembers[roomHostPeerId]?.nickname || '房主') : '' };
+            remoteClients.forEach(client => {
+                if (client && client.open && authenticatedConnections.has(client)) {
+                    try { client.send(payload); } catch (_) {}
+                }
+            });
+        }
+
+        function closeKtvRoom(hostPeerId) {
+            if (!hostPeerId || roomHostPeerId !== hostPeerId) return;
+            remoteClients.forEach(client => {
+                if (client && client.open && authenticatedConnections.has(client)) {
+                    try { client.send({ action: 'ROOM_CLOSED', message: '房主已關閉包廂。' }); } catch (_) {}
+                }
+            });
+            try { if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo(); } catch (_) {}
+            try { disableAudioMixer(); } catch (_) {}
+            currentSong = null;
+            songQueue = [];
+            parsedLyrics = [];
+            lyricOffset = 0;
+            currentOriginalId = 'd_43a4H70qU';
+            currentInstId = 'nE8v6e7qJ6A';
+            isInstrumental = false;
+            localStorage.removeItem(SAVED_SCREEN_STATE_KEY);
+            clearInterval(screenSyncTimer);
+            clearInterval(lyricSyncTimer);
+            screenSyncTimer = null;
+            lyricSyncTimer = null;
+            const status = document.getElementById('remote-status');
+            if (status) status.textContent = '包廂已由房主關閉';
+            const peerToClose = peer;
+            peer = null;
+            window.setTimeout(() => { try { if (peerToClose) peerToClose.destroy(); } catch (_) {} }, 450);
+            remoteClients = [];
+            authenticatedPeers.clear();
+            roomMembers = {};
+            roomHostPeerId = null;
+            updateConnectedCountUI();
+            renderScreenQueueUI();
+            let overlay = document.getElementById('room-closed-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'room-closed-overlay';
+                overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(3,7,18,.92);color:#fff;text-align:center;padding:24px;font-size:20px;font-weight:800;';
+                overlay.textContent = '⏻ 包廂已關閉';
+                document.body.appendChild(overlay);
+            }
+            overlay.classList.remove('hidden');
+        }
+
         function handleRemoteCommand(cmd, clientConn) {
             if (!cmd || typeof cmd !== 'object' || !clientConn || !clientConn.peer) return;
 
@@ -4723,6 +4891,12 @@
                 }
 
                 const incoming = cmd.profile && typeof cmd.profile === 'object' ? cmd.profile : {};
+                const requestedHost = incoming.role === 'host';
+                let grantedRole = 'singer';
+                if (requestedHost && (!roomHostPeerId || roomHostPeerId === peerId)) {
+                    roomHostPeerId = peerId;
+                    grantedRole = 'host';
+                }
                 const seatOptions = new Set(['副駕', '後座左', '後座中', '後座右']);
                 const safeProfile = {
                     id: sanitizePlainText(incoming.id || 'guest_local', 100),
@@ -4730,15 +4904,18 @@
                     nickname: sanitizePlainText(incoming.nickname || '乘客', 24) || '乘客',
                     avatar: sanitizeAvatarValue(incoming.avatar || '👽'),
                     seat: seatOptions.has(incoming.seat) ? incoming.seat : '車內',
+                    role: grantedRole,
                     joinedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 };
                 authAttemptCount = 0;
                 authenticatedConnections.add(clientConn);
                 authenticatedPeers.add(peerId);
                 roomMembers[peerId] = safeProfile;
-                if (clientConn.open) clientConn.send({ action: 'AUTH_SUCCESS' });
+                if (clientConn.open) clientConn.send({ action: 'AUTH_SUCCESS', role: grantedRole, hostGranted: grantedRole === 'host', hostClaimDenied: requestedHost && grantedRole !== 'host', hostOccupied: !!roomHostPeerId, hostName: roomHostPeerId ? (roomMembers[roomHostPeerId]?.nickname || '房主') : '' });
                 updateConnectedCountUI();
+                broadcastHostStatus();
                 sendRoomSnapshot(clientConn);
+                broadcastMembersList();
                 return;
             }
 
@@ -4754,6 +4931,10 @@
             if (rate.count > 80) return;
 
             switch (cmd.action) {
+                case 'CLOSE_ROOM': {
+                    if (roomHostPeerId === peerId) closeKtvRoom(peerId);
+                    return;
+                }
                 case 'CHANGE_THEME': {
                     const allowedThemes = new Set(['cyberpunk', 'muji', 'y3k', 'cute']);
                     if (allowedThemes.has(cmd.theme)) switchTheme(cmd.theme, true);
@@ -5294,10 +5475,50 @@
                         remoteAuthFailed = false;
                         remoteReconnectAttempts = 0;
                         lastAutoSyncedLyricsKey = '';
-                        if (statusEl) statusEl.textContent = `已連線：${sanitizePlainText(roomId, 40)} ✅`;
+                        userProfile.role = data.role === 'host' ? 'host' : 'singer';
+                        try { localStorage.setItem('yunube_ktv_user_profile', JSON.stringify(userProfile)); } catch (_) {}
+                        const closeFab = document.getElementById('close-room-fab-btn');
+                        if (closeFab) closeFab.classList.toggle('hidden', userProfile.role !== 'host');
+                        const roleSelect = document.getElementById('setup-room-role');
+                        if (roleSelect) roleSelect.value = userProfile.role;
+                        if (data.hostClaimDenied) showAppToast('此包廂已有房主');
+                        if (statusEl) statusEl.textContent = userProfile.role === 'host' ? `已連線：${sanitizePlainText(roomId, 40)}｜房主 👑` : `已連線：${sanitizePlainText(roomId, 40)} ✅`;
+                        updateHostRoleAvailability(!!data.hostOccupied, data.hostName || '');
+                        return;
+                    }
+                    if (data.action === 'HOST_STATUS') {
+                        updateHostRoleAvailability(!!data.hostOccupied, data.hostName || '');
+                        return;
+                    }
+                    if (data.action === 'ROOM_CLOSED') {
+                        clearTimeout(remoteReconnectTimer);
+                        remoteReconnectTimer = null;
+                        suppressRemoteCloseReconnect = true;
+                        if (connToScreen) { try { connToScreen.close(); } catch (_) {} }
+                        if (peer) { try { peer.destroy(); } catch (_) {} }
+                        connToScreen = null;
+                        peer = null;
+                        targetRoom = '';
+                        targetPin = '';
+                        const closeFab = document.getElementById('close-room-fab-btn');
+                        if (closeFab) closeFab.classList.add('hidden');
+                        document.getElementById('room-members-fab-btn')?.classList.add('hidden');
+                        toggleMembersModal(false);
+                        document.getElementById('remote-dashboard').classList.add('hidden');
+                        document.getElementById('profile-setup-screen').classList.remove('hidden');
+                        document.getElementById('setup-room-code').value = '';
+                        document.getElementById('setup-room-pin').value = '';
+                        window.history.replaceState(null, '', window.location.pathname);
+                        alert(data.message || '房主已關閉包廂。');
+                        return;
+                    }
+                    if (data.action === 'SYNC_MEMBERS') {
+                        applyRemoteMembersList(data.members);
                         return;
                     }
                     if (data.action === 'SYNC_QUEUE') {
+                        if (Array.isArray(data.members)) applyRemoteMembersList(data.members);
+                        if (typeof data.hostOccupied === 'boolean') updateHostRoleAvailability(data.hostOccupied, data.hostName || '');
                         remoteCurrentSong = data.currentSong || null;
                         renderQueueUI(data.currentSong, data.queue);
                         if (remoteCurrentSong) syncLocalCustomLyricsToHost(remoteCurrentSong);
@@ -5385,6 +5606,63 @@
                 if (!remoteAuthFailed) scheduleRemoteReconnect(roomId);
                 if (statusEl && !remoteAuthFailed) statusEl.textContent = '找不到包廂或網路不穩，正在嘗試重新連線…';
             });
+        }
+
+        function updateHostRoleAvailability(occupied, hostName = '') {
+            remoteHostOccupied = !!occupied;
+            remoteHostName = sanitizePlainText(hostName || '', 24);
+            const select = document.getElementById('setup-room-role');
+            const hint = document.getElementById('host-role-hint');
+            const isSelfHost = userProfile.role === 'host';
+            // Keep the option selectable so a repeat attempt can explain why it is unavailable.
+            const option = select?.querySelector('option[value="host"]');
+            if (option) option.disabled = false;
+            if (occupied && !isSelfHost && select?.value === 'host') {
+                select.value = 'singer';
+                showAppToast('此包廂已有房主');
+            }
+            if (hint) hint.textContent = occupied
+                ? `本包廂已有房主${remoteHostName ? `：${remoteHostName}` : ''}，目前僅房主可關閉包廂。`
+                : '目前尚無房主，可由一位乘客選擇房主身分。';
+        }
+
+        function handleRoomRoleSelection(select) {
+            if (!select) return;
+            if (select.value === 'host' && remoteHostOccupied && userProfile.role !== 'host') {
+                select.value = 'singer';
+                showAppToast('此包廂已有房主');
+            }
+        }
+
+        function applyRemoteMembersList(members) {
+            if (!Array.isArray(members)) return;
+            const nextMembers = {};
+            members.slice(0, 100).forEach((member, index) => {
+                if (!member || typeof member !== 'object') return;
+                const key = String(member.peerId || `member-${index}`).slice(0, 120);
+                nextMembers[key] = {
+                    nickname: sanitizePlainText(member.nickname || '乘客', 24) || '乘客',
+                    avatar: sanitizeAvatarValue(member.avatar || '🎤'),
+                    seat: sanitizePlainText(member.seat || '車內', 12),
+                    type: member.type === 'google' ? 'google' : 'guest',
+                    role: member.role === 'host' ? 'host' : 'singer',
+                    joinedAt: sanitizePlainText(member.joinedAt || '', 12)
+                };
+            });
+            roomMembers = nextMembers;
+            updateConnectedCountUI();
+            const modal = document.getElementById('members-modal');
+            if (modal && !modal.classList.contains('hidden')) renderMembersModalUI();
+        }
+
+        function requestCloseRoom() {
+            if (userProfile.role !== 'host') {
+                alert('只有目前包廂房主可以關閉包廂。');
+                return;
+            }
+            const confirmed = confirm('確定要關閉整個包廂嗎？\n\n所有手機將會中斷連線，車機也會停止播放並清空目前待播清單。');
+            if (!confirmed) return;
+            sendCmd({ action: 'CLOSE_ROOM' });
         }
 
         function sendCmd(obj) {
