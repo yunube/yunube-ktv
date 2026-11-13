@@ -1170,6 +1170,9 @@
                     <div id="mic-latency-diagnostics" class="phase2-muted" style="margin-top:7px;font-size:11px;line-height:1.5;">
                         啟用麥克風後顯示瀏覽器可回報的音訊延遲估值。
                     </div>
+                    <div id="windows-native-audio-status" class="phase2-muted" style="margin-top:6px;font-size:11px;line-height:1.5;">
+                        Windows 原生 WASAPI：尚未連線（可使用原本瀏覽器音訊模式）。
+                    </div>
                 </div>
             </div>
         </div>
@@ -1904,7 +1907,7 @@
 
     <script>
         // ================= 1. 環境參數與全域狀態 =================
-        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+        const GOOGLE_CLIENT_ID = "601968258546-qio0rraeks0pr7lnqa6u61pijt2gjadk.apps.googleusercontent.com";
 
         const PEER_CONFIG = {
             config: {
@@ -1954,6 +1957,15 @@
         let micEchoFilter = null, micCompressorNode = null, micOutputGain = null;
         let micDirectGain = null, micProcessedPathGain = null;
         let micLowLatencyMode = true;
+        let windowsNativeAudio = {
+            socket: null,
+            connected: false,
+            running: false,
+            lastStatus: null,
+            reconnectTimer: null,
+            pollTimer: null,
+            reconnectDelay: 2500
+        };
         let activeHostAudioSettings = null;
         let micEnabled = false;
         let connectTimeoutTimer = null;
@@ -2942,13 +2954,6 @@
         function applyAudioProfileOnHost(rawSettings, singerName) {
             const settings = normalizePersonalAudioSettings(rawSettings);
             activeHostAudioSettings = settings;
-            initAudioEQNodes();
-            const now = audioCtx.currentTime;
-            eqLowNode.gain.setTargetAtTime(settings.eq.low, now, 0.05);
-            eqMidNode.gain.setTargetAtTime(settings.eq.mid, now, 0.05);
-            eqHighNode.gain.setTargetAtTime(settings.eq.high, now, 0.05);
-            if (micOutputGain) micOutputGain.gain.setTargetAtTime(settings.micGain, now, 0.05);
-            setMicLowLatencyMode(micLowLatencyMode);
             currentSingerName = sanitizePlainText(singerName || '乘客', 50);
             const singerEl = document.getElementById('mic-current-singer');
             if (singerEl) singerEl.textContent = currentSingerName;
@@ -2958,6 +2963,26 @@
             const mid = document.getElementById('lbl-eq-mid');
             const high = document.getElementById('lbl-eq-high');
             if (low && mid && high) updateEqLabels(settings.eq.low, settings.eq.mid, settings.eq.high);
+
+            // In the Windows native host, microphone monitoring is rendered by the
+            // IAudioClient3 bridge. Keep this first native iteration dry/low-latency;
+            // only the microphone gain is forwarded. EQ/Echo remain available in the
+            // browser fallback path and will be ported to native DSP separately.
+            if (windowsNativeAudio.connected) {
+                windowsNativeAudioSend('GAIN', { gain: settings.micGain });
+                setMicLowLatencyMode(true);
+                const nativeStatus = document.getElementById('windows-native-audio-status');
+                if (nativeStatus) nativeStatus.textContent = 'Windows WASAPI 原生直通：已套用麥克風增益；EQ／Echo 尚未接入原生音訊引擎。';
+                return;
+            }
+
+            initAudioEQNodes();
+            const now = audioCtx.currentTime;
+            eqLowNode.gain.setTargetAtTime(settings.eq.low, now, 0.05);
+            eqMidNode.gain.setTargetAtTime(settings.eq.mid, now, 0.05);
+            eqHighNode.gain.setTargetAtTime(settings.eq.high, now, 0.05);
+            if (micOutputGain) micOutputGain.gain.setTargetAtTime(settings.micGain, now, 0.05);
+            setMicLowLatencyMode(micLowLatencyMode);
         }
 
         function ensureAudioContext() {
@@ -3051,6 +3076,14 @@
         }
 
         function setMicLowLatencyMode(enabled) {
+            if (windowsNativeAudio.connected && windowsNativeAudio.running && !enabled) {
+                micLowLatencyMode = true;
+                const toggle = document.getElementById('mic-low-latency-toggle');
+                if (toggle) toggle.checked = true;
+                const nativeStatus = document.getElementById('windows-native-audio-status');
+                if (nativeStatus) nativeStatus.textContent = 'Windows WASAPI 原生模式目前為純直通；完整 EQ／Echo 尚未接入原生 DSP。';
+                return;
+            }
             micLowLatencyMode = !!enabled;
             const now = audioCtx ? audioCtx.currentTime : 0;
             const settings = activeHostAudioSettings || DEFAULT_PERSONAL_AUDIO;
@@ -3082,6 +3115,15 @@
         function updateMicAudioDiagnostics(stream) {
             const el = document.getElementById('mic-latency-diagnostics');
             if (!el) return;
+            if (windowsNativeAudio.connected && windowsNativeAudio.running && windowsNativeAudio.lastStatus) {
+                const s = windowsNativeAudio.lastStatus;
+                el.textContent = `Windows WASAPI IAudioClient3 Shared｜輸入週期 ${Number(s.inputPeriodMs || 0).toFixed(2)} ms｜輸出週期 ${Number(s.outputPeriodMs || 0).toFixed(2)} ms｜取樣率 ${s.inputSampleRate || '?'} → ${s.outputSampleRate || '?'} Hz｜監聽欠載 ${s.underrunCount || 0}｜丟棄影格 ${s.droppedInputFrames || 0}`;
+                return;
+            }
+            if (windowsNativeAudio.connected && !windowsNativeAudio.running) {
+                el.textContent = 'Windows WASAPI 原生音訊尚未啟動；啟動後會顯示 IAudioClient3 的輸入／輸出週期與監聽欠載。';
+                return;
+            }
             if (!micEnabled || !audioCtx) {
                 el.textContent = '啟用麥克風後顯示瀏覽器可回報的音訊延遲估值。';
                 return;
@@ -3119,6 +3161,9 @@
         }
 
         function disableAudioMixer() {
+            if (windowsNativeAudio.connected && windowsNativeAudio.running) {
+                windowsNativeAudioSend('STOP');
+            }
             try { if (micSource) micSource.disconnect(); } catch (_) {}
             try { if (micStream) micStream.getTracks().forEach(track => track.stop()); } catch (_) {}
             try { if (micAnalyser) micAnalyser.disconnect(); } catch (_) {}
@@ -6006,6 +6051,109 @@
             }, 1800);
         }
 
+        // ================= Windows 原生 WASAPI 音訊橋接 =================
+        function windowsNativeAudioSend(type, extra = {}) {
+            const socket = windowsNativeAudio.socket;
+            if (!socket || socket.readyState !== WebSocket.OPEN) return false;
+            try {
+                socket.send(JSON.stringify({ type, ...extra }));
+                return true;
+            } catch (err) {
+                console.warn('Windows WASAPI 指令傳送失敗：', err);
+                return false;
+            }
+        }
+
+        function updateWindowsNativeAudioStatus(status) {
+            windowsNativeAudio.lastStatus = status || null;
+            const label = document.getElementById('windows-native-audio-status');
+            if (status?.commandError || status?.error) {
+                const message = status.commandError || status.error;
+                if (label) label.textContent = `Windows WASAPI 啟動失敗：${message}`;
+                if (status.commandError && !windowsNativeAudio.running) {
+                    micEnabled = false;
+                    updateMixerButtonUI(false);
+                    setMicDeviceStatus('原生音訊啟動失敗', 'warn');
+                }
+                return;
+            }
+            const wasRunning = windowsNativeAudio.running;
+            windowsNativeAudio.running = !!status?.running;
+            if (windowsNativeAudio.running) {
+                micEnabled = true;
+                updateMixerButtonUI(true);
+                setMicDeviceStatus(status.captureDevice || 'Windows 預設麥克風', 'ok');
+                const rms = Math.max(0, Number(status.inputRms) || 0);
+                const pct = Math.min(100, Math.round(rms * 250));
+                const meter = document.getElementById('mic-level-meter');
+                const meterLabel = document.getElementById('mic-level-label');
+                if (meter) meter.style.width = `${pct}%`;
+                if (meterLabel) meterLabel.textContent = `${pct}%`;
+                if (label) label.textContent = `已連線｜輸入：${status.captureDevice || '預設麥克風'}｜輸出：${status.renderDevice || '預設播放裝置'}。原生模式為純直通；EQ／Echo 暫由瀏覽器備援模式提供。`;
+                updateMicAudioDiagnostics(null);
+            } else {
+                micEnabled = false;
+                updateMixerButtonUI(false);
+                if (wasRunning) {
+                    setMicDeviceStatus('原生麥克風監聽已停止');
+                    const meter = document.getElementById('mic-level-meter');
+                    const meterLabel = document.getElementById('mic-level-label');
+                    if (meter) meter.style.width = '0%';
+                    if (meterLabel) meterLabel.textContent = '0%';
+                }
+                if (label) label.textContent = 'Windows WASAPI 橋接已連線，按下「啟用車載麥克風混音」即可啟動原生直通。';
+                const diag = document.getElementById('mic-latency-diagnostics');
+                if (diag) diag.textContent = 'Windows 原生音訊尚未啟動；啟動後會顯示 IAudioClient3 的輸入／輸出週期與監聽欠載。';
+            }
+        }
+
+        function connectWindowsNativeAudioBridge() {
+            const ua = navigator.userAgent || '';
+            const isWindows = /Windows/i.test(ua);
+            const localPage = location.protocol === 'file:' ||
+                (location.protocol === 'http:' && (location.hostname === '127.0.0.1' || location.hostname === 'localhost'));
+            if (!isWindows || !localPage || !('WebSocket' in window)) return;
+
+            const label = document.getElementById('windows-native-audio-status');
+            const connect = () => {
+                if (windowsNativeAudio.socket && (windowsNativeAudio.socket.readyState === WebSocket.OPEN || windowsNativeAudio.socket.readyState === WebSocket.CONNECTING)) return;
+                let socket;
+                try { socket = new WebSocket('ws://127.0.0.1:8765/'); }
+                catch (_) { if (label) label.textContent = 'Windows WASAPI：尚未啟動原生音訊主程式，使用瀏覽器備援模式。'; return; }
+                windowsNativeAudio.socket = socket;
+                socket.onopen = () => {
+                    windowsNativeAudio.connected = true;
+                    windowsNativeAudio.reconnectDelay = 2500;
+                    if (label) label.textContent = 'Windows WASAPI 原生音訊主程式已連線。';
+                    windowsNativeAudioSend('STATUS');
+                    if (windowsNativeAudio.pollTimer) clearInterval(windowsNativeAudio.pollTimer);
+                    windowsNativeAudio.pollTimer = setInterval(() => windowsNativeAudioSend('STATUS'), 350);
+                };
+                socket.onmessage = event => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.event === 'status') updateWindowsNativeAudioStatus(data);
+                        else if (data.event === 'error' && label) label.textContent = data.message || 'Windows WASAPI 發生錯誤。';
+                    } catch (err) { console.warn('無法解析 Windows WASAPI 狀態：', err); }
+                };
+                socket.onerror = () => {};
+                socket.onclose = () => {
+                    windowsNativeAudio.connected = false;
+                    windowsNativeAudio.running = false;
+                    if (windowsNativeAudio.pollTimer) clearInterval(windowsNativeAudio.pollTimer);
+                    windowsNativeAudio.pollTimer = null;
+                    if (micEnabled) {
+                        micEnabled = false;
+                        updateMixerButtonUI(false);
+                        setMicDeviceStatus('Windows 原生音訊橋接中斷', 'warn');
+                    }
+                    if (label) label.textContent = 'Windows WASAPI 主程式未連線；目前可使用瀏覽器 WebAudio 備援模式。';
+                    windowsNativeAudio.reconnectTimer = setTimeout(connect, windowsNativeAudio.reconnectDelay);
+                };
+            };
+            connect();
+        }
+
         // ================= 22. Web Audio API 車載麥克風迴音混音 =================
         async function refreshMicInputDevices(preferredId = '') {
             if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return [];
@@ -6125,6 +6273,21 @@
         }
 
         async function enableAudioMixer() {
+            if (windowsNativeAudio.connected) {
+                if (windowsNativeAudio.running || micEnabled) {
+                    disableAudioMixer();
+                    return;
+                }
+                const settings = activeHostAudioSettings || DEFAULT_PERSONAL_AUDIO;
+                micLowLatencyMode = true;
+                const nativeToggle = document.getElementById('mic-low-latency-toggle');
+                if (nativeToggle) nativeToggle.checked = true;
+                windowsNativeAudioSend('GAIN', { gain: settings.micGain });
+                windowsNativeAudioSend('START');
+                const nativeStatus = document.getElementById('windows-native-audio-status');
+                if (nativeStatus) nativeStatus.textContent = '正在啟動 Windows WASAPI 原生麥克風監聽…';
+                return;
+            }
             if (micEnabled) {
                 disableAudioMixer();
                 return;
@@ -6167,6 +6330,10 @@
                 alert(`麥克風啟動失敗：${detail}`);
             }
         }
+
+        window.addEventListener('load', () => {
+            connectWindowsNativeAudioBridge();
+        }, { once: true });
 
         window.addEventListener('pagehide', () => {
             clearTimeout(playbackErrorTimer);
